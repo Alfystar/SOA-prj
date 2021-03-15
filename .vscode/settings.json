@@ -1,0 +1,16 @@
+{
+    "files.associations": {
+        "cacheflush.h": "c",
+        "apic.h": "c",
+        "page.h": "c",
+        "time.h": "c",
+        "version.h": "c",
+        "switch_to.h": "c",
+        "vtpmo.h": "c",
+        "sched.h": "c",
+        "syscall_discovery.h": "c",
+        "syscalls.h": "c"
+    }
+    //"C_Cpp.errorSquiggles": "Disabled",
+
+}
