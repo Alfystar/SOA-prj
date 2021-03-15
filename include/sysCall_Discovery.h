@@ -27,7 +27,6 @@
 #include <linux/syscalls.h>
 #include "vtpmo.h"
 
-#define ENTRIES_TO_EXPLORE 256
 
 extern unsigned long *hacked_ni_syscall;
 extern unsigned long **hacked_syscall_tbl;
@@ -39,7 +38,6 @@ extern unsigned long sys_ni_syscall_address;
 extern int free_entries[MAX_FREE];
 
 
-void syscall_table_finder(void);
-
+int foundFree_entries(void);
 
 #endif

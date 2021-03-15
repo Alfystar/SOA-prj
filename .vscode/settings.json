@@ -9,8 +9,10 @@
         "vtpmo.h": "c",
         "sched.h": "c",
         "syscall_discovery.h": "c",
-        "syscalls.h": "c"
-    }
+        "syscalls.h": "c",
+        "slab.h": "c"
+    },
     //"C_Cpp.errorSquiggles": "Disabled",
-
+    "editor.formatOnSave": true,
+    "clang-format.executable": "${cwd}/.clang-format"
 }
