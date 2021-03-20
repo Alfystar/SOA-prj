@@ -10,7 +10,10 @@
         "sched.h": "c",
         "syscall_discovery.h": "c",
         "syscalls.h": "c",
-        "slab.h": "c"
+        "slab.h": "c",
+        "interrupt.h": "c",
+        "module.h": "c",
+        "kernel.h": "c"
     },
     //"C_Cpp.errorSquiggles": "Disabled",
     "editor.formatOnSave": true,

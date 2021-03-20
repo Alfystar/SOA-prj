@@ -34,7 +34,9 @@ extern unsigned long sys_ni_syscall_address;
 
 #define MAX_FREE 15
 extern int free_entries[MAX_FREE];
-
 int foundFree_entries(void);
 
+extern int free_used;
+int add_syscall(unsigned long sysPtr); // Return index of syscall, or -1 for error
+void removeAllSyscall(void);
 #endif

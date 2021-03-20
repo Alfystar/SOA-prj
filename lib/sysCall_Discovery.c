@@ -138,27 +138,6 @@ int foundFree_entries(void) {
   return j;
 }
 
-//#define SYS_CALL_INSTALL
-
-#ifdef SYS_CALL_INSTALL
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 17, 0)
-__SYSCALL_DEFINEx(2, _trial, unsigned long, A, unsigned long, B) {
-#else
-asmlinkage long sys_trial(unsigned long A, unsigned long B) {
-#endif
-
-  printk("%s: thread %d requests a trial sys_call with %lu and %lu as "
-         "parameters\n",
-         MODNAME, current->pid, A, B);
-
-  return 0;
-}
-
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 17, 0)
-static unsigned long sys_trial = (unsigned long)__x64_sys_trial;
-#else
-#endif
-
 unsigned long cr0;
 
 static inline void write_cr0_forced(unsigned long val) {
@@ -172,5 +151,31 @@ static inline void protect_memory(void) { write_cr0_forced(cr0); }
 
 static inline void unprotect_memory(void) { write_cr0_forced(cr0 & ~X86_CR0_WP); }
 
-#else
-#endif
+int free_used = 0;
+
+int add_syscall(unsigned long sysPtr) {
+  if (free_used < MAX_FREE) {
+    cr0 = read_cr0();
+    unprotect_memory();
+    hacked_syscall_tbl[free_entries[free_used]] = (unsigned long *)sysPtr;
+    protect_memory();
+    printk("%s: a sys_call has been installed as a trial on the sys_call_table at displacement %d\n", MODNAME,
+           free_entries[free_used]);
+    free_used++;
+    return free_used - 1;
+  } else {
+    printk("%s: Impossible add sys_call on the the sys_call_table, ended the free entries\n", MODNAME);
+    return -1;
+  }
+}
+
+void removeAllSyscall(void) {
+  printk("%s: Cleaning of sysCall table modification...\n", MODNAME);
+  cr0 = read_cr0();
+  unprotect_memory();
+  // Su tutte le entry usate, rimetto ni_syscall
+  for (; free_used > 0; free_used--)
+    hacked_syscall_tbl[free_entries[free_used]] = (unsigned long *)hacked_ni_syscall;
+
+  protect_memory();
+}

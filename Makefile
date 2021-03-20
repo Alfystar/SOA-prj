@@ -13,9 +13,11 @@ ifeq ($(KERNELRELEASE),)
 .PHONY: all install clean uninstall
 all:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+	$(CC) user/user.c -o user.out
 
 clean:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+	rm user.out
 
 install:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules_install
