@@ -179,7 +179,7 @@ void removeAllSyscall(void) {
   unprotect_memory();
   // Su tutte le entry usate, rimetto ni_syscall
   for (; free_used > 0; free_used--)
-    hacked_syscall_tbl[free_entries[free_used]] = (unsigned long *)hacked_ni_syscall;
+    hacked_syscall_tbl[free_entries[free_used - 1]] = (unsigned long *)hacked_ni_syscall;
 
   protect_memory();
 }

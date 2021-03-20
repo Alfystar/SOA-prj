@@ -15,13 +15,13 @@ int main(int argc, char **argv) {
   syscall(134, 1, 2, 3);
 
   printf("tag_send(4, 5, buf, sizeof(buf))\n");
-  syscall(135, 4, 5, buf, sizeof(buf));
+  syscall(174, 4, 5, buf, sizeof(buf));
 
   printf("tag_receive(6, 7, buf, sizeof(buf))\n");
-  syscall(136, 6, 7, buf, sizeof(buf));
+  syscall(177, 6, 7, buf, sizeof(buf));
 
   printf("tag_ctl(8, 9)\n");
-  syscall(137, 8, 9);
+  syscall(178, 8, 9);
 
   printf("End user code\n");
 }

@@ -28,7 +28,7 @@ uninstall:
 	rm /lib/modules/$(shell uname -r)/extra/$(MODNAME).ko
 	rm /lib/modules/$(shell uname -r)/$(MODNAME).ko
 	depmod -a
-load: all
+load:
 	echo "$(MODNAME) Loading..."
 	sudo insmod $(MODNAME).ko
 unload:
