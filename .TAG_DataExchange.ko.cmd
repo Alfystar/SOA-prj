@@ -1,1 +1,0 @@
-cmd_/home/alfy/Scrivania/saoCode/SOA-prj/TAG_DataExchange.ko := ld -r -m elf_x86_64  -z max-page-size=0x200000  --build-id  -T ./scripts/module-common.lds -o /home/alfy/Scrivania/saoCode/SOA-prj/TAG_DataExchange.ko /home/alfy/Scrivania/saoCode/SOA-prj/TAG_DataExchange.o /home/alfy/Scrivania/saoCode/SOA-prj/TAG_DataExchange.mod.o;  true
