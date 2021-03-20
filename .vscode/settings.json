@@ -13,7 +13,14 @@
         "slab.h": "c",
         "interrupt.h": "c",
         "module.h": "c",
-        "kernel.h": "c"
+        "kernel.h": "c",
+        "tbde.h": "c",
+        "array": "c",
+        "hash_map": "c",
+        "string_view": "c",
+        "initializer_list": "c",
+        "utility": "c",
+        "vmalloc.h": "c"
     },
     //"C_Cpp.errorSquiggles": "Disabled",
     "editor.formatOnSave": true,

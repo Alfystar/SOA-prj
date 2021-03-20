@@ -1,10 +1,10 @@
 #ifndef sysCall_Discovery_h
 #define sysCall_Discovery_h
 
-#include "globalDef.h"
+#include <globalDef.h>
 
 #define EXPORT_SYMTAB
-#include "vtpmo.h"
+#include "vtpmo/vtpmo.h"
 #include <asm/apic.h>
 #include <asm/cacheflush.h>
 #include <asm/page.h>
@@ -26,6 +26,17 @@
 #include <linux/version.h>
 #include <linux/vmalloc.h>
 
+/* Correctly access read_cr0() and write_cr0(). */
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3, 3, 0)
+#include <asm/switch_to.h>
+#else
+#include <asm/system.h>
+#endif
+
+#ifndef X86_CR0_WP
+#define X86_CR0_WP 0x00010000
+#endif
+
 extern unsigned long *hacked_ni_syscall;
 extern unsigned long **hacked_syscall_tbl;
 
@@ -39,4 +50,5 @@ int foundFree_entries(void);
 extern int free_used;
 int add_syscall(unsigned long sysPtr); // Return index of syscall, or -1 for error
 void removeAllSyscall(void);
+
 #endif

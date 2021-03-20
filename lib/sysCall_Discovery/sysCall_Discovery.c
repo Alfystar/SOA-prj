@@ -20,7 +20,11 @@
  * @date March 07, 2021
  */
 
-#include "../include/sysCall_Discovery.h"
+#include "sysCall_Discovery.h"
+
+MODULE_AUTHOR("Emanuele Alfano <alfystar1701@gmail.com>");
+MODULE_LICENSE("GPL");
+MODULE_DESCRIPTION("System Call_Discovery module");
 
 #define ADDRESS_MASK 0xfffffffffffff000 // to migrate
 

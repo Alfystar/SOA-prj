@@ -40,41 +40,11 @@
 #include <linux/sched.h>
 #include <linux/slab.h>
 #include <linux/string.h>
-#include <linux/syscalls.h>
 #include <linux/time.h>
-#include <linux/version.h>
 #include <linux/vmalloc.h>
 
-/* Correctly access read_cr0() and write_cr0(). */
-#if LINUX_VERSION_CODE > KERNEL_VERSION(3, 3, 0)
-#include <asm/switch_to.h>
-#else
-#include <asm/system.h>
-#endif
-
-#ifndef X86_CR0_WP
-#define X86_CR0_WP 0x00010000
-#endif
-
-#include "include/sysCall_Discovery.h"
-
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 17, 0)
-__SYSCALL_DEFINEx(2, _trial, unsigned long, A, unsigned long, B) {
-#else
-asmlinkage long sys_trial(unsigned long A, unsigned long B) {
-#endif
-
-  printk("%s: thread %d requests a trial sys_call with %lu and %lu as "
-         "parameters\n",
-         MODNAME, current->pid, A, B);
-
-  return 0;
-}
-
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 17, 0)
-static unsigned long sys_trial = (unsigned long)__x64_sys_trial;
-#else
-#endif
+#include "lib/sysCall_Discovery/sysCall_Discovery.h"
+#include "lib/tbde/tbde.h"
 
 /* Routine to execute when loading the module. */
 int init_module_Default(void) {
@@ -84,7 +54,11 @@ int init_module_Default(void) {
   freeFound = foundFree_entries();
   printk("%s: found %d entries\n", MODNAME, freeFound);
   if (freeFound > 0) {
-    add_syscall(sys_trial);
+
+    add_syscall(tag_get);
+    add_syscall(tag_send);
+    add_syscall(tag_receive);
+    add_syscall(tag_ctl);
   }
   printk("%s: module correctly mounted\n", MODNAME);
 

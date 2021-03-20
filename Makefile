@@ -10,10 +10,10 @@ MODNAME=TAG_DataExchange
 ifeq ($(KERNELRELEASE),)
 # if KERNELRELEASE is not defined, we've been called directly from the command line.
 # Invoke the kernel build system.
-.PHONY: all install clean uninstall
+.PHONY: all install clean uninstall load unload
 all:
-	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
-	$(CC) user/user.c -o user.out
+	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules 
+	$(CC) 00_user/user.c -o user.out
 
 clean:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
@@ -28,11 +28,28 @@ uninstall:
 	rm /lib/modules/$(shell uname -r)/extra/$(MODNAME).ko
 	rm /lib/modules/$(shell uname -r)/$(MODNAME).ko
 	depmod -a
+load: all
+	echo "$(MODNAME) Loading..."
+	sudo insmod $(MODNAME).ko
+unload:
+	echo "$(MODNAME) Removing..."
+	sudo rmmod $(MODNAME).ko
+
 else
 # Otherwise KERNELRELEASE is defined; we've been invoked from the
 # kernel build system and can use its language.
-obj-m += TAG_DataExchange.o 
-TAG_DataExchange-objs += main.o ./lib/sysCall_Discovery.o ./lib/vtpmo.o
-#the_usctm-objs += ./lib/sysCall_Discovery.o ./lib/vtpmo.o
+EXTRA_CFLAGS = -Wall 
+
+obj-m += $(MODNAME).o 
+$(MODNAME)-y += main.o 
+
+# TAG-based data exchange Sub-system
+$(MODNAME)-y += ./lib/tbde/tbde.o 
+
+# sysCall_Discovery Sub-system
+$(MODNAME)-y += ./lib/sysCall_Discovery/sysCall_Discovery.o ./lib/sysCall_Discovery/vtpmo/vtpmo.o
+
+# this ar need to add the include path to the kernel build system
+ccflags-y := -I$(PWD)/include
 
 endif
