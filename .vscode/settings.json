@@ -20,7 +20,12 @@
         "string_view": "c",
         "initializer_list": "c",
         "utility": "c",
-        "vmalloc.h": "c"
+        "vmalloc.h": "c",
+        "globaldef.h": "c",
+        "sstream": "c",
+        "cstring": "c",
+        "cstdlib": "c",
+        "string.h": "c"
     },
     //"C_Cpp.errorSquiggles": "Disabled",
     "editor.formatOnSave": true,

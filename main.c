@@ -46,28 +46,55 @@
 #include "lib/sysCall_Discovery/sysCall_Discovery.h"
 #include "lib/tbde/tbde.h"
 
+#define AUDIT if (0)
+#define printk_Main(str, ...) printk("[%s]: " str, MODNAME, ##__VA_ARGS__)
+#define printk_DB(str, ...) AUDIT printk_Main(str, ##__VA_ARGS__)
+
+// This array expose the syscall number of the syscall function:
+// [0] int tag_get(int key, int command, int permission);
+// [1] int tag_send(int tag, int level, char *buffer, size_t size);
+// [2] int tag_receive(int tag, int level, char *buffer, size_t size);
+// [3] int tag_ctl(int tag, int command);
+int sysCallNum[4];
+module_param_array(sysCallNum, int, NULL, 0444); // only readable
+
+#define STR_VALUE(arg) #arg
+#define FUNCTION_NAME(name) STR_VALUE(name)
+
+#define TEST_FUNC test_func
+#define TEST_FUNC_NAME FUNCTION_NAME(TEST_FUNC)
+
+#define exposeNewSyscall(sysPtr, num)                                                                                  \
+  do {                                                                                                                 \
+    sysCallNum[num] = add_syscall(sysPtr);                                                                             \
+    if (sysCallNum[num] == -1) {                                                                                       \
+      printk_Main("Module fail to mount at add_syscall(%s) \n", FUNCTION_NAME(sysPtr));                                \
+      return -ENOMEM;                                                                                                  \
+    } else                                                                                                             \
+      printk_Main("sysCallNum[%d]=%d [%s(...)]\n", num, sysCallNum[num], FUNCTION_NAME(sysPtr));                       \
+  } while (0)
+
 /* Routine to execute when loading the module. */
 int init_module_Default(void) {
   int freeFound;
-  printk("%s: initializing\n", MODNAME);
+  printk_Main("Initializing\n");
 
-  freeFound = foundFree_entries();
-  printk("%s: found %d entries\n", MODNAME, freeFound);
+  freeFound = foundFree_entries(4);
+  printk_Main("Found %d entries\n", freeFound);
   if (freeFound > 0) {
-
-    add_syscall(tag_get);
-    add_syscall(tag_send);
-    add_syscall(tag_receive);
-    add_syscall(tag_ctl);
+    exposeNewSyscall(tag_get, 0);
+    exposeNewSyscall(tag_send, 1);
+    exposeNewSyscall(tag_receive, 2);
+    exposeNewSyscall(tag_ctl, 3);
   }
-  printk("%s: module correctly mounted\n", MODNAME);
+  printk_Main("Module correctly mounted\n");
 
   return 0;
 }
 
 void cleanup_module_Default(void) {
   removeAllSyscall();
-  printk("%s: shutting down\n", MODNAME);
+  printk_Main("Shutting down\n");
 }
 
 module_init(init_module_Default);

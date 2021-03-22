@@ -37,15 +37,14 @@
 #define X86_CR0_WP 0x00010000
 #endif
 
-extern unsigned long *hacked_ni_syscall;
-extern unsigned long **hacked_syscall_tbl;
-
-extern unsigned long sys_call_table_address;
-extern unsigned long sys_ni_syscall_address;
-
+#define SUBMODULE_NAME "Discovery"
+#define sysCall_Audit if (0)
 #define MAX_FREE 15
-extern int free_entries[MAX_FREE];
-int foundFree_entries(void);
+
+#define printk_sub(str, ...) printk("[%s::%s]: " str, MODNAME, SUBMODULE_NAME, ##__VA_ARGS__)
+#define printk_subDB(str, ...) sysCall_Audit printk_sub(str, ##__VA_ARGS__)
+
+int foundFree_entries(int num);
 
 extern int free_used;
 int add_syscall(unsigned long sysPtr); // Return index of syscall, or -1 for error

@@ -12,8 +12,8 @@ ifeq ($(KERNELRELEASE),)
 # Invoke the kernel build system.
 .PHONY: all install clean uninstall load unload
 all:
-	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules 
-	$(CC) 00_user/user.c -o user.out
+	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+	$(CC) 00_user/mainUser.c 00_user/tbdeUser.c -o user.out
 
 clean:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
@@ -38,13 +38,13 @@ unload:
 else
 # Otherwise KERNELRELEASE is defined; we've been invoked from the
 # kernel build system and can use its language.
-EXTRA_CFLAGS = -Wall 
+EXTRA_CFLAGS = -Wall
 
-obj-m += $(MODNAME).o 
-$(MODNAME)-y += main.o 
+obj-m += $(MODNAME).o
+$(MODNAME)-y += main.o
 
 # TAG-based data exchange Sub-system
-$(MODNAME)-y += ./lib/tbde/tbde.o 
+$(MODNAME)-y += ./lib/tbde/tbde.o
 
 # sysCall_Discovery Sub-system
 $(MODNAME)-y += ./lib/sysCall_Discovery/sysCall_Discovery.o ./lib/sysCall_Discovery/vtpmo/vtpmo.o

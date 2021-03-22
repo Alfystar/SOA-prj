@@ -46,10 +46,10 @@ unsigned long *hacked_ni_syscall = NULL;
 unsigned long **hacked_syscall_tbl = NULL;
 
 unsigned long sys_call_table_address = 0x0;
-module_param(sys_call_table_address, ulong, 0660);
+// module_param(sys_call_table_address, ulong, 0660);
 
 unsigned long sys_ni_syscall_address = 0x0;
-module_param(sys_ni_syscall_address, ulong, 0660);
+// module_param(sys_ni_syscall_address, ulong, 0660);
 
 int good_area(unsigned long *addr) {
 
@@ -109,34 +109,33 @@ void syscall_table_finder(void) {
     if ((sys_vtpmo(candidate) != NO_MAP)) {
       // check if candidate maintains the syscall_table
       if (validate_page((unsigned long *)(candidate))) {
-        printk("%s: syscall table found at %px\n", MODNAME, (void *)(hacked_syscall_tbl));
-        printk("%s: sys_ni_syscall found at %px\n", MODNAME, (void *)(hacked_ni_syscall));
+        printk_subDB("syscall table found at %px\n", (void *)(hacked_syscall_tbl));
+        printk_subDB("sys_ni_syscall found at %px\n", (void *)(hacked_ni_syscall));
         break;
       }
     }
   }
 }
 
-// default array size already known - here we expose
 // what entries are free
 int free_entries[MAX_FREE];
-module_param_array(free_entries, int, NULL, 0660);
+// module_param_array(free_entries, int, NULL, 0660);
 
-int foundFree_entries(void) {
+int foundFree_entries(int num) {
   int i, j;
   syscall_table_finder();
 
   if (!hacked_syscall_tbl) {
-    printk("%s: failed to find the sys_call_table\n", MODNAME);
+    printk_subDB("failed to find the sys_call_table\n");
     return -1;
   }
 
   j = 0;
   for (i = 0; i < ENTRIES_TO_EXPLORE; i++)
     if (hacked_syscall_tbl[i] == hacked_ni_syscall) {
-      printk("%s: found sys_ni_syscall entry at syscall_table[%d]\n", MODNAME, i);
+      printk_subDB("found sys_ni_syscall entry at syscall_table[%d]\n", i);
       free_entries[j++] = i;
-      if (j >= MAX_FREE)
+      if (j >= min(MAX_FREE, num))
         break;
     }
   return j;
@@ -155,31 +154,33 @@ static inline void protect_memory(void) { write_cr0_forced(cr0); }
 
 static inline void unprotect_memory(void) { write_cr0_forced(cr0 & ~X86_CR0_WP); }
 
-int free_used = 0;
+int nextFree = 0;
 
 int add_syscall(unsigned long sysPtr) {
-  if (free_used < MAX_FREE) {
+  if (nextFree < MAX_FREE) {
     cr0 = read_cr0();
     unprotect_memory();
-    hacked_syscall_tbl[free_entries[free_used]] = (unsigned long *)sysPtr;
+    hacked_syscall_tbl[free_entries[nextFree]] = (unsigned long *)sysPtr;
     protect_memory();
-    printk("%s: a sys_call has been installed as a trial on the sys_call_table at displacement %d\n", MODNAME,
-           free_entries[free_used]);
-    free_used++;
-    return free_used - 1;
+    printk_subDB("Sys_call has been installed as a trial on the sys_call_table at displacement %d\n",
+                 free_entries[nextFree]);
+    nextFree++;
+    return free_entries[nextFree - 1];
   } else {
-    printk("%s: Impossible add sys_call on the the sys_call_table, ended the free entries\n", MODNAME);
+    printk_subDB("Impossible add sys_call on the the sys_call_table, ended the free entries\n");
     return -1;
   }
 }
 
 void removeAllSyscall(void) {
-  printk("%s: Cleaning of sysCall table modification...\n", MODNAME);
+  printk_subDB("Cleaning of sysCall table modification...\n");
   cr0 = read_cr0();
   unprotect_memory();
   // Su tutte le entry usate, rimetto ni_syscall
-  for (; free_used > 0; free_used--)
-    hacked_syscall_tbl[free_entries[free_used - 1]] = (unsigned long *)hacked_ni_syscall;
+  for (; nextFree > 0; nextFree--) {
+    printk_sub("A sys_call [%d] are restore to ni_syscall\n", free_entries[nextFree - 1]);
+    hacked_syscall_tbl[free_entries[nextFree - 1]] = (unsigned long *)hacked_ni_syscall;
+  }
 
   protect_memory();
 }
