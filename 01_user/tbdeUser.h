@@ -7,6 +7,9 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include <tbdeType.h>
+
+
 extern int sysCallIndex[4];
 int convertStrtoArr(char *str, int numArr[], int limit);
 

@@ -5,7 +5,7 @@
 
 # The file name for the KO object to add and rm
 MODNAME=TAG_DataExchange
-
+USER_DIR="01_user"
 
 ifeq ($(KERNELRELEASE),)
 # if KERNELRELEASE is not defined, we've been called directly from the command line.
@@ -13,7 +13,7 @@ ifeq ($(KERNELRELEASE),)
 .PHONY: all install clean uninstall load unload
 all:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
-	$(CC) 00_user/mainUser.c 00_user/tbdeUser.c -o user.out
+	$(CC) $(USER_DIR)/mainUser.c $(USER_DIR)/tbdeUser.c -o user.out -Iinclude
 
 clean:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean

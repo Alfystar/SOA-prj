@@ -27,7 +27,7 @@ void initTBDE() {
     perror("fopen fail to read sysCallNum parameter");
     switch (errno) {
     case ENOENT:
-      printf("Please, mound the module on the kernel:\n>>\t$ make load\n");
+      printf("Please, mound the module on the kernel:\n>>\tmake load\n");
       break;
     default:
       break;

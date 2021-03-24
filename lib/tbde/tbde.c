@@ -71,3 +71,17 @@ asmlinkage long tag_ctl(int tag, int command) {
 unsigned long tag_ctl = (unsigned long)__x64_sys_tag_ctl;
 #else
 #endif
+
+int avl_tag_entryMajorCMP(void *a, void *b) {
+  avl_tag_entry *eA, *eB;
+  eA = (avl_tag_entry *)a;
+  eB = (avl_tag_entry *)b;
+  return eA->tag > eB->tag;
+}
+
+int avl_key_entryMajorCMP(void *a, void *b) {
+  avl_key_entry *eA, *eB;
+  eA = (avl_key_entry *)a;
+  eB = (avl_key_entry *)b;
+  return eA->key > eB->key;
+}
