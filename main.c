@@ -82,6 +82,7 @@ int init_module_Default(void) {
   freeFound = foundFree_entries(4);
   printk_Main("Found %d entries\n", freeFound);
   if (freeFound > 0) {
+    initTBDE();
     exposeNewSyscall(tag_get, 0);
     exposeNewSyscall(tag_send, 1);
     exposeNewSyscall(tag_receive, 2);
@@ -94,6 +95,7 @@ int init_module_Default(void) {
 
 void cleanup_module_Default(void) {
   removeAllSyscall();
+  unmountTBDE();
   printk_Main("Shutting down\n");
 }
 

@@ -36,7 +36,8 @@
         "string": "c",
         "unordered_map": "c",
         "vector": "c",
-        "ostream": "c"
+        "ostream": "c",
+        "optional": "c"
     },
     //"C_Cpp.errorSquiggles": "Disabled",
     "editor.formatOnSave": true,

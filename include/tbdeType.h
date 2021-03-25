@@ -28,30 +28,12 @@ typedef struct rcuWQ_ {
 } rcuWQ;
 
 // Room Metadata
-typedef struct avl_tag_entry_ {
-  int key;
-  int tag;
+typedef struct room_ {
+  int key;          // indexing with key (if !=-1)
+  unsigned int tag; // indexing with tag
   int uid_Creator;
   int perm;
   rcuWQ level[levelDeep];
-} avl_tag_entry;
-
-// Public Key Metadata
-typedef struct avl_key_entry_ {
-  int key;
-  avl_tag_entry *tagNode;
-} avl_key_entry;
-
-// Tag AVL structure
-// typedef struct _avlTag {
-//  avl_tag_entry *root;
-//  int nTag;
-//} avlTag;
-
-// Tag Key structure
-// typedef struct _avlKey {
-//  avl_key_entry *root;
-//  int nKey;
-//} avlKey;
+} room;
 
 #endif
