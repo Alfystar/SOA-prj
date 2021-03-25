@@ -29,7 +29,7 @@ asmlinkage long tag_get(int key, int command, int permission) {
   switch (command) {
   case TBDE_O_CREAT:
     if (key == TBDE_IPC_PRIVATE) {
-      p = makeRoom()
+      // p = makeRoom()
     }
     break;
   case TBDE_O_OPEN:
