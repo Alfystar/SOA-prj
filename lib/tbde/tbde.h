@@ -6,14 +6,19 @@
 
 #include <tbdeType.h>
 
+#include "avl.h"
 #include <linux/errno.h>
 #include <linux/syscalls.h>
 #include <linux/version.h>
 
-#include "avl.h"
+#define MAX_ROOM 256 // todo: renderlo un valore parametrico
 
-int initTBDE();    // shuld be call BEFORE installation of syscall
-int unmountTBDE(); // shuld be call AFTER installation of syscall
+#define TBDE_Audit if (1)
+#define printk_tbde(str, ...) printk("[%s::%s]: " str, MODNAME, "TBDE", ##__VA_ARGS__)
+#define printk_tbdeDB(str, ...) TBDE_Audit printk_tbde(str, ##__VA_ARGS__)
+
+void initTBDE(void);    // shuld be call BEFORE installation of syscall
+void unmountTBDE(void); // shuld be call AFTER installation of syscall
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 17, 0)
 extern unsigned long tag_get;
@@ -27,11 +32,13 @@ int tag_receive(int tag, int level, char *buffer, size_t size);
 int tag_ctl(int tag, int command);
 #endif
 
+int permissionValid(int perm);
+
 room *roomMake(int key, unsigned int tag, int uid_Creator, int perm);
 void freeRoom(void *data);
 
 int tagRoomCMP(void *a, void *b); // return -1:a<b | 0:a==b | 1:a>b
 int keyRoomCMP(void *a, void *b); // return -1:a<b | 0:a==b | 1:a>b
-void printRoom(void *data);
+size_t printRoom(void *data, char *buf, int size);
 
 #endif

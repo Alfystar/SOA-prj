@@ -3,21 +3,6 @@
 //
 // Private datatypes
 //
-struct Tree {
-  Node root;
-  compCallBack comp;
-  printCallBack print;
-  freeDataCallBack freeData;
-};
-
-struct Node {
-  Node parent;
-  Node left;
-  Node right;
-  void *data;
-  int balance;
-};
-
 struct trunk {
   struct trunk *prev;
   char *str;
@@ -39,7 +24,7 @@ void *Node_free(Node node);
 
 void nodeDataFree(Node n, freeDataCallBack freeData);
 
-void print_tree(Tree t, Node n, struct trunk *prev, int is_left);
+size_t print_tree(Tree t, Node n, struct trunk *prev, int is_left, char *buf, size_t size);
 
 //----------------------------------------------------------------------------
 
@@ -51,7 +36,7 @@ void print_tree(Tree t, Node n, struct trunk *prev, int is_left);
 Tree Tree_New(compCallBack comp, printCallBack print, freeDataCallBack freeData) {
   Tree t;
 
-  t = kzalloc(sizeof(*t));
+  t = kzalloc(sizeof(*t), GFP_KERNEL | GFP_NOWAIT);
   t->root = NULL;
   t->comp = comp;
   t->print = print;
@@ -73,7 +58,7 @@ void Tree_DelAll(Tree T) {
 Node Tree_Insert(Tree t, void *data) {
   if (t->root == NULL) {
     t->root = Node_New(data, NULL);
-    t->nodeCount++;
+    return NULL;
   } else {
     Node node = t->root;
     while (node != NULL) {
@@ -100,6 +85,7 @@ Node Tree_Insert(Tree t, void *data) {
       }
     }
   }
+  return NULL;
 }
 
 // Tree_DeleteNode --
@@ -111,12 +97,14 @@ void *Tree_DeleteNode(Tree t, Node node) {
   Node right = node->right;
   Node toDelete = node;
 
+  Node parent, successorParent, successorRight, successor;
+
   if (left == NULL) {
     if (right == NULL) {
       if (node == t->root) {
         t->root = NULL;
       } else {
-        Node parent = node->parent;
+        parent = node->parent;
         if (parent->left == node) {
           parent->left = NULL;
           Tree_DeleteBalance(t, parent, 1);
@@ -135,9 +123,9 @@ void *Tree_DeleteNode(Tree t, Node node) {
     Tree_DeleteBalance(t, node, 0);
     toDelete = left;
   } else {
-    Node successor = right;
+    successor = right;
     if (successor->left == NULL) {
-      Node parent = node->parent;
+      parent = node->parent;
       successor->parent = parent;
       successor->left = left;
       successor->balance = node->balance;
@@ -159,9 +147,9 @@ void *Tree_DeleteNode(Tree t, Node node) {
       while (successor->left != NULL) {
         successor = successor->left;
       }
-      Node parent = node->parent;
-      Node successorParent = successor->parent;
-      Node successorRight = successor->right;
+      parent = node->parent;
+      successorParent = successor->parent;
+      successorRight = successor->right;
 
       if (successorParent->left == successor) {
         successorParent->left = successorRight;
@@ -222,13 +210,7 @@ Node Tree_SearchNode(Tree t, void *data) {
 //
 //     Prints an ASCII representation of the tree on screen.
 //
-void Tree_Print(Tree t) {
-  char *buf;
-  int size;
-  buf = (char *)valloc(4096);
-  size = print_tree(t, t->root, 0, 0, buf, 4096);
-  // todo: metterlo sul driver
-}
+size_t Tree_Print(Tree t, char *buf, size_t size) { return print_tree(t, t->root, 0, 0, buf, size); }
 
 // Tree_FirstNode --
 //
@@ -317,6 +299,7 @@ void *Node_GetData(Node n) { return n->data; }
 //
 
 void Tree_InsertBalance(Tree t, Node node, int balance) {
+  Node parent;
   while (node != NULL) {
     balance = (node->balance += balance);
     if (balance == 0) {
@@ -336,7 +319,7 @@ void Tree_InsertBalance(Tree t, Node node, int balance) {
       }
       return;
     }
-    Node parent = node->parent;
+    parent = node->parent;
     if (parent != NULL) {
       balance = (parent->left == node) ? -1 : 1;
     }
@@ -345,6 +328,7 @@ void Tree_InsertBalance(Tree t, Node node, int balance) {
 }
 
 void Tree_DeleteBalance(Tree t, Node node, int balance) {
+  Node parent;
   while (node != NULL) {
     balance = (node->balance += balance);
 
@@ -372,7 +356,7 @@ void Tree_DeleteBalance(Tree t, Node node, int balance) {
       return;
     }
 
-    Node parent = node->parent;
+    parent = node->parent;
 
     if (parent != NULL) {
       balance = (parent->left == node) ? 1 : -1;
@@ -551,10 +535,10 @@ Node Tree_RotateRightLeft(Tree t, Node node) {
 }
 
 // Return caracter write
-int print_trunks(struct trunk *p, char *buf, int size) {
-  int indexBuf = 0;
+size_t print_trunks(struct trunk *p, char *buf, size_t size) {
+  size_t indexBuf = 0;
   if (!p) {
-    return;
+    return indexBuf;
   }
   indexBuf += print_trunks(p->prev, buf + indexBuf, size - indexBuf);
   indexBuf += scnprintf(buf + indexBuf, size - indexBuf, "%s", p->str);
@@ -562,14 +546,15 @@ int print_trunks(struct trunk *p, char *buf, int size) {
 }
 
 // Return caracter write
-int print_tree(Tree t, Node n, struct trunk *prev, int is_left, char *buf, int size) {
-  int indexBuf = 0;
+size_t print_tree(Tree t, Node n, struct trunk *prev, int is_left, char *buf, size_t size) {
+  size_t indexBuf = 0;
+  struct trunk this_disp = {prev, "     "};
+  char *prev_str = this_disp.str;
+
   if (n == NULL) {
     return 0;
   }
 
-  struct trunk this_disp = {prev, "     "};
-  char *prev_str = this_disp.str;
   indexBuf += print_tree(t, n->right, &this_disp, 1, buf + indexBuf, size - indexBuf);
 
   if (!prev) {
@@ -582,8 +567,8 @@ int print_tree(Tree t, Node n, struct trunk *prev, int is_left, char *buf, int s
     prev->str = prev_str;
   }
 
-  indexBuf += print_trunks(&this_disp);
-  (t->print)(n->data);
+  indexBuf += print_trunks(&this_disp, buf + indexBuf, size - indexBuf);
+  indexBuf += (t->print)(n->data, buf + indexBuf, size - indexBuf);
   indexBuf += scnprintf(buf + indexBuf, size - indexBuf, " (%+d)\n", n->balance);
 
   if (prev) {
@@ -595,12 +580,13 @@ int print_tree(Tree t, Node n, struct trunk *prev, int is_left, char *buf, int s
   if (!prev) {
     indexBuf += scnprintf(buf + indexBuf, size - indexBuf, "\n");
   }
+  return indexBuf;
 }
 
 Node Node_New(void *data, Node parent) {
   Node n;
 
-  n = kzalloc(sizeof(*n));
+  n = kzalloc(sizeof(*n), GFP_KERNEL | GFP_NOWAIT);
   n->parent = parent;
   n->left = NULL;
   n->right = NULL;
@@ -620,7 +606,7 @@ void *Node_free(Node node) {
 void nodeDataFree(Node n, freeDataCallBack freeData) {
   if (n == NULL)
     return;
-  nodeDataFree(n->right);
-  nodeDataFree(n->left);
+  nodeDataFree(n->right, freeData);
+  nodeDataFree(n->left, freeData);
   freeData(Node_free(n));
 }

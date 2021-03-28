@@ -37,7 +37,9 @@
         "unordered_map": "c",
         "vector": "c",
         "ostream": "c",
-        "optional": "c"
+        "optional": "c",
+        "cerrno": "c",
+        "errno.h": "c"
     },
     //"C_Cpp.errorSquiggles": "Disabled",
     "editor.formatOnSave": true,

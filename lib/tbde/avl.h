@@ -18,18 +18,32 @@
 #include <linux/slab.h>
 #include <linux/stddef.h>
 
-#define SUBMODULE_NAME "AVL"
 #define avl_Audit if (1)
-#define printk_avl(str, ...) printk("[%s::%s]: " str, MODNAME, SUBMODULE_NAME, ##__VA_ARGS__)
-#define printk_avlDB(str, ...) sysCall_Audit printk_avl(str, ##__VA_ARGS__)
-
-typedef struct Tree *Tree;
-typedef struct Node *Node;
+#define printk_avl(str, ...) printk("[%s::%s]: " str, MODNAME, "AVL", ##__VA_ARGS__)
+#define printk_avlDB(str, ...) avl_Audit printk_avl(str, ##__VA_ARGS__)
 
 // Comp is used to search node, must be the keySearc comparation function
 typedef int (*compCallBack)(void *dataA, void *dataB); // return -1:a<b | 0:a==b | 1:a>b
-typedef void (*printCallBack)(void *data);
+typedef size_t (*printCallBack)(void *data, char *buf, int size);
 typedef void (*freeDataCallBack)(void *data);
+
+struct Node_ {
+  struct Node_ *parent;
+  struct Node_ *left;
+  struct Node_ *right;
+  void *data;
+  int balance;
+};
+typedef struct Node_ *Node;
+
+struct Tree {
+  Node root;
+  compCallBack comp;
+  printCallBack print;
+  freeDataCallBack freeData;
+};
+typedef struct Tree *Tree;
+
 Tree Tree_New(compCallBack comp, printCallBack print, freeDataCallBack freeData);
 void Tree_DelAll(Tree T);
 
@@ -43,7 +57,8 @@ Node Tree_LastNode(Tree t);
 Node Tree_PrevNode(Tree t, Node n);
 Node Tree_NextNode(Tree t, Node n);
 
-void Tree_Print(Tree t);
+size_t Tree_Print(Tree t, char *buf, size_t size);
 
 void *Node_GetData(Node n);
+
 #endif

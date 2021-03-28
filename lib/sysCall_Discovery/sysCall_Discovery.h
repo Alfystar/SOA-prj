@@ -37,11 +37,10 @@
 #define X86_CR0_WP 0x00010000
 #endif
 
-#define SUBMODULE_NAME "Discovery"
 #define sysCall_Audit if (0)
 #define MAX_FREE 15
 
-#define printk_sub(str, ...) printk("[%s::%s]: " str, MODNAME, SUBMODULE_NAME, ##__VA_ARGS__)
+#define printk_sub(str, ...) printk("[%s::%s]: " str, MODNAME, "Discovery", ##__VA_ARGS__)
 #define printk_subDB(str, ...) sysCall_Audit printk_sub(str, ##__VA_ARGS__)
 
 int foundFree_entries(int num);

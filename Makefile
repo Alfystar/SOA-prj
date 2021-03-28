@@ -44,7 +44,7 @@ obj-m += $(MODNAME).o
 $(MODNAME)-y += main.o
 
 # TAG-based data exchange Sub-system
-$(MODNAME)-y += ./lib/tbde/tbde.o
+$(MODNAME)-y += ./lib/tbde/tbde.o ./lib/tbde/avl.o
 
 # sysCall_Discovery Sub-system
 $(MODNAME)-y += ./lib/sysCall_Discovery/sysCall_Discovery.o ./lib/sysCall_Discovery/vtpmo/vtpmo.o
