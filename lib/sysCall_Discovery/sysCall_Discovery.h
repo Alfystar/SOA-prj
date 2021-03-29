@@ -1,3 +1,24 @@
+/*
+ *
+ * This is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 3 of the License, or (at your option) any later
+ * version.
+ *
+ * This module is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * @brief This is the main source for the Linux Kernel Module which implements
+ * 	 the runtime discovery of the syscall table position and of free entries
+ * (those pointing to sys_ni_syscall)
+ *
+ * @author Emanuele Alfano, based from the Francesco Quaglia code
+ *
+ * @date March 07, 2021
+ */
+
 #ifndef sysCall_Discovery_h
 #define sysCall_Discovery_h
 
@@ -40,8 +61,8 @@
 #define sysCall_Audit if (0)
 #define MAX_FREE 15
 
-#define printk_sub(str, ...) printk("[%s::%s]: " str, MODNAME, "Discovery", ##__VA_ARGS__)
-#define printk_subDB(str, ...) sysCall_Audit printk_sub(str, ##__VA_ARGS__)
+#define printk_dis(str, ...) printk("[%s::%s]: " str, MODNAME, "Discovery", ##__VA_ARGS__)
+#define printk_disDB(str, ...) sysCall_Audit printk_dis(str, ##__VA_ARGS__)
 
 int foundFree_entries(int num);
 

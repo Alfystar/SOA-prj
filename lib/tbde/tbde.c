@@ -115,7 +115,7 @@ asmlinkage long tag_get(int key, int command, int permission) {
     return tag_get_OPEN(key, command, permission);
     break;
   default:
-    printk_tbdeDB("Invalid Command");
+    printk_tbdeDB("[tag_get]Invalid Command");
     return -EBADRQC;
     break;
   }
@@ -170,9 +170,39 @@ __SYSCALL_DEFINEx(2, _tag_ctl, int, tag, int, command) {
 #else
 asmlinkage long tag_ctl(int tag, int command) {
 #endif
+  Node retTag, retKey;
+  room *p, searchRoom;
 
   printk("%s: thread %d call [tag_ctl(%d,%d)]\n", MODNAME, current->pid, tag, command);
-
+  switch (command) {
+  case TBDE_AWAKE_ALL:
+    // todo: Implementare dopo aver creato la recive
+    break;
+  case TBDE_REMOVE:
+    searchRoom.tag = tag;
+    retTag = Tree_SearchNode(tagTree, &searchRoom);
+    if (retTag) {
+      printk_tbdeDB("Tag to delete found");
+      p = (room *)retTag->data;
+      searchRoom.key = p->key;
+      retKey = Tree_SearchNode(keyTree, &searchRoom);
+      // todo: dopo aver creato la recive, Verificare che la stanza sia senza nessun thread in lettura
+      // Delete boot, keyTree and Tag tree should pointer to the same room
+      if (retKey) {
+        printk_tbdeDB("Tag to delete had a key");
+        Tree_DeleteNode(keyTree, retKey);
+      }
+      freeRoom(Tree_DeleteNode(tagTree, retTag));
+      printk_tbdeDB("Room are deleted");
+      return 0;
+    }
+    return -ENOMSG; // Se non lo trovo, non c'è nulla da eliminare ma lo notifico
+    break;
+  default:
+    printk_tbdeDB("[tag_ctl] Invalid Command");
+    return -EBADRQC;
+    break;
+  }
   return 0;
 }
 
@@ -240,9 +270,8 @@ size_t printRoom(void *data, char *buf, int size) {
   size_t indexBuf = 0;
 
   p = (room *)data;
-
-  indexBuf +=
-      scnprintf(buf, size, "key=%d | tag=%d | uid_Creator=%d | perm=%d\n", p->key, p->tag, p->uid_Creator, p->perm);
+  // TAG-key TAG-creator TAG-level Waiting-threads
+  indexBuf += scnprintf(buf, size, "(%d-%d) [Creator=%d-perm=%d] \n", p->tag, p->key, p->uid_Creator, p->perm);
   return indexBuf;
   // todo: implementare il print
 }

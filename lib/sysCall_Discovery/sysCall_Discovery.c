@@ -1,25 +1,3 @@
-/*
- *
- * This is free software; you can redistribute it and/or modify it under the
- * terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 3 of the License, or (at your option) any later
- * version.
- *
- * This module is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
- *
- * @file usctm.c
- * @brief This is the main source for the Linux Kernel Module which implements
- * 	 the runtime discovery of the syscall table position and of free entries
- * (those pointing to sys_ni_syscall)
- *
- * @author Emanuele Alfano, developed from the Francesco Quaglia code
- *
- * @date March 07, 2021
- */
-
 #include "sysCall_Discovery.h"
 
 MODULE_AUTHOR("Emanuele Alfano <alfystar1701@gmail.com>");
@@ -109,8 +87,8 @@ void syscall_table_finder(void) {
     if ((sys_vtpmo(candidate) != NO_MAP)) {
       // check if candidate maintains the syscall_table
       if (validate_page((unsigned long *)(candidate))) {
-        printk_subDB("syscall table found at %px\n", (void *)(hacked_syscall_tbl));
-        printk_subDB("sys_ni_syscall found at %px\n", (void *)(hacked_ni_syscall));
+        printk_disDB("syscall table found at %px\n", (void *)(hacked_syscall_tbl));
+        printk_disDB("sys_ni_syscall found at %px\n", (void *)(hacked_ni_syscall));
         break;
       }
     }
@@ -126,14 +104,14 @@ int foundFree_entries(int num) {
   syscall_table_finder();
 
   if (!hacked_syscall_tbl) {
-    printk_subDB("failed to find the sys_call_table\n");
+    printk_disDB("failed to find the sys_call_table\n");
     return -1;
   }
 
   j = 0;
   for (i = 0; i < ENTRIES_TO_EXPLORE; i++)
     if (hacked_syscall_tbl[i] == hacked_ni_syscall) {
-      printk_subDB("found sys_ni_syscall entry at syscall_table[%d]\n", i);
+      printk_disDB("found sys_ni_syscall entry at syscall_table[%d]\n", i);
       free_entries[j++] = i;
       if (j >= min(MAX_FREE, num))
         break;
@@ -162,23 +140,23 @@ int add_syscall(unsigned long sysPtr) {
     unprotect_memory();
     hacked_syscall_tbl[free_entries[nextFree]] = (unsigned long *)sysPtr;
     protect_memory();
-    printk_subDB("Sys_call has been installed as a trial on the sys_call_table at displacement %d\n",
+    printk_disDB("Sys_call has been installed as a trial on the sys_call_table at displacement %d\n",
                  free_entries[nextFree]);
     nextFree++;
     return free_entries[nextFree - 1];
   } else {
-    printk_subDB("Impossible add sys_call on the the sys_call_table, ended the free entries\n");
+    printk_disDB("Impossible add sys_call on the the sys_call_table, ended the free entries\n");
     return -1;
   }
 }
 
 void removeAllSyscall(void) {
-  printk_subDB("Cleaning of sysCall table modification...\n");
+  printk_disDB("Cleaning of sysCall table modification...\n");
   cr0 = read_cr0();
   unprotect_memory();
   // Su tutte le entry usate, rimetto ni_syscall
   for (; nextFree > 0; nextFree--) {
-    printk_sub("A sys_call [%d] are restore to ni_syscall\n", free_entries[nextFree - 1]);
+    printk_dis("A sys_call [%d] are restore to ni_syscall\n", free_entries[nextFree - 1]);
     hacked_syscall_tbl[free_entries[nextFree - 1]] = (unsigned long *)hacked_ni_syscall;
   }
 

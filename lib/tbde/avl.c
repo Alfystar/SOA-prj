@@ -189,6 +189,7 @@ void *Tree_DeleteNode(Tree t, Node node) {
 // Tree_SearchNode --
 //
 //     Searches the tree for a node containing the given data.
+//     If not found, return NULL
 //
 Node Tree_SearchNode(Tree t, void *data) {
   Node node = t->root;
@@ -597,8 +598,7 @@ Node Node_New(void *data, Node parent) {
 }
 
 void *Node_free(Node node) {
-  void *data;
-  data = node->data;
+  void *data = node->data;
   kfree(node);
   return data;
 }
