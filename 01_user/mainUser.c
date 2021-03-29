@@ -19,6 +19,5 @@ int main(int argc, char **argv) {
   printf("tag_ctls\n");
   for (int i = 0; i < nTag; i++) {
     tag_ctl(tags[i], TBDE_REMOVE);
-    sleep(5);
   }
 }

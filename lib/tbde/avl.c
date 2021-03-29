@@ -47,7 +47,7 @@ Tree Tree_New(compCallBack comp, printCallBack print, freeDataCallBack freeData)
 void Tree_DelAll(Tree T) {
   if (T) {
     nodeDataFree(T->root, T->freeData);
-    printk_avlDB("[Tree_DelAll] kfree Tree %lu", T);
+    printk_avlDB("[Tree_DelAll] kfree Tree %p", T);
     kfree(T);
   } else {
     printk_avlDB("[Tree_DelAll] kfree impossible because passing NULL ptr");
@@ -608,7 +608,7 @@ Node Node_New(void *data, Node parent) {
 void *Node_free(Node node) {
   if (node) {
     void *data = node->data;
-    printk_avlDB("[Node_free]kfree node %lu", node);
+    printk_avlDB("[Node_free]kfree node %p", node);
     kfree(node);
     return data;
   } else {

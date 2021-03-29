@@ -78,10 +78,17 @@ int tag_get_CREATE(int key, int command, int permission) {
     }
   }
   printk_tbde("New room Create and added to the Searches Tree");
-  text = vmalloc(4096);
-  len = Tree_Print(tagTree, text, 4096);
-  printk("\n%s", text);
-  vfree(text);
+  TBDE_Audit {
+    text = vmalloc(4096);
+    printk_tbdeDB("tagTree:");
+    len = Tree_Print(tagTree, text, 4096);
+    printk("\n%s", text);
+    printk_tbdeDB("keyTree:");
+    len = Tree_Print(keyTree, text, 4096);
+    printk("\n%s", text);
+    vfree(text);
+  }
+
   return p->tag;
 }
 
@@ -194,6 +201,9 @@ asmlinkage long tag_ctl(int tag, int command) {
     if (retTag) {
       printk_tbdeDB("Tag to delete found");
       p = (room *)retTag->data;
+      if (!operationValid(p)) {
+        return -EBADE;
+      }
       if (p->key != TBDE_IPC_PRIVATE) {
         searchRoom.key = p->key;
         printk_tbdeDB("Now will be search key=%d", p->key);
@@ -208,20 +218,20 @@ asmlinkage long tag_ctl(int tag, int command) {
         }
       }
       freeRoom(Tree_DeleteNode(tagTree, retTag));
-      printk_tbdeDB("Room are deleted");
-      printk_tbdeDB("Tree are now:");
-
-      text = vmalloc(4096);
-      printk_tbdeDB("tagTree:");
-      len = Tree_Print(tagTree, text, 4096);
-      printk("\n%s", text);
-      printk_tbdeDB("keyTree:");
-      len = Tree_Print(keyTree, text, 4096);
-      printk("\n%s", text);
-      vfree(text);
+      printk_tbde("Room (%d) are now Deleted", tag);
+      TBDE_Audit {
+        text = vmalloc(4096);
+        printk_tbdeDB("tagTree:");
+        len = Tree_Print(tagTree, text, 4096);
+        printk("\n%s", text);
+        printk_tbdeDB("keyTree:");
+        len = Tree_Print(keyTree, text, 4096);
+        printk("\n%s", text);
+        vfree(text);
+      }
       return 0;
-    }               // if (retTag)
-    return -ENOMSG; // Se non lo trovo, non c'è nulla da eliminare ma lo notifico
+    }              // if (retTag)
+    return -EIDRM; // Se non lo trovo, non c'è nulla da eliminare ma lo notifico
     break;
   default:
     printk_tbdeDB("[tag_ctl] Invalid Command");
@@ -242,6 +252,21 @@ int permissionValid(int perm) {
   case TBDE_PRIVATE_ROOM:
     return 0;
     break;
+  default:
+    return -1;
+    break;
+  }
+}
+
+int operationValid(room *p) {
+  switch (p->perm) {
+  case TBDE_OPEN_ROOM:
+    return 1;
+  case TBDE_PRIVATE_ROOM:
+    if (p->uid_Creator != current->tgid)
+      return 0;
+    else
+      return 1;
   default:
     return -1;
     break;
@@ -274,7 +299,7 @@ void freeRoom(void *data) {
   if (data) {
     p = (room *)data;
     if (refcount_dec_and_test(&p->refCount)) {
-      printk_tbdeDB("[freeRoom] kfree room %lu", p);
+      printk_tbdeDB("[freeRoom] kfree room %p", p);
       printRoom(data, buf, 512);
       // kfree(p);
     } else {
