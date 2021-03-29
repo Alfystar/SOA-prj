@@ -39,7 +39,9 @@
         "ostream": "c",
         "optional": "c",
         "cerrno": "c",
-        "errno.h": "c"
+        "errno.h": "c",
+        "refcount.h": "c",
+        "compiler.h": "c"
     },
     //"C_Cpp.errorSquiggles": "Disabled",
     "editor.formatOnSave": true,

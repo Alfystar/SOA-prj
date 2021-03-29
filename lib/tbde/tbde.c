@@ -46,8 +46,10 @@ int tag_get_CREATE(int key, int command, int permission) {
     p = roomMake(TBDE_IPC_PRIVATE, tagCounting++, current->tgid, permission);
     while (true) {
       ret = Tree_Insert(tagTree, p);
-      if (ret == NULL)
+      if (ret == NULL) {
+        roomRefLock(p);
         break;
+      }
       p->tag = tagCounting++;
       negativeReset(tagCounting);
       negativeReset(p->tag);
@@ -60,21 +62,26 @@ int tag_get_CREATE(int key, int command, int permission) {
       freeRoom(p);
       printk_tbdeDB("Impossible to execute, key are just in use");
       return -EBADR;
+    } else {
+      roomRefLock(p);
     }
+
     while (true) {
       ret = Tree_Insert(tagTree, p);
-      if (ret == NULL)
+      if (ret == NULL) {
+        roomRefLock(p);
         break;
+      }
       p->tag = tagCounting++;
       negativeReset(tagCounting);
       negativeReset(p->tag);
     }
   }
   printk_tbde("New room Create and added to the Searches Tree");
-  text = kzalloc(4096, GFP_KERNEL | GFP_NOWAIT);
+  text = vmalloc(4096);
   len = Tree_Print(tagTree, text, 4096);
   printk("\n%s", text);
-  kfree(text);
+  vfree(text);
   return p->tag;
 }
 
@@ -172,6 +179,8 @@ asmlinkage long tag_ctl(int tag, int command) {
 #endif
   Node retTag, retKey;
   room *p, searchRoom;
+  char *text;
+  size_t len;
 
   printk("%s: thread %d call [tag_ctl(%d,%d)]\n", MODNAME, current->pid, tag, command);
   switch (command) {
@@ -179,23 +188,39 @@ asmlinkage long tag_ctl(int tag, int command) {
     // todo: Implementare dopo aver creato la recive
     break;
   case TBDE_REMOVE:
+    printk_tbdeDB("Request TBDE_REMOVE at Tag = %d", tag);
     searchRoom.tag = tag;
     retTag = Tree_SearchNode(tagTree, &searchRoom);
     if (retTag) {
       printk_tbdeDB("Tag to delete found");
       p = (room *)retTag->data;
-      searchRoom.key = p->key;
-      retKey = Tree_SearchNode(keyTree, &searchRoom);
-      // todo: dopo aver creato la recive, Verificare che la stanza sia senza nessun thread in lettura
-      // Delete boot, keyTree and Tag tree should pointer to the same room
-      if (retKey) {
-        printk_tbdeDB("Tag to delete had a key");
-        Tree_DeleteNode(keyTree, retKey);
+      if (p->key != TBDE_IPC_PRIVATE) {
+        searchRoom.key = p->key;
+        printk_tbdeDB("Now will be search key=%d", p->key);
+        retKey = Tree_SearchNode(keyTree, &searchRoom);
+        // todo: dopo aver creato la recive, Verificare che la stanza sia senza nessun thread in lettura
+        // Delete boot, keyTree and Tag tree should pointer to the same room
+        if (retKey) {
+          printk_tbdeDB("Tag to delete had a key");
+          freeRoom(Tree_DeleteNode(keyTree, retKey)); // decrease the pointer
+        } else {
+          printk_tbdeDB("ERROR!!! key=%d should be present!!", p->key);
+        }
       }
       freeRoom(Tree_DeleteNode(tagTree, retTag));
       printk_tbdeDB("Room are deleted");
+      printk_tbdeDB("Tree are now:");
+
+      text = vmalloc(4096);
+      printk_tbdeDB("tagTree:");
+      len = Tree_Print(tagTree, text, 4096);
+      printk("\n%s", text);
+      printk_tbdeDB("keyTree:");
+      len = Tree_Print(keyTree, text, 4096);
+      printk("\n%s", text);
+      vfree(text);
       return 0;
-    }
+    }               // if (retTag)
     return -ENOMSG; // Se non lo trovo, non c'è nulla da eliminare ma lo notifico
     break;
   default:
@@ -226,6 +251,7 @@ int permissionValid(int perm) {
 room *roomMake(int key, unsigned int tag, int uid_Creator, int perm) {
   room *p;
   p = kzalloc(sizeof(room), GFP_KERNEL | GFP_NOWAIT);
+  refcount_set(&p->refCount, 0);
   p->key = key;
   p->tag = tag;
   p->uid_Creator = uid_Creator;
@@ -233,10 +259,30 @@ room *roomMake(int key, unsigned int tag, int uid_Creator, int perm) {
   return p;
 }
 
+void roomRefLock(room *p) {
+  if (p) {
+    refcount_inc(&p->refCount);
+    printk_tbdeDB("[roomRefLock_Add] refCount new value = %d", refcount_read(&p->refCount));
+  } else {
+    printk_tbdeDB("[roomRefLock_Add] Impossible increase refCount because passing NULL ptr");
+  }
+}
+
 void freeRoom(void *data) {
+  char buf[512];
   room *p;
-  p = (room *)data;
-  kfree(p);
+  if (data) {
+    p = (room *)data;
+    if (refcount_dec_and_test(&p->refCount)) {
+      printk_tbdeDB("[freeRoom] kfree room %lu", p);
+      printRoom(data, buf, 512);
+      // kfree(p);
+    } else {
+      printk_tbdeDB("[freeRoom] Impossible kfree room because room is pointed %d", refcount_read(&p->refCount));
+    }
+  } else {
+    printk_tbdeDB("[freeRoom] Impossible kfree room because passing NULL ptr");
+  }
 }
 
 int tagRoomCMP(void *a, void *b) { // return -1:a<b | 0:a==b | 1:a>b
@@ -273,5 +319,5 @@ size_t printRoom(void *data, char *buf, int size) {
   // TAG-key TAG-creator TAG-level Waiting-threads
   indexBuf += scnprintf(buf, size, "(%d-%d) [Creator=%d-perm=%d] \n", p->tag, p->key, p->uid_Creator, p->perm);
   return indexBuf;
-  // todo: implementare il print
+  // todo: implementare il print dei livelli per i driver
 }

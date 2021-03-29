@@ -45,8 +45,13 @@ Tree Tree_New(compCallBack comp, printCallBack print, freeDataCallBack freeData)
 }
 
 void Tree_DelAll(Tree T) {
-  nodeDataFree(T->root, T->freeData);
-  kfree(T);
+  if (T) {
+    nodeDataFree(T->root, T->freeData);
+    printk_avlDB("[Tree_DelAll] kfree Tree %lu", T);
+    kfree(T);
+  } else {
+    printk_avlDB("[Tree_DelAll] kfree impossible because passing NULL ptr");
+  }
 }
 
 // Tree_Insert --
@@ -101,7 +106,9 @@ void *Tree_DeleteNode(Tree t, Node node) {
 
   if (left == NULL) {
     if (right == NULL) {
+      // Se non ha figli
       if (node == t->root) {
+        // Se sono la radice
         t->root = NULL;
       } else {
         parent = node->parent;
@@ -183,6 +190,7 @@ void *Tree_DeleteNode(Tree t, Node node) {
       Tree_DeleteBalance(t, successorParent, 1);
     }
   }
+  // Finalmente elimino la memoria
   return Node_free(toDelete);
 }
 
@@ -598,15 +606,24 @@ Node Node_New(void *data, Node parent) {
 }
 
 void *Node_free(Node node) {
-  void *data = node->data;
-  kfree(node);
-  return data;
+  if (node) {
+    void *data = node->data;
+    printk_avlDB("[Node_free]kfree node %lu", node);
+    kfree(node);
+    return data;
+  } else {
+    printk_avlDB("[Node_free] kfree impossible because passing NULL ptr");
+    return NULL;
+  }
 }
 
 void nodeDataFree(Node n, freeDataCallBack freeData) {
   if (n == NULL)
     return;
   nodeDataFree(n->right, freeData);
+  n->right = NULL;
   nodeDataFree(n->left, freeData);
+  n->left = NULL;
   freeData(Node_free(n));
+  n->data = NULL;
 }

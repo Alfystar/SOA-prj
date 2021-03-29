@@ -17,6 +17,27 @@
 #define printk_tbde(str, ...) printk("[%s::%s]: " str, MODNAME, "TBDE", ##__VA_ARGS__)
 #define printk_tbdeDB(str, ...) TBDE_Audit printk_tbde(str, ##__VA_ARGS__)
 
+// Chat-room Room Metadata
+typedef struct WQentry_ {
+  // currentWQ*
+  // AtomicReaderCount
+} WQentry;
+
+typedef struct rcuWQ_ {
+  WQentry *currentWQ;
+  // Spinlock Writer
+} rcuWQ;
+
+// Room Metadata
+typedef struct room_ {
+  refcount_t refCount; // structure point me
+  int key;             // indexing with key (if !=-1)
+  unsigned int tag;    // indexing with tag
+  int uid_Creator;
+  int perm;
+  rcuWQ level[levelDeep];
+} room;
+
 void initTBDE(void);    // shuld be call BEFORE installation of syscall
 void unmountTBDE(void); // shuld be call AFTER installation of syscall
 
@@ -35,6 +56,7 @@ int tag_ctl(int tag, int command);
 int permissionValid(int perm);
 
 room *roomMake(int key, unsigned int tag, int uid_Creator, int perm);
+void roomRefLock(room *p);
 void freeRoom(void *data);
 
 int tagRoomCMP(void *a, void *b); // return -1:a<b | 0:a==b | 1:a>b
