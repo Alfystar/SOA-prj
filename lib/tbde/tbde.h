@@ -53,11 +53,12 @@ int tag_receive(int tag, int level, char *buffer, size_t size);
 int tag_ctl(int tag, int command);
 #endif
 
-int permissionValid(int perm);
+int permCheck(int perm);
 int operationValid(room *p);
 
 room *roomMake(int key, unsigned int tag, int uid_Creator, int perm);
 void roomRefLock(room *p);
+void roomRefLock_n(room *p, unsigned int n);
 void freeRoom(void *data);
 
 int tagRoomCMP(void *a, void *b); // return -1:a<b | 0:a==b | 1:a>b

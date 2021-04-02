@@ -1,0 +1,838 @@
+sysCallIndex[0]=134 --> sysCallIndex[1]=174 --> sysCallIndex[2]=177 --> sysCallIndex[3]=178 --> END
+tag_gets
+Creating the room with key=66 impossible because the Key are already in use
+Opening the room with key=30 impossible because the Permission off the room is invalid
+Creating the room with key=72 impossible because the Key are already in use
+Creating the room with key=42 impossible because the Key are already in use
+Opening the room with key=80 impossible because the Key was not founs
+Creating the room with key=52 impossible because the Key are already in use
+Creating the room with key=44 impossible because the Key are already in use
+Opening the room with key=36 impossible because the Key was not founs
+Creating the room with key=64 impossible because the Key are already in use
+Opening the room with key=46 impossible because the Key was not founs
+Creating the room with key=58 impossible because the Key are already in use
+Creating the room with key=86 impossible because the Key are already in use
+Opening the room with key=84 impossible because the Key was not founs
+Opening the room with key=42 impossible because the Permission off the room is invalid
+Creating the room with key=74 impossible because the Key are already in use
+Creating the room with key=30 impossible because the Key are already in use
+Opening the room with key=12 impossible because the Key was not founs
+Creating the room with key=40 impossible because the Key are already in use
+Opening the room with key=10 impossible because the Key was not founs
+Creating the room with key=54 impossible because the Key are already in use
+Opening the room with key=92 impossible because the Key was not founs
+Creating the room with key=14 impossible because the Key are already in use
+Creating the room with key=34 impossible because the Key are already in use
+Creating the room with key=86 impossible because the Key are already in use
+Creating the room with key=16 impossible because the Key are already in use
+Creating the room with key=76 impossible because the Key are already in use
+Creating the room with key=2 impossible because the Key are already in use
+Creating the room with key=64 impossible because the Key are already in use
+Opening the room with key=36 impossible because the Permission off the room is invalid
+Creating the room with key=52 impossible because the Key are already in use
+Opening the room with key=78 impossible because the Permission off the room is invalid
+Creating the room with key=68 impossible because the Key are already in use
+Opening the room with key=2 impossible because the Permission off the room is invalid
+Creating the room with key=34 impossible because the Key are already in use
+Opening the room with key=12 impossible because the Key was not founs
+Opening the room with key=72 impossible because the Key was not founs
+Creating the room with key=78 impossible because the Key are already in use
+Opening the room with key=80 impossible because the Key was not founs
+Opening the room with key=62 impossible because the Key was not founs
+Opening the room with key=54 impossible because the Permission off the room is invalid
+Opening the room with key=94 impossible because the Key was not founs
+Creating the room with key=30 impossible because the Key are already in use
+Creating the room with key=38 impossible because the Key are already in use
+Creating the room with key=42 impossible because the Key are already in use
+Opening the room with key=6 impossible because the Key was not founs
+Creating the room with key=36 impossible because the Key are already in use
+tag_send(4, 5, buf, sizeof(buf))=0
+tag_receive(6, 7, buf, sizeof(buf))=0
+tag_ctls
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is nsysCallIndex[0]=134 --> sysCallIndex[1]=174 --> sysCallIndex[2]=177 --> sysCallIndex[3]=178 --> END
+tag_gets
+Opening the room with key=30 impossible because the Key was not founs
+Opening the room with key=80 impossible because the Key was not founs
+Opening the room with key=36 impossible because the Key was not founs
+Opening the room with key=46 impossible because the Key was not founs
+Opening the room with key=16 impossible because the Key was not founs
+Opening the room with key=84 impossible because the Key was not founs
+Opening the room with key=12 impossible because the Key was not founs
+Opening the room with key=10 impossible because the Key was not founs
+Opening the room with key=92 impossible because the Key was not founs
+Creating the room with key=86 impossible because the Key are already in use
+Creating the room with key=64 impossible because the Key are already in use
+Opening the room with key=36 impossible because the Key was not founs
+Creating the room with key=52 impossible because the Key are already in use
+Opening the room with key=78 impossible because the Key was not founs
+Creating the room with key=34 impossible because the Key are already in use
+Opening the room with key=12 impossible because the Key was not founs
+Opening the room with key=80 impossible because the Key was not founs
+Opening the room with key=62 impossible because the Key was not founs
+Opening the room with key=94 impossible because the Key was not founs
+Creating the room with key=30 impossible because the Key are already in use
+Creating the room with key=42 impossible because the Key are already in use
+Opening the room with key=6 impossible because the Key was not founs
+tag_send(4, 5, buf, sizeof(buf))=0
+tag_receive(6, 7, buf, sizeof(buf))=0
+tag_ctls
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=134 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=135 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=137 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=148 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=133 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=145 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=143 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible becasysCallIndex[0]=134 --> sysCallIndex[1]=174 --> sysCallIndex[2]=177 --> sysCallIndex[3]=178 --> END
+tag_gets
+Creating the room with key=66 impossible because the Key are already in use
+Opening the room with key=30 impossible because the Permission off the room is invalid
+Creating the room with key=72 impossible because the Key are already in use
+Creating the room with key=42 impossible because the Key are already in use
+Opening the room with key=80 impossible because the Key was not founs
+Creating the room with key=52 impossible because the Key are already in use
+Creating the room with key=44 impossible because the Key are already in use
+Opening the room with key=36 impossible because the Permission off the room is invalid
+Creating the room with key=64 impossible because the Key are already in use
+Opening the room with key=46 impossible because the Key was not founs
+Creating the room with key=58 impossible because the Key are already in use
+Creating the room with key=86 impossible because the Key are already in use
+Opening the room with key=84 impossible because the Key was not founs
+Opening the room with key=42 impossible because the Permission off the room is invalid
+Creating the room with key=74 impossible because the Key are already in use
+Creating the room with key=30 impossible because the Key are already in use
+Opening the room with key=12 impossible because the Key was not founs
+Creating the room with key=40 impossible because the Key are already in use
+Opening the room with key=10 impossible because the Key was not founs
+Creating the room with key=54 impossible because the Key are already in use
+Opening the room with key=92 impossible because the Key was not founs
+Creating the room with key=14 impossible because the Key are already in use
+Creating the room with key=34 impossible because the Key are already in use
+Creating the room with key=86 impossible because the Key are already in use
+Creating the room with key=16 impossible because the Key are already in use
+Creating the room with key=76 impossible because the Key are already in use
+Creating the room with key=2 impossible because the Key are already in use
+Creating the room with key=64 impossible because the Key are already in use
+Opening the room with key=36 impossible because the Permission off the room is invalid
+Creating the room with key=52 impossible because the Key are already in use
+Opening the room with key=78 impossible because the Permission off the room is invalid
+Creating the room with key=68 impossible because the Key are already in use
+Opening the room with key=2 impossible because the Key was not founs
+Creating the room with key=34 impossible because the Key are already in use
+Opening the room with key=12 impossible because the Key was not founs
+Opening the room with key=72 impossible because the Permission off the room is invalid
+Creating the room with key=78 impossible because the Key are already in use
+Opening the room with key=80 impossible because the Key was not founs
+Opening the room with key=62 impossible because the Key was not founs
+Opening the room with key=54 impossible because the Permission off the room is invalid
+Opening the room with key=94 impossible because the Key was not founs
+Creating the room with key=30 impossible because the Key are already in use
+Creating the room with key=38 impossible because the Key are already in use
+Creating the room with key=42 impossible because the Key are already in use
+Opening the room with key=6 impossible because the Key was not founs
+Creating the room with key=36 impossible because the Key are already in use
+tag_send(4, 5, buf, sizeof(buf))=0
+tag_receive(6, 7, buf, sizeof(buf))=0
+tag_ctls
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible becaussysCallIndex[0]=134 --> sysCallIndex[1]=174 --> sysCallIndex[2]=177 --> sysCallIndex[3]=178 --> END
+tag_gets
+Creating the room with key=66 impossible because the Key are already in use
+Opening the room with key=30 impossible because the Permission off the room is invalid
+Creating the room with key=72 impossible because the Key are already in use
+Creating the room with key=42 impossible because the Key are already in use
+Opening the room with key=80 impossible because the Key was not founs
+Creating the room with key=52 impossible because the Key are already in use
+Creating the room with key=44 impossible because the Key are already in use
+Opening the room with key=36 impossible because the Permission off the room is invalid
+Creating the room with key=64 impossible because the Key are already in use
+Opening the room with key=46 impossible because the Key was not founs
+Creating the room with key=58 impossible because the Key are already in use
+Creating the room with key=86 impossible because the Key are already in use
+Opening the room with key=84 impossible because the Key was not founs
+Opening the room with key=42 impossible because the Permission off the room is invalid
+Creating the room with key=74 impossible because the Key are already in use
+Creating the room with key=30 impossible because the Key are already in use
+Opening the room with key=12 impossible because the Key was not founs
+Creating the room with key=40 impossible because the Key are already in use
+Opening the room with key=10 impossible because the Key was not founs
+Creating the room with key=54 impossible because the Key are already in use
+Opening the room with key=92 impossible because the Key was not founs
+Creating the room with key=14 impossible because the Key are already in use
+Creating the room with key=34 impossible because the Key are already in use
+Creating the room with key=86 impossible because the Key are already in use
+Creating the room with key=16 impossible because the Key are already in use
+Creating the room with key=76 impossible because the Key are already in use
+Creating the room with key=2 impossible because the Key are already in use
+Creating the room with key=64 impossible because the Key are already in use
+Opening the room with key=36 impossible because the Permission off the room is invalid
+Creating the room with key=52 impossible because the Key are already in use
+Opening the room with key=78 impossible because the Permission off the room is invalid
+Creating the room with key=68 impossible because the Key are already in use
+Opening the room with key=2 impossible because the Key was not founs
+Creating the room with key=34 impossible because the Key are already in use
+Opening the room with key=12 impossible because the Key was not founs
+Opening the room with key=72 impossible because the Permission off the room is invalid
+Opening the room with key=80 impossible because the Key was not founs
+Opening the room with key=62 impossible because the Key was not founs
+Opening the room with key=54 impossible because the Permission off the room is invalid
+Opening the room with key=94 impossible because the Key was not founs
+Creating the room with key=30 impossible because the Key are already in use
+Creating the room with key=38 impossible because the Key are already in use
+Creating the room with key=42 impossible because the Key are already in use
+Opening the room with key=6 impossible because the Key was not founs
+Creating the room with key=36 impossible because the Key are already in use
+tag_send(4, 5, buf, sizeof(buf))=0
+tag_receive(6, 7, buf, sizeof(buf))=0
+tag_ctls
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because thuse the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+egative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=146 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=135 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=137 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=145 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+e the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=146 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+e number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=146 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=156 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=158 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=166 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+sysCallIndex[0]=134 --> sysCallIndex[1]=174 --> sysCallIndex[2]=177 --> sysCallIndex[3]=178 --> END
+tag_gets
+Opening the room with key=30 impossible because the Permission off the room is invalid
+Opening the room with key=80 impossible because the Key was not founs
+Opening the room with key=36 impossible because the Permission off the room is invalid
+Opening the room with key=46 impossible because the Key was not founs
+Opening the room with key=84 impossible because the Key was not founs
+Opening the room with key=12 impossible because the Key was not founs
+Opening the room with key=10 impossible because the Key was not founs
+Opening the room with key=92 impossible because the Key was not founs
+Creating the room with key=86 impossible because the Key are already in use
+Creating the room with key=64 impossible because the Key are already in use
+Opening the room with key=36 impossible because the Permission off the room is invalid
+Creating the room with key=52 impossible because the Key are already in use
+Opening the room with key=78 impossible because the Permission off the room is invalid
+Creating the room with key=34 impossible because the Key are already in use
+Opening the room with key=12 impossible because the Key was not founs
+Creating the room with key=78 impossible because the Key are already in use
+Opening the room with key=80 impossible because the Key was not founs
+Opening the room with key=62 impossible because the Key was not founs
+Opening the room with key=94 impossible because the Key was not founs
+Creating the room with key=30 impossible because the Key are already in use
+Creating the room with key=42 impossible because the Key are already in use
+Opening the room with key=6 impossible because the Key was not founs
+tag_send(4, 5, buf, sizeof(buf))=0
+tag_receive(6, 7, buf, sizeof(buf))=0
+tag_ctls
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=156 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=158 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=146 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=155 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=156 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=158 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=166 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=169 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=154 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=166 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=164 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+sysCallIndex[0]=134 --> sysCallIndex[1]=174 --> sysCallIndex[2]=177 --> sysCallIndex[3]=178 --> END
+tag_gets
+Opening the room with key=30 impossible because the Key was not founs
+Opening the room with key=80 impossible because the Key was not founs
+Opening the room with key=36 impossible because the Permission off the room is invalid
+Opening the room with key=46 impossible because the Key was not founs
+Opening the room with key=16 impossible because the Key was not founs
+Opening the room with key=84 impossible because the Key was not founs
+Opening the room with key=12 impossible because the Key was not founs
+Opening the room with key=10 impossible because the Key was not founs
+Opening the room with key=92 impossible because the Key was not founs
+Creating the room with key=86 impossible because the Key are already in use
+Creating the room with key=64 impossible because the Key are already in use
+Opening the room with key=36 impossible because the Key was not founs
+Creating the room with key=52 impossible because the Key are already in use
+Opening the room with key=78 impossible because the Key was not founs
+Creating the room with key=34 impossible because the Key are already in use
+Opening the room with key=12 impossible because the Key was not founs
+Opening the room with key=80 impossible because the Key was not founs
+Opening the room with key=62 impossible because the Key was not founs
+Opening the room with key=94 impossible because the Key was not founs
+Creating the room with key=30 impossible because the Key are already in use
+Creating the room with key=42 impossible because the Key are already in use
+Opening the room with key=6 impossible because the Key was not founs
+tag_send(4, 5, buf, sizeof(buf))=0
+tag_receive(6, 7, buf, sizeof(buf))=0
+tag_ctls
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=176 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=177 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=179 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=190 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=175 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=187 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=185 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+sysCallIndex[0]=134 --> sysCallIndex[1]=174 --> sysCallIndex[2]=177 --> sysCallIndex[3]=178 --> END
+tag_gets
+Creating the room with key=66 impossible because the Key are already in use
+Opening the room with key=30 impossible because the Key was not founs
+Creating the room with key=72 impossible because the Key are already in use
+Creating the room with key=42 impossible because the Key are already in use
+Opening the room with key=80 impossible because the Key was not founs
+Creating the room with key=52 impossible because the Key are already in use
+Creating the room with key=44 impossible because the Key are already in use
+Opening the room with key=36 impossible because the Permission off the room is invalid
+Creating the room with key=64 impossible because the Key are already in use
+Opening the room with key=46 impossible because the Key was not founs
+Creating the room with key=58 impossible because the Key are already in use
+Opening the room with key=16 impossible because the Key was not founs
+Creating the room with key=86 impossible because the Key are already in use
+Opening the room with key=84 impossible because the Key was not founs
+Opening the room with key=42 impossible because the Permission off the room is invalid
+Creating the room with key=74 impossible because the Key are already in use
+Creating the room with key=30 impossible because the Key are already in use
+Opening the room with key=12 impossible because the Key was not founs
+Creating the room with key=40 impossible because the Key are already in use
+Opening the room with key=10 impossible because the Key was not founs
+Creating the room with key=54 impossible because the Key are already in use
+Opening the room with key=92 impossible because the Key was not founs
+Creating the room with key=14 impossible because the Key are already in use
+Creating the room with key=34 impossible because the Key are already in use
+Creating the room with key=86 impossible because the Key are already in use
+Creating the room with key=16 impossible because the Key are already in use
+Creating the room with key=76 impossible because the Key are already in use
+Creating the room with key=2 impossible because the Key are already in use
+Creating the room with key=64 impossible because the Key are already in use
+Opening the room with key=36 impossible because the Key was not founs
+Creating the room with key=52 impossible because the Key are already in use
+Opening the room with key=78 impossible because the Permission off the room is invalid
+Creating the room with key=68 impossible because the Key are already in use
+Opening the room with key=2 impossible because the Permission off the room is invalid
+Creating the room with key=34 impossible because the Key are already in use
+Opening the room with key=12 impossible because the Key was not founs
+Opening the room with key=72 impossible because the Permission off the room is invalid
+Creating the room with key=78 impossible because the Key are already in use
+Opening the room with key=80 impossible because the Key was not founs
+Opening the room with key=62 impossible because the Key was not founs
+Opening the room with key=54 impossible because the Permission off the room is invalid
+Opening the room with key=94 impossible because the Key was not founs
+Creating the room with key=30 impossible because the Key are already in use
+Creating the room with key=38 impossible because the Key are already in use
+Opening the room with key=6 impossible because the Key was not founs
+Creating the room with key=36 impossible because the Key are already in use
+tag_send(4, 5, buf, sizeof(buf))=0
+tag_receive(6, 7, buf, sizeof(buf))=0
+tag_ctls
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negativsysCallIndex[0]=134 --> sysCallIndex[1]=174 --> sysCallIndex[2]=177 --> sysCallIndex[3]=178 --> END
+tag_gets
+Creating the room with key=66 impossible because the Key are already in use
+Opening the room with key=30 impossible because the Permission off the room is invalid
+Creating the room with key=72 impossible because the Key are already in use
+Creating the room with key=42 impossible because the Key are already in use
+Opening the room with key=80 impossible because the Key was not founs
+Creating the room with key=52 impossible because the Key are already in use
+Creating the room with key=44 impossible because the Key are already in use
+Opening the room with key=36 impossible because the Permission off the room is invalid
+Creating the room with key=64 impossible because the Key are already in use
+Opening the room with key=46 impossible because the Key was not founs
+Creating the room with key=58 impossible because the Key are already in use
+Creating the room with key=86 impossible because the Key are already in use
+Opening the room with key=84 impossible because the Key was not founs
+Opening the room with key=42 impossible because the Permission off the room is invalid
+Creating the room with key=74 impossible because the Key are already in use
+Creating the room with key=30 impossible because the Key are already in use
+Opening the room with key=12 impossible because the Key was not founs
+Creating the room with key=40 impossible because the Key are already in use
+Opening the room with key=10 impossible because the Key was not founs
+Creating the room with key=54 impossible because the Key are already in use
+Opening the room with key=92 impossible because the Key was not founs
+Creating the room with key=14 impossible because the Key are already in use
+Creating the room with key=34 impossible because the Key are already in use
+Creating the room with key=86 impossible because the Key are already in use
+Creating the room with key=16 impossible because the Key are already in use
+Creating the room with key=76 impossible because the Key are already in use
+Creating the room with key=2 impossible because the Key are already in use
+Creating the room with key=64 impossible because the Key are already in use
+Opening the room with key=36 impossible because the Permission off the room is invalid
+Creating the room with key=52 impossible because the Key are already in use
+Opening the room with key=78 impossible because the Permission off the room is invalid
+Creating the room with key=68 impossible because the Key are already in use
+Opening the room with key=2 impossible because the Permission off the room is invalid
+Creating the room with key=34 impossible because the Key are already in use
+Opening the room with key=12 impossible because the Key was not founs
+Opening the room with key=72 impossible because the Key was not founs
+Creating the room with key=78 impossible because the Key are already in use
+Opening the room with key=80 impossible because the Key was not founs
+Opening the room with key=62 impossible because the Key was not founs
+Opening the room with key=54 impossible because the Permission off the room is invalid
+Opening the room with key=94 impossible because the Key was not founs
+Creating the room with key=30 impossible because the Key are already in use
+Creating the room with key=38 impossible because the Key are already in use
+Creating the room with key=42 impossible because the Key are already in use
+Opening the room with key=6 impossible because the Key was not founs
+Creating the room with key=36 impossible because the Key are already in use
+tag_send(4, 5, buf, sizeof(buf))=0
+tag_receive(6, 7, buf, sizeof(buf))=0
+tag_ctls
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=198 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=200 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=208 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+sysCallIndex[0]=134 --> sysCallIndex[1]=174 --> sysCallIndex[2]=177 --> sysCallIndex[3]=178 --> END
+tag_gets
+Opening the room with key=30 impossible because the Key was not founs
+Opening the room with key=80 impossible because the Key was not founs
+Opening the room with key=36 impossible because the Permission off the room is invalid
+Opening the room with key=46 impossible because the Key was not founs
+Opening the room with key=16 impossible because the Key was not founs
+Opening the room with key=84 impossible because the Key was not founs
+Opening the room with key=12 impossible because the Key was not founs
+Opening the room with key=10 impossible because the Key was not founs
+Opening the room with key=92 impossible because the Key was not founs
+Creating the room with key=86 impossible because the Key are already in use
+Creating the room with key=64 impossible because the Key are already in use
+Opening the room with key=36 impossible because the Key was not founs
+Creating the room with key=52 impossible because the Key are already in use
+Opening the room with key=78 impossible because the Key was not founs
+Creating the room with key=34 impossible because the Key are already in use
+Opening the room with key=12 impossible because the Key was not founs
+Opening the room with key=80 impossible because the Key was not founs
+Opening the room with key=62 impossible because the Key was not founs
+Opening the room with key=94 impossible because the Key was not founs
+Creating the room with key=30 impossible because the Key are already in use
+Creating the room with key=42 impossible because the Key are already in use
+Opening the room with key=6 impossible because the Key was not founs
+tag_send(4, 5, buf, sizeof(buf))=0
+tag_receive(6, 7, buf, sizeof(buf))=0
+tag_ctls
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=197 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=198 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=200 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=209 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=211 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=196 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=208 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=206 impossible Notting to be deleted was found (all ok, just notificatione the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=198 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=200 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=208 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+sysCallIndex[0]=134 --> sysCallIndex[1]=174 --> sysCallIndex[2]=177 --> sysCallIndex[3]=178 --> END
+tag_gets
+Opening the room with key=30 impossible because the Key was not founs
+Opening the room with key=80 impossible because the Key was not founs
+Opening the room with key=36 impossible because the Key was not founs
+Opening the room with key=46 impossible because the Key was not founs
+Opening the room with key=16 impossible because the Key was not founs
+Opening the room with key=84 impossible because the Key was not founs
+Opening the room with key=12 impossible because the Key was not founs
+Opening the room with key=10 impossible because the Key was not founs
+Opening the room with key=92 impossible because the Key was not founs
+Creating the room with key=86 impossible because the Key are already in use
+Creating the room with key=64 impossible because the Key are already in use
+Opening the room with key=36 impossible because the Key was not founs
+Creating the room with key=52 impossible because the Key are already in use
+Opening the room with key=78 impossible because the Key was not founs
+Creating the room with key=34 impossible because the Key are already in use
+Opening the room with key=12 impossible because the Key was not founs
+Opening the room with key=80 impossible because the Key was not founs
+Opening the room with key=62 impossible because the Key was not founs
+Opening the room with key=94 impossible because the Key was not founs
+Creating the room with key=30 impossible because the Key are already in use
+Creating the room with key=42 impossible because the Key are already in use
+Opening the room with key=6 impossible because the Key was not founs
+tag_send(4, 5, buf, sizeof(buf))=0
+tag_receive(6, 7, buf, sizeof(buf))=0
+tag_ctls
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=219 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=220 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=222 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=233 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=218 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=230 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=228 impossible Notting to be deleted was found (all ok, just notification)
+tag_ctl Command is not valid
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative
+Deleting the room with tag=-1 impossible because the number is negative

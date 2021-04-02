@@ -94,6 +94,7 @@ int init_module_Default(void) {
 }
 
 void cleanup_module_Default(void) {
+  // todo: getup all thread in the system, and after delete all
   removeAllSyscall();
   unmountTBDE();
   printk_Main("Shutting down\n");
