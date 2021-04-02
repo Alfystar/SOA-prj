@@ -3,12 +3,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define nTag 50
+#define nTag 300
 int tags[nTag];
 
 int main(int argc, char **argv) {
-
-  for (int i = 0; i < 9; i++) {
+  int myFork;
+  for (myFork = 0; myFork < 9; myFork++) {
     int pid = fork();
     if (pid == 0) // son
       break;
@@ -35,6 +35,7 @@ int main(int argc, char **argv) {
     keyAsk = rand() % nTag * 2;
     commandAsk = rand() % 2;
     permissionAsk = rand() % 2;
+    printf("(%d;%d)\n", myFork, i);
     tags[i] = tag_get(keyAsk, commandAsk, permissionAsk);
     if (tags[i] == -1) {
       if (errno == EILSEQ) {
@@ -80,8 +81,10 @@ int main(int argc, char **argv) {
     } // if (tags[i] == -1)
   }
 
+  printf("(%d)\n", myFork);
   printf("tag_send(4, 5, buf, sizeof(buf))=%d\n", tag_send(4, 5, buf, sizeof(buf)));
 
+  printf("(%d)\n", myFork);
   printf("tag_receive(6, 7, buf, sizeof(buf))=%d\n", tag_receive(6, 7, buf, sizeof(buf)));
 
   // Return AWAKE_ALL:
@@ -96,6 +99,7 @@ int main(int argc, char **argv) {
   //  EILSEQ            :=    Command not valid
   printf("tag_ctls\n");
   for (int i = 0; i < nTag; i++) {
+    printf("(%d;%d)\n", myFork, i);
     if (tag_ctl(tags[i], TBDE_REMOVE) == -1) {
       switch (errno) {
       case ENOSR:
