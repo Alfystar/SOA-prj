@@ -1,7 +1,6 @@
 #include "tbde.h"
 
 Tree keyTree, tagTree;
-
 rwlock_t searchLock;
 
 // Non necessitano di essere atomiche, crescono solo al crescere dell'albero che
@@ -35,6 +34,7 @@ void unmountTBDE() {
   keyTree = NULL;
 }
 
+// Reset to zero if value is negative
 #define negativeReset(x)                                                                                               \
   do {                                                                                                                 \
     if (x < 0)                                                                                                         \
@@ -50,8 +50,7 @@ void unmountTBDE() {
 int tag_get_CREATE(int key, int command, int permission) {
   room *p;
   Node ret;
-  char *text;
-  size_t len;
+
   unsigned long flags;
 
   if (__sync_fetch_and_add(&roomCount, 0) >= MAX_ROOM) {
@@ -108,16 +107,7 @@ int tag_get_CREATE(int key, int command, int permission) {
     __sync_fetch_and_add(&roomCount, 1);
   }
   printk_tbde("New room Create and added to the Searches Tree");
-  TBDE_Audit {
-    text = vmalloc(4096);
-    printk_tbdeDB("tagTree:");
-    len = Tree_Print(tagTree, text, 4096);
-    printk("\n%s", text);
-    printk_tbdeDB("keyTree:");
-    len = Tree_Print(keyTree, text, 4096);
-    printk("\n%s", text);
-    vfree(text);
-  }
+  TBDE_Audit printTrees();
 
   return p->tag;
 }
@@ -199,7 +189,8 @@ unsigned long tag_get = (unsigned long)__x64_sys_tag_get;
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Return ...:
-//  succes            :=    tag value
+//  succes            :=    return 0
+//  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE)
 // --
 //  EILSEQ            :=    Command not valid
 
@@ -209,10 +200,21 @@ __SYSCALL_DEFINEx(4, _tag_send, int, tag, int, level, char *, buffer, size_t, si
 #else
 asmlinkage long tag_send(int tag, int level, char *buffer, size_t size) {
 #endif
-  unsigned long flags;
+  // unsigned long flags;
+  char *buf;
 
   printk("%s: thread %d call [tag_send(%d,%d,%p,%ld)]\n", MODNAME, current->pid, tag, level, buffer, size);
 
+  if (size > MAX_BUF_SIZE)
+    return -EXFULL;
+  buf = vzalloc(size);
+  copy_from_user(buf, buffer, size);
+
+  printk(buf);
+  vfree(buf);
+  // rcu_read_lock();
+  // rcu_read_unlock();
+  // synchronize_rcu();
   return 0;
 }
 
@@ -223,7 +225,8 @@ unsigned long tag_send = (unsigned long)__x64_sys_tag_send;
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Return ...:
-//  succes            :=    tag value
+//  succes            :=    return 0
+//  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE)
 // --
 //  EILSEQ            :=    Command not valid
 // int tag_receive(int tag, int level, char *buffer, size_t size);
@@ -232,9 +235,20 @@ __SYSCALL_DEFINEx(4, _tag_receive, int, tag, int, level, char *, buffer, size_t,
 #else
 asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
 #endif
-  unsigned long flags;
-  printk("%s: thread %d call [tag_receive(%d,%d,%p,%ld)]\n", MODNAME, current->pid, tag, level, buffer, size);
+  // unsigned long flags;
+  char *buf;
+  size_t bSize;
 
+  printk("%s: thread %d call [tag_receive(%d,%d,%p,%ld)]\n", MODNAME, current->pid, tag, level, buffer, size);
+  if (size > MAX_BUF_SIZE)
+    return -EXFULL;
+
+  buf = vzalloc(128);
+  bSize = sprintf(buf, "Sono il kernel e ti saluto\n");
+  bSize = min(min(bSize, size - 1), 128UL - 1);
+  buf[bSize++] = '\0';
+  copy_to_user(buffer, buf, bSize);
+  vfree(buf);
   return 0;
 }
 
@@ -262,8 +276,6 @@ asmlinkage long tag_ctl(int tag, int command) {
 #endif
   Node retTag, retKey;
   room *p, searchRoom;
-  char *text;
-  size_t len;
   unsigned long flags;
 
   printk("%s: thread %d call [tag_ctl(%d,%d)]\n", MODNAME, current->pid, tag, command);
@@ -305,18 +317,9 @@ asmlinkage long tag_ctl(int tag, int command) {
       } else { // se non ha key da cercare, libero il lock
         write_unlock_irqrestore(&searchLock, flags);
       }
-
-      printk_tbde("Room (%d) are now Deleted", tag);
-      TBDE_Audit {
-        text = vmalloc(4096);
-        printk_tbdeDB("tagTree:");
-        len = Tree_Print(tagTree, text, 4096);
-        printk("\n%s", text);
-        printk_tbdeDB("keyTree:");
-        len = Tree_Print(keyTree, text, 4096);
-        printk("\n%s", text);
-        vfree(text);
-      }
+      __sync_fetch_and_sub(&roomCount, 1);
+      printk_tbde("Room (%d) are now Deleted, remaning %d rooms", tag, __sync_fetch_and_add(&roomCount, 0));
+      TBDE_Audit printTrees();
       return 0;
     } // if (retTag)
     write_unlock_irqrestore(&searchLock, flags);
@@ -334,106 +337,3 @@ asmlinkage long tag_ctl(int tag, int command) {
 unsigned long tag_ctl = (unsigned long)__x64_sys_tag_ctl;
 #else
 #endif
-
-int permCheck(int perm) {
-  switch (perm) {
-  case TBDE_OPEN_ROOM:
-  case TBDE_PRIVATE_ROOM:
-    return 0;
-    break;
-  default:
-    return -1;
-    break;
-  }
-}
-
-int operationValid(room *p) {
-  switch (p->perm) {
-  case TBDE_OPEN_ROOM:
-    return 1;
-  case TBDE_PRIVATE_ROOM:
-    if (p->uid_Creator != current->tgid)
-      return 0;
-    else
-      return 1;
-  default:
-    return 0;
-    break;
-  }
-}
-
-room *roomMake(int key, unsigned int tag, int uid_Creator, int perm) {
-  room *p;
-  p = kzalloc(sizeof(room), GFP_KERNEL | GFP_NOWAIT);
-  refcount_set(&p->refCount, 0);
-  p->key = key;
-  p->tag = tag;
-  p->uid_Creator = uid_Creator;
-  p->perm = perm;
-  return p;
-}
-
-inline void roomRefLock(room *p) { roomRefLock_n(p, 1); }
-
-void roomRefLock_n(room *p, unsigned int n) {
-  if (p) {
-    refcount_add(n, &p->refCount);
-    printk_tbdeDB("[roomRefLock_Add] refCount new value = %d", refcount_read(&p->refCount));
-  } else {
-    printk_tbdeDB("[roomRefLock_Add] Impossible increase refCount because passing NULL ptr");
-  }
-}
-
-void freeRoom(void *data) {
-  char buf[512];
-  room *p;
-  if (data) {
-    p = (room *)data;
-    if (refcount_dec_and_test(&p->refCount)) {
-      printk_tbdeDB("[freeRoom] kfree room %p", p);
-      printRoom(data, buf, 512);
-      // kfree(p);
-    } else {
-      printk_tbdeDB("[freeRoom] Impossible kfree room because room is pointed %d", refcount_read(&p->refCount));
-    }
-  } else {
-    printk_tbdeDB("[freeRoom] Impossible kfree room because passing NULL ptr");
-  }
-}
-
-int tagRoomCMP(void *a, void *b) { // return -1:a<b | 0:a==b | 1:a>b
-  room *nd1 = (room *)a;
-  room *nd2 = (room *)b;
-
-  if (nd1->tag < nd2->tag) {
-    return -1;
-  } else if (nd1->tag > nd2->tag) {
-    return +1;
-  } else {
-    return 0;
-  }
-}
-
-int keyRoomCMP(void *a, void *b) { // return -1:a<b | 0:a==b | 1:a>b
-  room *nd1 = (room *)a;
-  room *nd2 = (room *)b;
-
-  if (nd1->key < nd2->key) {
-    return -1;
-  } else if (nd1->key > nd2->key) {
-    return +1;
-  } else {
-    return 0;
-  }
-}
-
-size_t printRoom(void *data, char *buf, int size) {
-  room *p;
-  size_t indexBuf = 0;
-
-  p = (room *)data;
-  // TAG-key TAG-creator TAG-level Waiting-threads
-  indexBuf += scnprintf(buf, size, "(%d-%d) [Creator=%d-perm=%d] \n", p->tag, p->key, p->uid_Creator, p->perm);
-  return indexBuf;
-  // todo: implementare il print dei livelli per i driver
-}

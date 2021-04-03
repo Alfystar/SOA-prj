@@ -13,11 +13,13 @@ ifeq ($(KERNELRELEASE),)
 .PHONY: all install clean uninstall load unload
 all:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
-	$(CC) $(USER_DIR)/mainUser.c $(USER_DIR)/tbdeUser.c -o user.out -Iinclude
+	$(CC) $(USER_DIR)/createDeleteTest.c $(USER_DIR)/tbdeUser/tbdeUser.c -o createTest.out -Iinclude
+	$(CC) $(USER_DIR)/roomTest.c $(USER_DIR)/tbdeUser/tbdeUser.c -o roomTest.out -Iinclude
 
 clean:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
-	rm user.out
+	rm createTest.out
+	rm roomTest.out
 
 install:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules_install
@@ -44,7 +46,7 @@ obj-m += $(MODNAME).o
 $(MODNAME)-y += main.o
 
 # TAG-based data exchange Sub-system
-$(MODNAME)-y += ./lib/tbde/tbde.o ./lib/tbde/avl.o
+$(MODNAME)-y += ./lib/tbde/tbde.o ./lib/tbde/avl.o ./lib/tbde/supportTBDE.o
 
 # sysCall_Discovery Sub-system
 $(MODNAME)-y += ./lib/sysCall_Discovery/sysCall_Discovery.o ./lib/sysCall_Discovery/vtpmo/vtpmo.o

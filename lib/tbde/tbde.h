@@ -8,8 +8,10 @@
 
 #include "avl.h"
 #include <linux/errno.h>
+#include <linux/rcu_sync.h>
 #include <linux/syscalls.h>
 #include <linux/version.h>
+#include <linux/vmalloc.h>
 
 #define MAX_ROOM 256 // todo: renderlo un valore parametrico
 
@@ -38,6 +40,14 @@ typedef struct room_ {
   rcuWQ level[levelDeep];
 } room;
 
+extern Tree keyTree, tagTree;
+extern rwlock_t searchLock;
+
+// Non necessitano di essere atomiche, crescono solo al crescere dell'albero che
+// è già in una sezione critica, gestita da searchLock
+extern unsigned int roomCount;
+extern int tagCounting;
+
 void initTBDE(void);    // shuld be call BEFORE installation of syscall
 void unmountTBDE(void); // shuld be call AFTER installation of syscall
 
@@ -61,8 +71,11 @@ void roomRefLock(room *p);
 void roomRefLock_n(room *p, unsigned int n);
 void freeRoom(void *data);
 
+// Function pointer for tree prototipe
 int tagRoomCMP(void *a, void *b); // return -1:a<b | 0:a==b | 1:a>b
 int keyRoomCMP(void *a, void *b); // return -1:a<b | 0:a==b | 1:a>b
 size_t printRoom(void *data, char *buf, int size);
+
+void printTrees(void);
 
 #endif

@@ -41,7 +41,11 @@
         "cerrno": "c",
         "errno.h": "c",
         "refcount.h": "c",
-        "compiler.h": "c"
+        "compiler.h": "c",
+        "rcu_node_tree.h": "c",
+        "rcu_sync.h": "c",
+        "rcupdate.h": "c",
+        "device.h": "c"
     },
     //"C_Cpp.errorSquiggles": "Disabled",
     "editor.formatOnSave": true,
