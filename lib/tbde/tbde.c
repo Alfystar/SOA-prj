@@ -50,10 +50,9 @@ void unmountTBDE() {
 int tag_get_CREATE(int key, int command, int permission) {
   room *p;
   Node ret;
-
   unsigned long flags;
 
-  if (__sync_fetch_and_add(&roomCount, 0) >= MAX_ROOM) {
+  if (__sync_add_and_fetch(&roomCount, 0) >= MAX_ROOM) {
     printk_tbdeDB("Impossible Create another room");
     return -ETOOMANYREFS;
   }
@@ -68,7 +67,7 @@ int tag_get_CREATE(int key, int command, int permission) {
     roomRefLock(p); // Lock per conto di tagTree
     write_lock_irqsave(&searchLock, flags);
     while (true) {
-      tagCounting++;
+      __sync_add_and_fetch(&tagCounting, 1);
       negativeReset(tagCounting);
       p->tag = tagCounting;
       ret = Tree_Insert(tagTree, p);
@@ -77,10 +76,9 @@ int tag_get_CREATE(int key, int command, int permission) {
       }
     }
     write_unlock_irqrestore(&searchLock, flags);
-    __sync_fetch_and_add(&roomCount, 1);
-  } else {          // Key public
-    roomRefLock(p); // Lock per conto di keyTree
-    roomRefLock(p); // Lock per conto di tagTree
+    __sync_add_and_fetch(&roomCount, 1);
+  } else {               // Key public
+    roomRefLock_n(p, 2); // Lock per conto di keyTree e tagTree
 
     write_lock_irqsave(&searchLock, flags);
     ret = Tree_Insert(keyTree, p);
@@ -94,7 +92,7 @@ int tag_get_CREATE(int key, int command, int permission) {
     // Nodo aggiunto con successo all'albero delle key
     // Sono ancora in sezione critica
     while (true) { // Devo certamente aggiungere il nodo tag
-      tagCounting++;
+      __sync_add_and_fetch(&tagCounting, 1);
       negativeReset(tagCounting);
       p->tag = tagCounting;
       ret = Tree_Insert(tagTree, p);
@@ -104,10 +102,11 @@ int tag_get_CREATE(int key, int command, int permission) {
     }
     write_unlock_irqrestore(&searchLock, flags);
 
-    __sync_fetch_and_add(&roomCount, 1);
+    __sync_add_and_fetch(&roomCount, 1);
   }
   printk_tbde("New room Create and added to the Searches Tree");
-  TBDE_Audit printTrees();
+  // TBDE_Audit
+  printTrees();
 
   return p->tag;
 }
@@ -164,9 +163,7 @@ __SYSCALL_DEFINEx(3, _tag_get, int, key, int, command, int, permission) {
 #else
 asmlinkage long tag_get(int key, int command, int permission) {
 #endif
-
   printk("%s: thread %d call [tag_get(%d,%d,%d)]\n", MODNAME, current->pid, key, command, permission);
-
   switch (command) {
   case TBDE_O_CREAT:
     return tag_get_CREATE(key, command, permission);
@@ -191,6 +188,9 @@ unsigned long tag_get = (unsigned long)__x64_sys_tag_get;
 // Return ...:
 //  succes            :=    return 0
 //  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE)
+//  ENOMSG            :=    Tag not found
+//  EBADRQC           :=    Permission invalid to execute the operation
+//  EBADSLT           :=    asked level is over levelDeep
 // --
 //  EILSEQ            :=    Command not valid
 
@@ -200,15 +200,39 @@ __SYSCALL_DEFINEx(4, _tag_send, int, tag, int, level, char *, buffer, size_t, si
 #else
 asmlinkage long tag_send(int tag, int level, char *buffer, size_t size) {
 #endif
-  // unsigned long flags;
+  room roomSearch, *p;
+  Node ret;
+  unsigned long flags;
   char *buf;
 
   printk("%s: thread %d call [tag_send(%d,%d,%p,%ld)]\n", MODNAME, current->pid, tag, level, buffer, size);
 
-  if (size > MAX_BUF_SIZE)
+  if (size > MAX_MESSAGE_SIZE)
     return -EXFULL;
   buf = vzalloc(size);
   copy_from_user(buf, buffer, size);
+
+  roomSearch.tag = tag;
+  read_lock_irqsave(&searchLock, flags);
+  ret = Tree_SearchNode(tagTree, &roomSearch);
+
+  if (!ret) {
+    read_unlock_irqrestore(&searchLock, flags);
+    return -ENOMSG;
+  }
+  p = (room *)ret->data;
+  roomRefLock(p); // da ora ,sicuramente non mi eliminano più la stanza, al massimo non sarà più indicizzata
+  read_unlock_irqrestore(&searchLock, flags);
+
+  if (!operationValid(p)) {
+    freeRoom(p);
+    return -EBADRQC;
+  }
+  if (level >= levelDeep) {
+    return -EBADSLT;
+  }
+
+  // p->level[level]
 
   printk(buf);
   vfree(buf);
@@ -240,7 +264,7 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
   size_t bSize;
 
   printk("%s: thread %d call [tag_receive(%d,%d,%p,%ld)]\n", MODNAME, current->pid, tag, level, buffer, size);
-  if (size > MAX_BUF_SIZE)
+  if (size > MAX_MESSAGE_SIZE)
     return -EXFULL;
 
   buf = vzalloc(128);
@@ -258,6 +282,68 @@ unsigned long tag_receive = (unsigned long)__x64_sys_tag_receive;
 #endif
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+// Return TBDE_REMOVE:
+//  succes            :=    return 0
+//  ENOSR             :=    tag negative number
+//  EBADRQC           :=    Permission invalid to execute the operation
+//  ENODATA           :=    Notting to be deleted was found (all ok, just notification)
+int tag_ctl_TBDE_REMOVE(int tag, int command) {
+  Node retTag, retKey;
+  room *p, searchRoom;
+  unsigned long flags;
+
+  printk_tbdeDB("Request TBDE_REMOVE at Tag = %d", tag);
+  if (tag == -1)
+    return -ENOSR;
+  searchRoom.tag = tag;
+
+  write_lock_irqsave(&searchLock, flags);
+  retTag = Tree_SearchNode(tagTree, &searchRoom);
+  if (retTag) {
+    p = (room *)retTag->data;
+    printk_tbdeDB("Tag to delete found");
+    if (!operationValid(p)) {
+      write_unlock_irqrestore(&searchLock, flags);
+      return -EBADE;
+    }
+    p = Tree_DeleteNode(tagTree, retTag);
+    if (Tree_SearchNode(tagTree, &searchRoom) != NULL) {
+      printk_tbde("!!!! Key wasn't deleted form the key tree !!!!");
+    }
+    printk_tbde("room %p, will free after tagTree search", p);
+    freeRoom(p);
+
+    if (p->key != TBDE_IPC_PRIVATE) { // devo trovare la key
+      searchRoom.key = p->key;
+      printk_tbdeDB("Now will be search key=%d", p->key);
+      retKey = Tree_SearchNode(keyTree, &searchRoom);
+
+      // todo: dopo aver creato la recive, Verificare che la stanza sia senza nessun thread in lettura
+      if (retKey) {
+        printk_tbdeDB("Tag to delete had a key");
+        // freeRoom(Tree_DeleteNode(keyTree, retKey)); // decrease the pointer
+        p = Tree_DeleteNode(keyTree, retKey);
+        if (Tree_SearchNode(keyTree, &searchRoom) != NULL) {
+          printk_tbde("!!!! Key wasn't deleted form the key tree !!!!");
+        }
+        printk_tbde("room %p, will free after keyTree search", p);
+        freeRoom(p);
+      } else {
+        printk_tbdeDB("ERROR!!! key=%d should be present!!", p->key);
+      }
+    }
+    // libero il lock
+    write_unlock_irqrestore(&searchLock, flags);
+    __sync_sub_and_fetch(&roomCount, 1);
+    printk_tbde("Room (%d) are now Deleted, remaning %d rooms", tag, __sync_add_and_fetch(&roomCount, 0));
+    TBDE_Audit printTrees();
+    return 0;
+  } // if (retTag)
+  write_unlock_irqrestore(&searchLock, flags);
+  return -ENODATA; // Se non lo trovo, non c'è nulla da eliminare ma lo notifico
+}
+
 // Return AWAKE_ALL:
 //  succes            :=    return 0
 // --
@@ -274,56 +360,13 @@ __SYSCALL_DEFINEx(2, _tag_ctl, int, tag, int, command) {
 #else
 asmlinkage long tag_ctl(int tag, int command) {
 #endif
-  Node retTag, retKey;
-  room *p, searchRoom;
-  unsigned long flags;
-
   printk("%s: thread %d call [tag_ctl(%d,%d)]\n", MODNAME, current->pid, tag, command);
   switch (command) {
   case TBDE_AWAKE_ALL:
     // todo: Implementare dopo aver creato la recive
     break;
   case TBDE_REMOVE:
-    printk_tbdeDB("Request TBDE_REMOVE at Tag = %d", tag);
-    if (tag == -1)
-      return -ENOSR;
-    searchRoom.tag = tag;
-
-    write_lock_irqsave(&searchLock, flags);
-    retTag = Tree_SearchNode(tagTree, &searchRoom);
-    if (retTag) {
-      p = (room *)retTag->data;
-      printk_tbdeDB("Tag to delete found");
-      if (!operationValid(p)) {
-        write_unlock_irqrestore(&searchLock, flags);
-        return -EBADE;
-      }
-      freeRoom(Tree_DeleteNode(tagTree, retTag));
-
-      if (p->key != TBDE_IPC_PRIVATE) { // devo trovare la key
-        searchRoom.key = p->key;
-        printk_tbdeDB("Now will be search key=%d", p->key);
-        retKey = Tree_SearchNode(keyTree, &searchRoom);
-
-        // todo: dopo aver creato la recive, Verificare che la stanza sia senza nessun thread in lettura
-        if (retKey) {
-          printk_tbdeDB("Tag to delete had a key");
-          freeRoom(Tree_DeleteNode(keyTree, retKey)); // decrease the pointer
-          write_unlock_irqrestore(&searchLock, flags);
-        } else {
-          printk_tbdeDB("ERROR!!! key=%d should be present!!", p->key);
-          write_unlock_irqrestore(&searchLock, flags);
-        }
-      } else { // se non ha key da cercare, libero il lock
-        write_unlock_irqrestore(&searchLock, flags);
-      }
-      __sync_fetch_and_sub(&roomCount, 1);
-      printk_tbde("Room (%d) are now Deleted, remaning %d rooms", tag, __sync_fetch_and_add(&roomCount, 0));
-      TBDE_Audit printTrees();
-      return 0;
-    } // if (retTag)
-    write_unlock_irqrestore(&searchLock, flags);
-    return -ENODATA; // Se non lo trovo, non c'è nulla da eliminare ma lo notifico
+    return tag_ctl_TBDE_REMOVE(tag, command);
     break;
   default:
     printk_tbdeDB("[tag_ctl] Invalid Command");

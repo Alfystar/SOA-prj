@@ -80,12 +80,7 @@ int main(int argc, char **argv) {
       }
     } // if (tags[i] == -1)
   }
-
-  printf("(%d)\n", myFork);
-  printf("tag_send(4, 5, buf, sizeof(buf))=%d\n", tag_send(4, 5, buf, sizeof(buf)));
-
-  printf("(%d)\n", myFork);
-  printf("tag_receive(6, 7, buf, sizeof(buf))=%d\n", tag_receive(6, 7, buf, sizeof(buf)));
+  //----------------------------------------------------------------------------------
 
   // Return AWAKE_ALL:
   //  succes            :=    return 0

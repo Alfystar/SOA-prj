@@ -1,0 +1,763 @@
+[10604.994558] wlp4s0: disconnect from AP 78:b2:13:7a:82:e9 for new auth to 78:b2:13:7a:82:ea
+[10604.998861] wlp4s0: authenticate with 78:b2:13:7a:82:ea
+[10605.001748] wlp4s0: send auth to 78:b2:13:7a:82:ea (try 1/3)
+[10605.025888] wlp4s0: authenticated
+[10605.028236] wlp4s0: associate with 78:b2:13:7a:82:ea (try 1/3)
+[10605.033769] wlp4s0: RX ReassocResp from 78:b2:13:7a:82:ea (capab=0x11 status=0 aid=2)
+[10605.036118] wlp4s0: associated
+[10605.616016] iwlwifi 0000:04:00.0: No beacon heard and the time event is over already...
+[10605.616047] wlp4s0: Connection to AP 78:b2:13:7a:82:ea lost
+[10607.154024] TAG_DataExchange: thread 22463 call [tag_get(26,0,1)]
+[10607.154029] [TAG_DataExchange::TBDE]: [roomRefLock_Add] refCount or the room 00000000cc96b379 new value = 2
+[10607.154030] [TAG_DataExchange::TBDE]: New room Create and added to the Searches Tree
+[10607.154039] [TAG_DataExchange::TBDE]: tagTree:
+[10607.154043] 
+               ---(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+0)
+
+[10607.154043] [TAG_DataExchange::TBDE]: keyTree:
+[10607.154046] 
+               ---(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+0)
+
+[10607.154056] TAG_DataExchange: thread 22463 call [tag_get(50,1,1)]
+[10607.154070] TAG_DataExchange: thread 22463 call [tag_get(32,0,1)]
+[10607.154071] [TAG_DataExchange::TBDE]: [roomRefLock_Add] refCount or the room 00000000ead9b97a new value = 2
+[10607.154073] [TAG_DataExchange::TBDE]: New room Create and added to the Searches Tree
+[10607.154077] [TAG_DataExchange::TBDE]: tagTree:
+[10607.154081] 
+                    .--(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+0)
+               ---(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+1)
+
+[10607.154081] [TAG_DataExchange::TBDE]: keyTree:
+[10607.154084] 
+                    .--(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+0)
+               ---(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+1)
+
+[10607.154092] TAG_DataExchange: thread 22463 call [tag_get(2,0,1)]
+[10607.154094] [TAG_DataExchange::TBDE]: [roomRefLock_Add] refCount or the room 000000001fa65095 new value = 2
+[10607.154095] [TAG_DataExchange::TBDE]: New room Create and added to the Searches Tree
+[10607.154099] [TAG_DataExchange::TBDE]: tagTree:
+[10607.154104] 
+                    .--(3-2) [Creator=22463-perm=1] {000000001fa65095} 
+                (+0)
+               ---(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+0)
+                    `--(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+0)
+
+[10607.154104] [TAG_DataExchange::TBDE]: keyTree:
+[10607.154109] 
+                    .--(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+0)
+               ---(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+0)
+                    `--(3-2) [Creator=22463-perm=1] {000000001fa65095} 
+                (+0)
+
+[10607.154116] TAG_DataExchange: thread 22463 call [tag_get(40,1,1)]
+[10607.154124] TAG_DataExchange: thread 22463 call [tag_get(32,0,0)]
+[10607.154126] [TAG_DataExchange::TBDE]: [roomRefLock_Add] refCount or the room 00000000d7910a4e new value = 2
+[10607.154127] [TAG_DataExchange::TBDE]: [freeRoom] Impossible kfree room 00000000d7910a4e because room is pointed 1
+[10607.154176] [TAG_DataExchange::TBDE]: [freeRoom] kfree room 00000000d7910a4e executable, remain 0 room
+[10607.154195] TAG_DataExchange: thread 22463 call [tag_get(44,0,1)]
+[10607.154199] [TAG_DataExchange::TBDE]: [roomRefLock_Add] refCount or the room 0000000030b432b8 new value = 2
+[10607.154201] [TAG_DataExchange::TBDE]: New room Create and added to the Searches Tree
+[10607.154208] [TAG_DataExchange::TBDE]: tagTree:
+[10607.154217] 
+                         .--(4-44) [Creator=22463-perm=1] {0000000030b432b8} 
+                (+0)
+                    .--(3-2) [Creator=22463-perm=1] {000000001fa65095} 
+                (+1)
+               ---(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+1)
+                    `--(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+0)
+
+[10607.154219] [TAG_DataExchange::TBDE]: keyTree:
+[10607.154225] 
+                         .--(4-44) [Creator=22463-perm=1] {0000000030b432b8} 
+                (+0)
+                    .--(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+1)
+               ---(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+1)
+                    `--(3-2) [Creator=22463-perm=1] {000000001fa65095} 
+                (+0)
+
+[10607.154237] TAG_DataExchange: thread 22463 call [tag_get(16,1,1)]
+[10607.154254] TAG_DataExchange: thread 22463 call [tag_get(4,0,0)]
+[10607.154256] [TAG_DataExchange::TBDE]: [roomRefLock_Add] refCount or the room 00000000802f6913 new value = 2
+[10607.154258] [TAG_DataExchange::TBDE]: New room Create and added to the Searches Tree
+[10607.154263] [TAG_DataExchange::TBDE]: tagTree:
+[10607.154270] 
+                         .--(5-4) [Creator=22463-perm=0] {00000000802f6913} 
+                (+0)
+                    .--(4-44) [Creator=22463-perm=1] {0000000030b432b8} 
+                (+0)
+                   |     `--(3-2) [Creator=22463-perm=1] {000000001fa65095} 
+                (+0)
+               ---(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+1)
+                    `--(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+0)
+
+[10607.154271] [TAG_DataExchange::TBDE]: keyTree:
+[10607.154278] 
+                         .--(4-44) [Creator=22463-perm=1] {0000000030b432b8} 
+                (+0)
+                    .--(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+1)
+               ---(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+0)
+                   |     .--(5-4) [Creator=22463-perm=0] {00000000802f6913} 
+                (+0)
+                    `--(3-2) [Creator=22463-perm=1] {000000001fa65095} 
+                (+1)
+
+[10607.154287] TAG_DataExchange: thread 22463 call [tag_get(26,1,1)]
+[10607.154301] TAG_DataExchange: thread 22463 call [tag_get(58,0,0)]
+[10607.154304] [TAG_DataExchange::TBDE]: [roomRefLock_Add] refCount or the room 00000000a290fee4 new value = 2
+[10607.154306] [TAG_DataExchange::TBDE]: New room Create and added to the Searches Tree
+[10607.154309] [TAG_DataExchange::TBDE]: tagTree:
+[10607.154318] 
+                         .--(6-58) [Creator=22463-perm=0] {00000000a290fee4} 
+                (+0)
+                    .--(5-4) [Creator=22463-perm=0] {00000000802f6913} 
+                (+1)
+               ---(4-44) [Creator=22463-perm=1] {0000000030b432b8} 
+                (+0)
+                   |     .--(3-2) [Creator=22463-perm=1] {000000001fa65095} 
+                (+0)
+                    `--(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+0)
+                         `--(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+0)
+
+[10607.154319] [TAG_DataExchange::TBDE]: keyTree:
+[10607.154327] 
+                         .--(6-58) [Creator=22463-perm=0] {00000000a290fee4} 
+                (+0)
+                    .--(4-44) [Creator=22463-perm=1] {0000000030b432b8} 
+                (+0)
+                   |     `--(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+0)
+               ---(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+0)
+                   |     .--(5-4) [Creator=22463-perm=0] {00000000802f6913} 
+                (+0)
+                    `--(3-2) [Creator=22463-perm=1] {000000001fa65095} 
+                (+1)
+
+[10607.154336] TAG_DataExchange: thread 22463 call [tag_get(36,1,1)]
+[10607.154353] TAG_DataExchange: thread 22463 call [tag_get(26,0,1)]
+[10607.154355] [TAG_DataExchange::TBDE]: [roomRefLock_Add] refCount or the room 00000000d402374a new value = 2
+[10607.154357] [TAG_DataExchange::TBDE]: [freeRoom] Impossible kfree room 00000000d402374a because room is pointed 1
+[10607.154359] [TAG_DataExchange::TBDE]: [freeRoom] kfree room 00000000d402374a executable, remain 0 room
+[10607.154374] TAG_DataExchange: thread 22463 call [tag_get(44,1,1)]
+[10607.154381] TAG_DataExchange: thread 22463 call [tag_get(42,1,0)]
+[10607.154392] TAG_DataExchange: thread 22463 call [tag_get(14,0,0)]
+[10607.154394] [TAG_DataExchange::TBDE]: [roomRefLock_Add] refCount or the room 00000000c8cb6d42 new value = 2
+[10607.154396] [TAG_DataExchange::TBDE]: New room Create and added to the Searches Tree
+[10607.154400] [TAG_DataExchange::TBDE]: tagTree:
+[10607.154418] 
+                         .--(7-14) [Creator=22463-perm=0] {00000000c8cb6d42} 
+                (+0)
+                    .--(6-58) [Creator=22463-perm=0] {00000000a290fee4} 
+                (+0)
+                   |     `--(5-4) [Creator=22463-perm=0] {00000000802f6913} 
+                (+0)
+               ---(4-44) [Creator=22463-perm=1] {0000000030b432b8} 
+                (+0)
+                   |     .--(3-2) [Creator=22463-perm=1] {000000001fa65095} 
+                (+0)
+                    `--(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+0)
+                         `--(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+0)
+
+[10607.154419] [TAG_DataExchange::TBDE]: keyTree:
+[10607.154438] 
+                         .--(6-58) [Creator=22463-perm=0] {00000000a290fee4} 
+                (+0)
+                    .--(4-44) [Creator=22463-perm=1] {0000000030b432b8} 
+                (+0)
+                   |     `--(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+0)
+               ---(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+0)
+                   |     .--(7-14) [Creator=22463-perm=0] {00000000c8cb6d42} 
+                (+0)
+                    `--(5-4) [Creator=22463-perm=0] {00000000802f6913} 
+                (+0)
+                         `--(3-2) [Creator=22463-perm=1] {000000001fa65095} 
+                (+0)
+
+[10607.154449] TAG_DataExchange: thread 22463 call [tag_get(10,0,1)]
+[10607.154451] [TAG_DataExchange::TBDE]: [roomRefLock_Add] refCount or the room 00000000e0cd0236 new value = 2
+[10607.154453] [TAG_DataExchange::TBDE]: New room Create and added to the Searches Tree
+[10607.154459] [TAG_DataExchange::TBDE]: tagTree:
+[10607.154470] 
+                              .--(8-10) [Creator=22463-perm=1] {00000000e0cd0236} 
+                (+0)
+                         .--(7-14) [Creator=22463-perm=0] {00000000c8cb6d42} 
+                (+1)
+                    .--(6-58) [Creator=22463-perm=0] {00000000a290fee4} 
+                (+1)
+                   |     `--(5-4) [Creator=22463-perm=0] {00000000802f6913} 
+                (+0)
+               ---(4-44) [Creator=22463-perm=1] {0000000030b432b8} 
+                (+1)
+                   |     .--(3-2) [Creator=22463-perm=1] {000000001fa65095} 
+                (+0)
+                    `--(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+0)
+                         `--(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+0)
+
+[10607.154478] [TAG_DataExchange::TBDE]: keyTree:
+[10607.154491] 
+                         .--(6-58) [Creator=22463-perm=0] {00000000a290fee4} 
+                (+0)
+                    .--(4-44) [Creator=22463-perm=1] {0000000030b432b8} 
+                (+0)
+                   |     `--(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+0)
+               ---(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (-1)
+                   |     .--(7-14) [Creator=22463-perm=0] {00000000c8cb6d42} 
+                (-1)
+                   |    |     `--(8-10) [Creator=22463-perm=1] {00000000e0cd0236} 
+                (+0)
+                    `--(5-4) [Creator=22463-perm=0] {00000000802f6913} 
+                (+1)
+                         `--(3-2) [Creator=22463-perm=1] {000000001fa65095} 
+                (+0)
+
+[10607.154505] TAG_DataExchange: thread 22463 call [tag_get(32,1,0)]
+[10607.154518] TAG_DataExchange: thread 22463 call [tag_get(52,1,0)]
+[10607.154538] TAG_DataExchange: thread 22463 call [tag_get(40,0,1)]
+[10607.154540] [TAG_DataExchange::TBDE]: [roomRefLock_Add] refCount or the room 00000000c91cac72 new value = 2
+[10607.154541] [TAG_DataExchange::TBDE]: New room Create and added to the Searches Tree
+[10607.154548] [TAG_DataExchange::TBDE]: tagTree:
+[10607.154561] 
+                              .--(9-40) [Creator=22463-perm=1] {00000000c91cac72} 
+                (+0)
+                         .--(8-10) [Creator=22463-perm=1] {00000000e0cd0236} 
+                (+0)
+                        |     `--(7-14) [Creator=22463-perm=0] {00000000c8cb6d42} 
+                (+0)
+                    .--(6-58) [Creator=22463-perm=0] {00000000a290fee4} 
+                (+1)
+                   |     `--(5-4) [Creator=22463-perm=0] {00000000802f6913} 
+                (+0)
+               ---(4-44) [Creator=22463-perm=1] {0000000030b432b8} 
+                (+1)
+                   |     .--(3-2) [Creator=22463-perm=1] {000000001fa65095} 
+                (+0)
+                    `--(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+0)
+                         `--(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+0)
+
+[10607.154561] [TAG_DataExchange::TBDE]: keyTree:
+[10607.154573] 
+                         .--(6-58) [Creator=22463-perm=0] {00000000a290fee4} 
+                (+0)
+                    .--(4-44) [Creator=22463-perm=1] {0000000030b432b8} 
+                (-1)
+                   |    |     .--(9-40) [Creator=22463-perm=1] {00000000c91cac72} 
+                (+0)
+                   |     `--(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+1)
+               ---(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+0)
+                   |     .--(7-14) [Creator=22463-perm=0] {00000000c8cb6d42} 
+                (-1)
+                   |    |     `--(8-10) [Creator=22463-perm=1] {00000000e0cd0236} 
+                (+0)
+                    `--(5-4) [Creator=22463-perm=0] {00000000802f6913} 
+                (+1)
+                         `--(3-2) [Creator=22463-perm=1] {000000001fa65095} 
+                (+0)
+
+[10607.154583] TAG_DataExchange: thread 22463 call [tag_get(30,1,0)]
+[10607.154597] TAG_DataExchange: thread 22463 call [tag_get(54,0,1)]
+[10607.154600] [TAG_DataExchange::TBDE]: [roomRefLock_Add] refCount or the room 000000007985e951 new value = 2
+[10607.154602] [TAG_DataExchange::TBDE]: New room Create and added to the Searches Tree
+[10607.154608] [TAG_DataExchange::TBDE]: tagTree:
+[10607.154624] 
+                              .--(10-54) [Creator=22463-perm=1] {000000007985e951} 
+                (+0)
+                         .--(9-40) [Creator=22463-perm=1] {00000000c91cac72} 
+                (+1)
+                    .--(8-10) [Creator=22463-perm=1] {00000000e0cd0236} 
+                (+0)
+                   |    |     .--(7-14) [Creator=22463-perm=0] {00000000c8cb6d42} 
+                (+0)
+                   |     `--(6-58) [Creator=22463-perm=0] {00000000a290fee4} 
+                (+0)
+                   |          `--(5-4) [Creator=22463-perm=0] {00000000802f6913} 
+                (+0)
+               ---(4-44) [Creator=22463-perm=1] {0000000030b432b8} 
+                (+1)
+                   |     .--(3-2) [Creator=22463-perm=1] {000000001fa65095} 
+                (+0)
+                    `--(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+0)
+                         `--(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+0)
+
+[10607.154625] [TAG_DataExchange::TBDE]: keyTree:
+[10607.154650] 
+                         .--(6-58) [Creator=22463-perm=0] {00000000a290fee4} 
+                (-1)
+                        |     `--(10-54) [Creator=22463-perm=1] {000000007985e951} 
+                (+0)
+                    .--(4-44) [Creator=22463-perm=1] {0000000030b432b8} 
+                (+0)
+                   |    |     .--(9-40) [Creator=22463-perm=1] {00000000c91cac72} 
+                (+0)
+                   |     `--(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+1)
+               ---(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+0)
+                   |     .--(7-14) [Creator=22463-perm=0] {00000000c8cb6d42} 
+                (-1)
+                   |    |     `--(8-10) [Creator=22463-perm=1] {00000000e0cd0236} 
+                (+0)
+                    `--(5-4) [Creator=22463-perm=0] {00000000802f6913} 
+                (+1)
+                         `--(3-2) [Creator=22463-perm=1] {000000001fa65095} 
+                (+0)
+
+[10607.154660] TAG_DataExchange: thread 22463 call [tag_get(32,1,1)]
+[10607.154670] TAG_DataExchange: thread 22463 call [tag_get(34,0,1)]
+[10607.154672] [TAG_DataExchange::TBDE]: [roomRefLock_Add] refCount or the room 000000003e0c765a new value = 2
+[10607.154675] [TAG_DataExchange::TBDE]: New room Create and added to the Searches Tree
+[10607.154680] [TAG_DataExchange::TBDE]: tagTree:
+[10607.154695] 
+                              .--(11-34) [Creator=22463-perm=1] {000000003e0c765a} 
+                (+0)
+                         .--(10-54) [Creator=22463-perm=1] {000000007985e951} 
+                (+0)
+                        |     `--(9-40) [Creator=22463-perm=1] {00000000c91cac72} 
+                (+0)
+                    .--(8-10) [Creator=22463-perm=1] {00000000e0cd0236} 
+                (+0)
+                   |    |     .--(7-14) [Creator=22463-perm=0] {00000000c8cb6d42} 
+                (+0)
+                   |     `--(6-58) [Creator=22463-perm=0] {00000000a290fee4} 
+                (+0)
+                   |          `--(5-4) [Creator=22463-perm=0] {00000000802f6913} 
+                (+0)
+               ---(4-44) [Creator=22463-perm=1] {0000000030b432b8} 
+                (+1)
+                   |     .--(3-2) [Creator=22463-perm=1] {000000001fa65095} 
+                (+0)
+                    `--(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+0)
+                         `--(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+0)
+
+[10607.154696] [TAG_DataExchange::TBDE]: keyTree:
+[10607.154711] 
+                         .--(6-58) [Creator=22463-perm=0] {00000000a290fee4} 
+                (-1)
+                        |     `--(10-54) [Creator=22463-perm=1] {000000007985e951} 
+                (+0)
+                    .--(4-44) [Creator=22463-perm=1] {0000000030b432b8} 
+                (+0)
+                   |    |     .--(9-40) [Creator=22463-perm=1] {00000000c91cac72} 
+                (+0)
+                   |     `--(11-34) [Creator=22463-perm=1] {000000003e0c765a} 
+                (+0)
+                   |          `--(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+0)
+               ---(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+0)
+                   |     .--(7-14) [Creator=22463-perm=0] {00000000c8cb6d42} 
+                (-1)
+                   |    |     `--(8-10) [Creator=22463-perm=1] {00000000e0cd0236} 
+                (+0)
+                    `--(5-4) [Creator=22463-perm=0] {00000000802f6913} 
+                (+1)
+                         `--(3-2) [Creator=22463-perm=1] {000000001fa65095} 
+                (+0)
+
+[10607.154721] TAG_DataExchange: thread 22463 call [tag_get(24,1,0)]
+[10607.154735] TAG_DataExchange: thread 22463 call [tag_get(54,0,0)]
+[10607.154738] [TAG_DataExchange::TBDE]: [roomRefLock_Add] refCount or the room 00000000e3b88385 new value = 2
+[10607.154739] [TAG_DataExchange::TBDE]: [freeRoom] Impossible kfree room 00000000e3b88385 because room is pointed 1
+[10607.154741] [TAG_DataExchange::TBDE]: [freeRoom] kfree room 00000000e3b88385 executable, remain 0 room
+[10607.154755] TAG_DataExchange: thread 22463 call [tag_get(6,0,1)]
+[10607.154758] [TAG_DataExchange::TBDE]: [roomRefLock_Add] refCount or the room 00000000afd8c1dc new value = 2
+[10607.154759] [TAG_DataExchange::TBDE]: New room Create and added to the Searches Tree
+[10607.154763] [TAG_DataExchange::TBDE]: tagTree:
+[10607.154781] 
+                              .--(12-6) [Creator=22463-perm=1] {00000000afd8c1dc} 
+                (+0)
+                         .--(11-34) [Creator=22463-perm=1] {000000003e0c765a} 
+                (+1)
+                    .--(10-54) [Creator=22463-perm=1] {000000007985e951} 
+                (+1)
+                   |     `--(9-40) [Creator=22463-perm=1] {00000000c91cac72} 
+                (+0)
+               ---(8-10) [Creator=22463-perm=1] {00000000e0cd0236} 
+                (+0)
+                   |          .--(7-14) [Creator=22463-perm=0] {00000000c8cb6d42} 
+                (+0)
+                   |     .--(6-58) [Creator=22463-perm=0] {00000000a290fee4} 
+                (+0)
+                   |    |     `--(5-4) [Creator=22463-perm=0] {00000000802f6913} 
+                (+0)
+                    `--(4-44) [Creator=22463-perm=1] {0000000030b432b8} 
+                (+0)
+                        |     .--(3-2) [Creator=22463-perm=1] {000000001fa65095} 
+                (+0)
+                         `--(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+0)
+                              `--(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+0)
+
+[10607.154781] [TAG_DataExchange::TBDE]: keyTree:
+[10607.154797] 
+                         .--(6-58) [Creator=22463-perm=0] {00000000a290fee4} 
+                (-1)
+                        |     `--(10-54) [Creator=22463-perm=1] {000000007985e951} 
+                (+0)
+                    .--(4-44) [Creator=22463-perm=1] {0000000030b432b8} 
+                (+0)
+                   |    |     .--(9-40) [Creator=22463-perm=1] {00000000c91cac72} 
+                (+0)
+                   |     `--(11-34) [Creator=22463-perm=1] {000000003e0c765a} 
+                (+0)
+                   |          `--(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+0)
+               ---(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+0)
+                   |          .--(7-14) [Creator=22463-perm=0] {00000000c8cb6d42} 
+                (+0)
+                   |     .--(8-10) [Creator=22463-perm=1] {00000000e0cd0236} 
+                (+0)
+                   |    |     `--(12-6) [Creator=22463-perm=1] {00000000afd8c1dc} 
+                (+0)
+                    `--(5-4) [Creator=22463-perm=0] {00000000802f6913} 
+                (+1)
+                         `--(3-2) [Creator=22463-perm=1] {000000001fa65095} 
+                (+0)
+
+[10607.154806] TAG_DataExchange: thread 22463 call [tag_get(36,0,0)]
+[10607.154808] [TAG_DataExchange::TBDE]: [roomRefLock_Add] refCount or the room 0000000099e1c0fb new value = 2
+[10607.154810] [TAG_DataExchange::TBDE]: New room Create and added to the Searches Tree
+[10607.154814] [TAG_DataExchange::TBDE]: tagTree:
+[10607.154831] 
+                              .--(13-36) [Creator=22463-perm=0] {0000000099e1c0fb} 
+                (+0)
+                         .--(12-6) [Creator=22463-perm=1] {00000000afd8c1dc} 
+                (+0)
+                        |     `--(11-34) [Creator=22463-perm=1] {000000003e0c765a} 
+                (+0)
+                    .--(10-54) [Creator=22463-perm=1] {000000007985e951} 
+                (+1)
+                   |     `--(9-40) [Creator=22463-perm=1] {00000000c91cac72} 
+                (+0)
+               ---(8-10) [Creator=22463-perm=1] {00000000e0cd0236} 
+                (+0)
+                   |          .--(7-14) [Creator=22463-perm=0] {00000000c8cb6d42} 
+                (+0)
+                   |     .--(6-58) [Creator=22463-perm=0] {00000000a290fee4} 
+                (+0)
+                   |    |     `--(5-4) [Creator=22463-perm=0] {00000000802f6913} 
+                (+0)
+                    `--(4-44) [Creator=22463-perm=1] {0000000030b432b8} 
+                (+0)
+                        |     .--(3-2) [Creator=22463-perm=1] {000000001fa65095} 
+                (+0)
+                         `--(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+0)
+                              `--(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+0)
+
+[10607.154832] [TAG_DataExchange::TBDE]: keyTree:
+[10607.154852] 
+                         .--(6-58) [Creator=22463-perm=0] {00000000a290fee4} 
+                (-1)
+                        |     `--(10-54) [Creator=22463-perm=1] {000000007985e951} 
+                (+0)
+                    .--(4-44) [Creator=22463-perm=1] {0000000030b432b8} 
+                (-1)
+                   |    |     .--(9-40) [Creator=22463-perm=1] {00000000c91cac72} 
+                (-1)
+                   |    |    |     `--(13-36) [Creator=22463-perm=0] {0000000099e1c0fb} 
+                (+0)
+                   |     `--(11-34) [Creator=22463-perm=1] {000000003e0c765a} 
+                (+1)
+                   |          `--(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+0)
+               ---(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+1)
+                   |          .--(7-14) [Creator=22463-perm=0] {00000000c8cb6d42} 
+                (+0)
+                   |     .--(8-10) [Creator=22463-perm=1] {00000000e0cd0236} 
+                (+0)
+                   |    |     `--(12-6) [Creator=22463-perm=1] {00000000afd8c1dc} 
+                (+0)
+                    `--(5-4) [Creator=22463-perm=0] {00000000802f6913} 
+                (+1)
+                         `--(3-2) [Creator=22463-perm=1] {000000001fa65095} 
+                (+0)
+
+[10607.154862] TAG_DataExchange: thread 22463 call [tag_get(16,0,1)]
+[10607.154868] [TAG_DataExchange::TBDE]: [roomRefLock_Add] refCount or the room 000000009b87803b new value = 2
+[10607.154870] [TAG_DataExchange::TBDE]: New room Create and added to the Searches Tree
+[10607.154877] [TAG_DataExchange::TBDE]: tagTree:
+[10607.154908] 
+                              .--(14-16) [Creator=22463-perm=1] {000000009b87803b} 
+                (+0)
+                         .--(13-36) [Creator=22463-perm=0] {0000000099e1c0fb} 
+                (+1)
+                    .--(12-6) [Creator=22463-perm=1] {00000000afd8c1dc} 
+                (+0)
+                   |    |     .--(11-34) [Creator=22463-perm=1] {000000003e0c765a} 
+                (+0)
+                   |     `--(10-54) [Creator=22463-perm=1] {000000007985e951} 
+                (+0)
+                   |          `--(9-40) [Creator=22463-perm=1] {00000000c91cac72} 
+                (+0)
+               ---(8-10) [Creator=22463-perm=1] {00000000e0cd0236} 
+                (+0)
+                   |          .--(7-14) [Creator=22463-perm=0] {00000000c8cb6d42} 
+                (+0)
+                   |     .--(6-58) [Creator=22463-perm=0] {00000000a290fee4} 
+                (+0)
+                   |    |     `--(5-4) [Creator=22463-perm=0] {00000000802f6913} 
+                (+0)
+                    `--(4-44) [Creator=22463-perm=1] {0000000030b432b8} 
+                (+0)
+                        |     .--(3-2) [Creator=22463-perm=1] {000000001fa65095} 
+                (+0)
+                         `--(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+0)
+                              `--(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+0)
+
+[10607.154912] [TAG_DataExchange::TBDE]: keyTree:
+[10607.154931] 
+                         .--(6-58) [Creator=22463-perm=0] {00000000a290fee4} 
+                (-1)
+                        |     `--(10-54) [Creator=22463-perm=1] {000000007985e951} 
+                (+0)
+                    .--(4-44) [Creator=22463-perm=1] {0000000030b432b8} 
+                (-1)
+                   |    |     .--(9-40) [Creator=22463-perm=1] {00000000c91cac72} 
+                (-1)
+                   |    |    |     `--(13-36) [Creator=22463-perm=0] {0000000099e1c0fb} 
+                (+0)
+                   |     `--(11-34) [Creator=22463-perm=1] {000000003e0c765a} 
+                (+1)
+                   |          `--(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+0)
+               ---(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+1)
+                   |          .--(14-16) [Creator=22463-perm=1] {000000009b87803b} 
+                (+0)
+                   |     .--(7-14) [Creator=22463-perm=0] {00000000c8cb6d42} 
+                (+1)
+                    `--(8-10) [Creator=22463-perm=1] {00000000e0cd0236} 
+                (+0)
+                        |     .--(12-6) [Creator=22463-perm=1] {00000000afd8c1dc} 
+                (+0)
+                         `--(5-4) [Creator=22463-perm=0] {00000000802f6913} 
+                (+0)
+                              `--(3-2) [Creator=22463-perm=1] {000000001fa65095} 
+                (+0)
+
+[10607.154944] TAG_DataExchange: thread 22463 call [tag_get(22,0,1)]
+[10607.154946] [TAG_DataExchange::TBDE]: [roomRefLock_Add] refCount or the room 00000000f14204d0 new value = 2
+[10607.154948] [TAG_DataExchange::TBDE]: New room Create and added to the Searches Tree
+[10607.154952] [TAG_DataExchange::TBDE]: tagTree:
+[10607.154972] 
+                              .--(15-22) [Creator=22463-perm=1] {00000000f14204d0} 
+                (+0)
+                         .--(14-16) [Creator=22463-perm=1] {000000009b87803b} 
+                (+0)
+                        |     `--(13-36) [Creator=22463-perm=0] {0000000099e1c0fb} 
+                (+0)
+                    .--(12-6) [Creator=22463-perm=1] {00000000afd8c1dc} 
+                (+0)
+                   |    |     .--(11-34) [Creator=22463-perm=1] {000000003e0c765a} 
+                (+0)
+                   |     `--(10-54) [Creator=22463-perm=1] {000000007985e951} 
+                (+0)
+                   |          `--(9-40) [Creator=22463-perm=1] {00000000c91cac72} 
+                (+0)
+               ---(8-10) [Creator=22463-perm=1] {00000000e0cd0236} 
+                (+0)
+                   |          .--(7-14) [Creator=22463-perm=0] {00000000c8cb6d42} 
+                (+0)
+                   |     .--(6-58) [Creator=22463-perm=0] {00000000a290fee4} 
+                (+0)
+                   |    |     `--(5-4) [Creator=22463-perm=0] {00000000802f6913} 
+                (+0)
+                    `--(4-44) [Creator=22463-perm=1] {0000000030b432b8} 
+                (+0)
+                        |     .--(3-2) [Creator=22463-perm=1] {000000001fa65095} 
+                (+0)
+                         `--(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+0)
+                     
+[10607.154974] [TAG_DataExchange::TBDE]: keyTree:
+[10607.154994] 
+                         .--(6-58) [Creator=22463-perm=0] {00000000a290fee4} 
+                (-1)
+                        |     `--(10-54) [Creator=22463-perm=1] {000000007985e951} 
+                (+0)
+                    .--(4-44) [Creator=22463-perm=1] {0000000030b432b8} 
+                (-1)
+                   |    |     .--(9-40) [Creator=22463-perm=1] {00000000c91cac72} 
+                (-1)
+                   |    |    |     `--(13-36) [Creator=22463-perm=0] {0000000099e1c0fb} 
+                (+0)
+                   |     `--(11-34) [Creator=22463-perm=1] {000000003e0c765a} 
+                (+1)
+                   |          `--(2-32) [Creator=22463-perm=1] {00000000ead9b97a} 
+                (+0)
+               ---(1-26) [Creator=22463-perm=1] {00000000cc96b379} 
+                (+1)
+                   |          .--(15-22) [Creator=22463-perm=1] {00000000f14204d0} 
+                (+0)
+                   |     .--(14-16) [Creator=22463-perm=1] {000000009b87803b} 
+                (+0)
+                   |    |     `--(7-14) [Creator=22463-perm=0] {00000000c8cb6d42} 
+                (+0)
+                    `--(8-10) [Creator=22463-perm=1] {00000000e0cd0236} 
+                (+0)
+                        |     .--(12-6) [Creator=22463-perm=1] {00000000afd8c1dc} 
+                (+0)
+                         `--(5-4) [Creator=22463-perm=0] {00000000802f6913} 
+                (+0)
+[10607.155010] TAG_DataExchange: thread 22463 call [tag_ctl(1,1)]
+[10607.155013] [TAG_DataExchange::AVL]: [Node_free]kfree node 0000000007e341b1
+[10607.155014] [TAG_DataExchange::TBDE]: room 00000000cc96b379, will free after tagTree search
+[10607.155015] [TAG_DataExchange::TBDE]: [freeRoom] Impossible kfree room 00000000cc96b379 because room is pointed 1
+[10607.155017] [TAG_DataExchange::AVL]: [Node_free]kfree node 00000000719e3d9b
+[10607.155018] [TAG_DataExchange::TBDE]: room 00000000cc96b379, will free after keyTree search
+[10607.155020] [TAG_DataExchange::TBDE]: [freeRoom] kfree room 00000000cc96b379 executable, remain 0 room
+[10607.155021] [TAG_DataExchange::TBDE]: Room (1) are now Deleted, remaning 14 rooms
+[10607.155029] TAG_DataExchange: thread 22463 call [tag_ctl(-1,1)]
+[10607.155044] TAG_DataExchange: thread 22463 call [tag_ctl(2,1)]
+[10607.155046] [TAG_DataExchange::AVL]: [Node_free]kfree node 00000000077f4d9f
+[10607.155047] [TAG_DataExchange::TBDE]: room 000000001fa65095, will free after tagTree search
+[10607.155048] [TAG_DataExchange::TBDE]: [freeRoom] Impossible kfree room 000000001fa65095 because room is pointed 1
+[10607.155050] [TAG_DataExchange::AVL]: [Node_free]kfree node 00000000ff0852ce
+[10607.155051] [TAG_DataExchange::TBDE]: room 000000001fa65095, will free after keyTree search
+[10607.155052] [TAG_DataExchange::TBDE]: [freeRoom] kfree room 000000001fa65095 executable, remain 0 room
+[10607.155053] [TAG_DataExchange::TBDE]: Room (2) are now Deleted, remaning 13 rooms
+[10607.155060] TAG_DataExchange: thread 22463 call [tag_ctl(3,1)]
+[10607.155063] [TAG_DataExchange::AVL]: [Node_free]kfree node 00000000e4823703
+[10607.155064] [TAG_DataExchange::TBDE]: room 000000001fa65095, will free after tagTree search
+[10607.155123] [TAG_DataExchange::TBDE]: [freeRoom] Impossible kfree room 000000001fa65095 because room is pointed -1073741824
+[10607.155125] [TAG_DataExchange::TBDE]: Room (3) are now Deleted, remaning 12 rooms
+[10607.155138] TAG_DataExchange: thread 22463 call [tag_ctl(-1,1)]
+[10607.155153] TAG_DataExchange: thread 22463 call [tag_ctl(-1,1)]
+[10607.155167] TAG_DataExchange: thread 22463 call [tag_ctl(4,1)]
+[10607.155168] [TAG_DataExchange::AVL]: [Node_free]kfree node 00000000e131d7c0
+[10607.155170] [TAG_DataExchange::TBDE]: room 00000000802f6913, will free after tagTree search
+[10607.155171] [TAG_DataExchange::TBDE]: [freeRoom] Impossible kfree room 00000000802f6913 because room is pointed 1
+[10607.155173] [TAG_DataExchange::AVL]: [Node_free]kfree node 0000000066cb1c1b
+[10607.155174] [TAG_DataExchange::TBDE]: room 00000000afd8c1dc, will free after keyTree search
+[10607.155175] [TAG_DataExchange::TBDE]: [freeRoom] Impossible kfree room 00000000afd8c1dc because room is pointed 1
+[10607.155176] [TAG_DataExchange::TBDE]: Room (4) are now Deleted, remaning 11 rooms
+[10607.155184] TAG_DataExchange: thread 22463 call [tag_ctl(-1,1)]
+[10607.155198] TAG_DataExchange: thread 22463 call [tag_ctl(5,1)]
+[10607.155199] [TAG_DataExchange::AVL]: [Node_free]kfree node 00000000fd5a7451
+[10607.155201] [TAG_DataExchange::TBDE]: room 00000000802f6913, will free after tagTree search
+[10607.155202] [TAG_DataExchange::TBDE]: [freeRoom] kfree room 00000000802f6913 executable, remain 0 room
+[10607.155203] [TAG_DataExchange::TBDE]: Room (5) are now Deleted, remaning 10 rooms
+[10607.155211] TAG_DataExchange: thread 22463 call [tag_ctl(1,1)]
+[10607.155232] TAG_DataExchange: thread 22463 call [tag_ctl(6,1)]
+[10607.155238] [TAG_DataExchange::AVL]: [Node_free]kfree node 000000008eb711ab
+[10607.155240] [TAG_DataExchange::TBDE]: room 00000000c8cb6d42, will free after tagTree search
+[10607.155249] [TAG_DataExchange::TBDE]: [freeRoom] Impossible kfree room 00000000c8cb6d42 because room is pointed 1
+[10607.155257] [TAG_DataExchange::AVL]: [Node_free]kfree node 00000000026d60e2
+[10607.155263] [TAG_DataExchange::TBDE]: room 00000000c8cb6d42, will free after keyTree search
+[10607.155273] [TAG_DataExchange::TBDE]: [freeRoom] kfree room 00000000c8cb6d42 executable, remain 0 room
+[10607.155279] [TAG_DataExchange::TBDE]: Room (6) are now Deleted, remaning 9 rooms
+[10607.155295] TAG_DataExchange: thread 22463 call [tag_ctl(-1,1)]
+[10607.155306] TAG_DataExchange: thread 22463 call [tag_ctl(-1,1)]
+[10607.155315] TAG_DataExchange: thread 22463 call [tag_ctl(4,1)]
+[10607.155329] TAG_DataExchange: thread 22463 call [tag_ctl(-1,1)]
+[10607.155339] TAG_DataExchange: thread 22463 call [tag_ctl(7,1)]
+[10607.155341] [TAG_DataExchange::AVL]: [Node_free]kfree node 00000000198a9897
+[10607.155343] [TAG_DataExchange::TBDE]: room 00000000c8cb6d42, will free after tagTree search
+[10607.155384] [TAG_DataExchange::TBDE]: [freeRoom] Impossible kfree room 00000000c8cb6d42 because room is pointed -1073741824
+[10607.155386] [TAG_DataExchange::TBDE]: Room (7) are now Deleted, remaning 8 rooms
+[10607.155395] TAG_DataExchange: thread 22463 call [tag_ctl(8,1)]
+[10607.155397] [TAG_DataExchange::AVL]: [Node_free]kfree node 000000006958b4bc
+[10607.155399] [TAG_DataExchange::TBDE]: room 00000000c91cac72, will free after tagTree search
+[10607.155401] [TAG_DataExchange::TBDE]: [freeRoom] Impossible kfree room 00000000c91cac72 because room is pointed 1
+[10607.155403] [TAG_DataExchange::AVL]: [Node_free]kfree node 00000000fcf310e9
+[10607.155405] [TAG_DataExchange::TBDE]: room 00000000c91cac72, will free after keyTree search
+[10607.155407] [TAG_DataExchange::TBDE]: [freeRoom] kfree room 00000000c91cac72 executable, remain 0 room
+[10607.155408] [TAG_DataExchange::TBDE]: Room (8) are now Deleted, remaning 7 rooms
+[10607.155415] TAG_DataExchange: thread 22463 call [tag_ctl(2,1)]
+[10607.155429] TAG_DataExchange: thread 22463 call [tag_ctl(-1,1)]
+[10607.155439] TAG_DataExchange: thread 22463 call [tag_ctl(9,1)]
+[10607.155441] [TAG_DataExchange::AVL]: [Node_free]kfree node 000000007fe2944e
+[10607.155445] [TAG_DataExchange::TBDE]: room 00000000c91cac72, will free after tagTree search
+[10607.155481] [TAG_DataExchange::TBDE]: [freeRoom] Impossible kfree room 00000000c91cac72 because room is pointed -1073741824
+[10607.155483] [TAG_DataExchange::TBDE]: Room (9) are now Deleted, remaning 6 rooms
+[10607.155497] TAG_DataExchange: thread 22463 call [tag_ctl(-1,1)]
+[10607.155512] TAG_DataExchange: thread 22463 call [tag_ctl(10,1)]
+[10607.155515] [TAG_DataExchange::AVL]: [Node_free]kfree node 00000000082c9619
+[10607.155516] [TAG_DataExchange::TBDE]: room 000000003e0c765a, will free after tagTree search
+[10607.155517] [TAG_DataExchange::TBDE]: [freeRoom] Impossible kfree room 000000003e0c765a because room is pointed 1
+[10607.155518] [TAG_DataExchange::AVL]: [Node_free]kfree node 0000000056fd9c09
+[10607.155520] [TAG_DataExchange::TBDE]: room 000000003e0c765a, will free after keyTree search
+[10607.155521] [TAG_DataExchange::TBDE]: [freeRoom] kfree room 000000003e0c765a executable, remain 0 room
+[10607.155523] [TAG_DataExchange::TBDE]: Room (10) are now Deleted, remaning 5 rooms
+[10607.155533] TAG_DataExchange: thread 22463 call [tag_ctl(2,1)]
+[10607.155547] TAG_DataExchange: thread 22463 call [tag_ctl(11,1)]
+[10607.155549] [TAG_DataExchange::AVL]: [Node_free]kfree node 0000000060b58614
+[10607.155555] [TAG_DataExchange::TBDE]: room 000000003e0c765a, will free after tagTree search
+[10607.155588] [TAG_DataExchange::TBDE]: [freeRoom] Impossible kfree room 000000003e0c765a because room is pointed -1073741824
+[10607.155592] [TAG_DataExchange::TBDE]: Room (11) are now Deleted, remaning 4 rooms
+[10607.155604] TAG_DataExchange: thread 22463 call [tag_ctl(-1,1)]
+[10607.155622] TAG_DataExchange: thread 22463 call [tag_ctl(-1,1)]
+[10607.155640] TAG_DataExchange: thread 22463 call [tag_ctl(12,1)]
+[10607.155646] [TAG_DataExchange::AVL]: [Node_free]kfree node 0000000067e8b4b9
+[10607.155648] [TAG_DataExchange::TBDE]: room 0000000099e1c0fb, will free after tagTree search
+[10607.155652] [TAG_DataExchange::TBDE]: [freeRoom] Impossible kfree room 0000000099e1c0fb because room is pointed 1
+[10607.155657] [TAG_DataExchange::AVL]: [Node_free]kfree node 00000000d65eb8d4
+[10607.155662] [TAG_DataExchange::TBDE]: room 0000000099e1c0fb, will free after keyTree search
+[10607.155663] [TAG_DataExchange::TBDE]: [freeRoom] kfree room 0000000099e1c0fb executable, remain 0 room
+[10607.155664] [TAG_DataExchange::TBDE]: Room (12) are now Deleted, remaning 3 rooms
+[10607.155672] TAG_DataExchange: thread 22463 call [tag_ctl(13,1)]
+[10607.155677] [TAG_DataExchange::AVL]: [Node_free]kfree node 0000000025fe0fee
+[10607.155678] [TAG_DataExchange::TBDE]: room 0000000099e1c0fb, will free after tagTree search
+[10607.155703] [TAG_DataExchange::TBDE]: [freeRoom] Impossible kfree room 0000000099e1c0fb because room is pointed -1073741824
+[10607.155705] [TAG_DataExchange::TBDE]: Room (13) are now Deleted, remaning 2 rooms
+[10607.155713] TAG_DataExchange: thread 22463 call [tag_ctl(14,1)]
+[10607.155715] [TAG_DataExchange::AVL]: [Node_free]kfree node 0000000014e338ae
+[10607.155716] [TAG_DataExchange::TBDE]: room 00000000f14204d0, will free after tagTree search
+[10607.155718] [TAG_DataExchange::TBDE]: [freeRoom] Impossible kfree room 00000000f14204d0 because room is pointed 1
+[10607.155720] [TAG_DataExchange::AVL]: [Node_free]kfree node 00000000cee551d5
+[10607.155721] [TAG_DataExchange::TBDE]: room 00000000f14204d0, will free after keyTree search
+[10607.155722] [TAG_DataExchange::TBDE]: [freeRoom] kfree room 00000000f14204d0 executable, remain 0 room
+[10607.155723] [TAG_DataExchange::TBDE]: Room (14) are now Deleted, remaning 1 rooms
+[10607.155731] TAG_DataExchange: thread 22463 call [tag_ctl(15,1)]
+[10607.155733] [TAG_DataExchange::AVL]: [Node_free]kfree node 00000000c0ea5e34
+[10607.155734] [TAG_DataExchange::TBDE]: room 00000000f14204d0, will free after tagTree search
+[10607.155759] [TAG_DataExchange::TBDE]: [freeRoom] Impossible kfree room 00000000f14204d0 because room is pointed -1073741824
+[10607.155760] [TAG_DataExchange::TBDE]: Room (15) are now Deleted, remaning 0 rooms
+[10611.496989] wlp4s0: authenticate with 78:b2:13:7a:82:e9
+[10611.500304] wlp4s0: send auth to 78:b2:13:7a:82:e9 (try 1/3)
+[10611.525103] wlp4s0: authenticated
+[10611.526243] wlp4s0: associate with 78:b2:13:7a:82:e9 (try 1/3)
+[10611.530308] wlp4s0: RX AssocResp from 78:b2:13:7a:82:e9 (capab=0x411 status=0 aid=1)
+[10611.532620] wlp4s0: associated

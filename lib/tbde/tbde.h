@@ -1,6 +1,6 @@
 #ifndef tbde_h
 #define tbde_h
-
+// -1073741824
 #include <globalDef.h>
 #include <stddef.h>
 
@@ -25,10 +25,13 @@ typedef struct WQentry_ {
   // AtomicReaderCount
 } WQentry;
 
-typedef struct rcuWQ_ {
+typedef struct chatRoom_ {
+  char *mes;
+  size_t len;
+
   WQentry *currentWQ;
   // Spinlock Writer
-} rcuWQ;
+} chatRoom;
 
 // Room Metadata
 typedef struct room_ {
@@ -37,7 +40,7 @@ typedef struct room_ {
   unsigned int tag;    // indexing with tag
   int uid_Creator;
   int perm;
-  rcuWQ level[levelDeep];
+  chatRoom level[levelDeep];
 } room;
 
 extern Tree keyTree, tagTree;
@@ -66,9 +69,11 @@ int tag_ctl(int tag, int command);
 int permCheck(int perm);
 int operationValid(room *p);
 
+void makeChatRoom(chatRoom *cr);
 room *roomMake(int key, unsigned int tag, int uid_Creator, int perm);
 void roomRefLock(room *p);
 void roomRefLock_n(room *p, unsigned int n);
+void freeChatRoom(chatRoom *cr);
 void freeRoom(void *data);
 
 // Function pointer for tree prototipe

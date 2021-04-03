@@ -15,6 +15,6 @@ enum tag_ctl_command { TBDE_AWAKE_ALL = 0, TBDE_REMOVE };
 
 // << Module Define >>
 #define levelDeep 32 // Max number of sub-rooms
-#define MAX_BUF_SIZE 4096
+#define MAX_MESSAGE_SIZE 4096
 
 #endif

@@ -375,7 +375,40 @@ void Tree_DeleteBalance(Tree t, Node node, int balance) {
   }
 }
 
+// Swap i 2 nodi
 void Tree_Replace(Node target, Node source) {
+  struct Node_ swapNode;
+  Node leftTarget = target->left;
+  Node rightTarget = target->right;
+  memcpy(&swapNode, target, sizeof(struct Node_));
+
+  target->balance = source->balance;
+  target->data = source->data;
+  target->left = source->left;
+  target->right = source->right;
+
+  if (source->left != NULL) {
+    source->left->parent = target;
+  }
+
+  if (source->right != NULL) {
+    source->right->parent = target;
+  }
+
+  source->balance = swapNode.balance;
+  source->data = swapNode.data;
+  source->left = swapNode.left;
+  source->right = swapNode.right;
+
+  if (leftTarget != NULL) {
+    leftTarget->parent = source;
+  }
+
+  if (rightTarget != NULL) {
+    rightTarget->parent = source;
+  }
+
+  /*
   Node left = source->left;
   Node right = source->right;
 
@@ -391,6 +424,7 @@ void Tree_Replace(Node target, Node source) {
   if (right != NULL) {
     right->parent = target;
   }
+  */
 }
 
 Node Tree_RotateLeft(Tree t, Node node) {
