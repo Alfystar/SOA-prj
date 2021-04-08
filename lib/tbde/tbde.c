@@ -187,7 +187,7 @@ unsigned long tag_get = (unsigned long)__x64_sys_tag_get;
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Return ...:
 //  succes            :=    return 0
-//  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE)
+//  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE) or no size
 //  ENOMSG            :=    Tag not found
 //  EBADRQC           :=    Permission invalid to execute the operation
 //  EBADSLT           :=    asked level is over levelDeep
@@ -201,16 +201,98 @@ __SYSCALL_DEFINEx(4, _tag_send, int, tag, int, level, char *, buffer, size_t, si
 asmlinkage long tag_send(int tag, int level, char *buffer, size_t size) {
 #endif
   room roomSearch, *p;
+  chatRoom *newChat, *oldChat;
   Node ret;
-  unsigned long flags;
   char *buf;
+  unsigned long flags;
 
   printk("%s: thread %d call [tag_send(%d,%d,%p,%ld)]\n", MODNAME, current->pid, tag, level, buffer, size);
 
-  if (size > MAX_MESSAGE_SIZE)
+  if (size > MAX_MESSAGE_SIZE && size < 1)
     return -EXFULL;
   buf = vzalloc(size);
   copy_from_user(buf, buffer, size);
+
+  roomSearch.tag = tag;
+  read_lock_irqsave(&searchLock, flags);
+  ret = Tree_SearchNode(tagTree, &roomSearch);
+
+  if (!ret) {
+    read_unlock_irqrestore(&searchLock, flags);
+    vfree(buf); // Libero la memoria di appoggio
+    return -ENOMSG;
+  }
+  p = (room *)ret->data;
+  roomRefLock(p); // da ora ,sicuramente non mi eliminano più la stanza, al massimo non sarà più indicizzata
+  read_unlock_irqrestore(&searchLock, flags);
+
+  if (!operationValid(p)) {
+    freeRoom(p);
+    vfree(buf); // Libero la memoria di appoggio
+    return -EBADRQC;
+  }
+  if (level >= levelDeep) {
+    vfree(buf); // Libero la memoria di appoggio
+    return -EBADSLT;
+  }
+
+  // Operazione valida, essendo un writer creo una stanza vuota
+  // e la sostituisco a quella presente che mi interessa
+
+  newChat = makeChatRoom();
+
+  do {
+    oldChat = p->level[level];
+  } while (!__sync_bool_compare_and_swap(&p->level[level], oldChat, newChat));
+  // Ora oldChat è solo mia
+  chatRoomRefLock(oldChat);
+
+  oldChat->mes = buf;
+  oldChat->len = size;
+  oldChat->ready = 1;
+  barrier(); // mi premuro vengano attuati così che la condizione sulla wake_up venga rispettata
+
+  wake_up(&oldChat->readerQueue);
+
+  freeChatRoom(oldChat); // Libero il mio puntatore
+  freeRoom(p);           // Libero il mio puntatore
+  return 0;
+}
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 17, 0)
+unsigned long tag_send = (unsigned long)__x64_sys_tag_send;
+#else
+#endif
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Return ...:
+//  succes            :=    return len copied
+//  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE) or no size
+//  ENOMSG            :=    Tag not found
+//  EBADRQC           :=    Permission invalid to execute the operation
+//  EBADSLT           :=    asked level is over levelDeep
+//  ERESTARTSYS       :=    Signal wake_up the thread
+// --
+//  EILSEQ            :=    Command not valid
+
+// int tag_receive(int tag, int level, char *buffer, size_t size);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 17, 0)
+__SYSCALL_DEFINEx(4, _tag_receive, int, tag, int, level, char *, buffer, size_t, size) {
+#else
+asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
+#endif
+
+  room roomSearch, *p;
+  chatRoom *curChat;
+  Node ret;
+  int retWait = 0;
+  unsigned long flags;
+  size_t bSize;
+
+  printk("%s: thread %d call [tag_receive(%d,%d,%p,%ld)]\n", MODNAME, current->pid, tag, level, buffer, size);
+
+  if (size > MAX_MESSAGE_SIZE && size < 1)
+    return -EXFULL;
 
   roomSearch.tag = tag;
   read_lock_irqsave(&searchLock, flags);
@@ -232,47 +314,29 @@ asmlinkage long tag_send(int tag, int level, char *buffer, size_t size) {
     return -EBADSLT;
   }
 
-  // p->level[level]
+  // Devo ottenere il puntatore all'ultima room serializzata e aumentare il contatore atomicamente
+  preempt_disable();
+  curChat = p->level[level];
+  chatRoomRefLock(curChat);
+  preempt_enable_notrace();
+  // preempt_enable_no_resched();
 
-  printk(buf);
-  vfree(buf);
-  // rcu_read_lock();
-  // rcu_read_unlock();
-  // synchronize_rcu();
-  return 0;
-}
+  // Todo: la micro race condition può esistere?
+  if (__sync_add_and_fetch(&curChat->ready, 0) != 1)
+    retWait = wait_event_interruptible(curChat->readerQueue, curChat->ready == 1);
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 17, 0)
-unsigned long tag_send = (unsigned long)__x64_sys_tag_send;
-#else
-#endif
+  if (retWait != 0) { // wake_up for signal
+    freeChatRoom(curChat);
+    freeRoom(p);
+    return -ERESTARTSYS;
+  }
 
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Return ...:
-//  succes            :=    return 0
-//  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE)
-// --
-//  EILSEQ            :=    Command not valid
-// int tag_receive(int tag, int level, char *buffer, size_t size);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 17, 0)
-__SYSCALL_DEFINEx(4, _tag_receive, int, tag, int, level, char *, buffer, size_t, size) {
-#else
-asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
-#endif
-  // unsigned long flags;
-  char *buf;
-  size_t bSize;
+  bSize = min(size, curChat->len);
+  copy_to_user(buffer, curChat->mes, bSize);
 
-  printk("%s: thread %d call [tag_receive(%d,%d,%p,%ld)]\n", MODNAME, current->pid, tag, level, buffer, size);
-  if (size > MAX_MESSAGE_SIZE)
-    return -EXFULL;
+  freeChatRoom(curChat); // Libero il puntatore
+  freeRoom(p);           // todo: capire se il reader deve tenere per tutta l'attesa il ref della coda
 
-  buf = vzalloc(128);
-  bSize = sprintf(buf, "Sono il kernel e ti saluto\n");
-  bSize = min(min(bSize, size - 1), 128UL - 1);
-  buf[bSize++] = '\0';
-  copy_to_user(buffer, buf, bSize);
-  vfree(buf);
   return 0;
 }
 

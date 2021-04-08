@@ -8,10 +8,12 @@
 
 #include "avl.h"
 #include <linux/errno.h>
+#include <linux/preempt.h>
 #include <linux/rcu_sync.h>
 #include <linux/syscalls.h>
 #include <linux/version.h>
 #include <linux/vmalloc.h>
+#include <linux/wait.h>
 
 #define MAX_ROOM 256 // todo: renderlo un valore parametrico
 
@@ -20,17 +22,13 @@
 #define printk_tbdeDB(str, ...) TBDE_Audit printk_tbde(str, ##__VA_ARGS__)
 
 // Chat-room Room Metadata
-typedef struct WQentry_ {
-  // currentWQ*
-  // AtomicReaderCount
-} WQentry;
-
 typedef struct chatRoom_ {
+  refcount_t refCount; // structure point me
   char *mes;
   size_t len;
+  unsigned char ready;
 
-  WQentry *currentWQ;
-  // Spinlock Writer
+  wait_queue_head_t readerQueue;
 } chatRoom;
 
 // Room Metadata
@@ -40,7 +38,7 @@ typedef struct room_ {
   unsigned int tag;    // indexing with tag
   int uid_Creator;
   int perm;
-  chatRoom level[levelDeep];
+  chatRoom *level[levelDeep];
 } room;
 
 extern Tree keyTree, tagTree;
@@ -69,11 +67,14 @@ int tag_ctl(int tag, int command);
 int permCheck(int perm);
 int operationValid(room *p);
 
-void makeChatRoom(chatRoom *cr);
+chatRoom *makeChatRoom(void);
+void chatRoomRefLock(chatRoom *p);
+void chatRoomRefLock_n(chatRoom *p, unsigned int n);
+void freeChatRoom(chatRoom *cr);
+
 room *roomMake(int key, unsigned int tag, int uid_Creator, int perm);
 void roomRefLock(room *p);
 void roomRefLock_n(room *p, unsigned int n);
-void freeChatRoom(chatRoom *cr);
 void freeRoom(void *data);
 
 // Function pointer for tree prototipe

@@ -45,7 +45,10 @@
         "rcu_node_tree.h": "c",
         "rcu_sync.h": "c",
         "rcupdate.h": "c",
-        "device.h": "c"
+        "device.h": "c",
+        "wait.h": "c",
+        "new": "cpp",
+        "preempt.h": "c"
     },
     //"C_Cpp.errorSquiggles": "Disabled",
     "editor.formatOnSave": true,

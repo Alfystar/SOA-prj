@@ -26,9 +26,41 @@ int operationValid(room *p) {
     break;
   }
 }
-void makeChatRoom(chatRoom *cr) {
-  cr->mes = NULL;
-  cr->len = 0;
+chatRoom *makeChatRoom(void) {
+  chatRoom *cr;
+  cr = kzalloc(sizeof(chatRoom), GFP_KERNEL | GFP_NOWAIT);
+  refcount_set(&cr->refCount, 0);
+  init_waitqueue_head(&cr->readerQueue);
+  return cr;
+}
+
+inline void chatRoomRefLock(chatRoom *cr) { chatRoomRefLock_n(cr, 1); }
+
+void chatRoomRefLock_n(chatRoom *cr, unsigned int n) {
+  if (cr) {
+    refcount_add(n, &cr->refCount);
+    printk_tbdeDB("[chatRoomRefLock_n] refCount or the chatRoom %p new value = %d", cr, refcount_read(&cr->refCount));
+  } else {
+    printk_tbdeDB("[chatRoomRefLock_n] Impossible increase refCount because passing NULL ptr");
+  }
+}
+
+void freeChatRoom(chatRoom *cr) {
+  if (cr != NULL) {
+    if (refcount_dec_and_test(&cr->refCount)) {
+      if (cr->mes != NULL)
+        vfree(cr->mes);
+
+      wake_up_all(&cr->readerQueue);
+      printk_tbdeDB("[freeChatRoom] kfree chatRoom %p executable, remain %d room", cr, refcount_read(&cr->refCount));
+      kfree(cr);
+    } else {
+      printk_tbdeDB("[freeChatRoom] Impossible kfree chatRoom %p because room is pointed %d", cr,
+                    refcount_read(&cr->refCount));
+    }
+  } else {
+    printk_tbdeDB("[freeChatRoom] Impossible kfree chatRoom because passing NULL ptr");
+  }
 }
 
 room *roomMake(int key, unsigned int tag, int uid_Creator, int perm) {
@@ -41,7 +73,7 @@ room *roomMake(int key, unsigned int tag, int uid_Creator, int perm) {
   p->uid_Creator = uid_Creator;
   p->perm = perm;
   for (i = 0; i < levelDeep; i++)
-    makeChatRoom(&p->level[i]);
+    p->level[i] = makeChatRoom();
   return p;
 }
 
@@ -50,15 +82,10 @@ inline void roomRefLock(room *p) { roomRefLock_n(p, 1); }
 void roomRefLock_n(room *p, unsigned int n) {
   if (p) {
     refcount_add(n, &p->refCount);
-    printk_tbdeDB("[roomRefLock_Add] refCount or the room %p new value = %d", p, refcount_read(&p->refCount));
+    printk_tbdeDB("[roomRefLock_n] refCount or the room %p new value = %d", p, refcount_read(&p->refCount));
   } else {
-    printk_tbdeDB("[roomRefLock_Add] Impossible increase refCount because passing NULL ptr");
+    printk_tbdeDB("[roomRefLock_n] Impossible increase refCount because passing NULL ptr");
   }
-}
-
-void freeChatRoom(chatRoom *cr) {
-  if (cr->mes != NULL)
-    vfree(cr->mes);
 }
 
 void freeRoom(void *data) {
@@ -68,7 +95,7 @@ void freeRoom(void *data) {
   if (p != NULL) {
     if (refcount_dec_and_test(&p->refCount)) {
       for (i = 0; i < levelDeep; i++)
-        freeChatRoom(&p->level[i]);
+        freeChatRoom(p->level[i]);
       printk_tbdeDB("[freeRoom] kfree room %p executable, remain %d room", p, refcount_read(&p->refCount));
       kfree(p);
     } else {
