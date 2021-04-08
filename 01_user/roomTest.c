@@ -69,7 +69,6 @@ int main(int argc, char **argv) {
   tag_receive(6, 7, buf, sizeof(buf));
   printf("%s", buf);
 
-  sleep(1);
   // Return AWAKE_ALL:
   //  succes            :=    return 0
   // --
