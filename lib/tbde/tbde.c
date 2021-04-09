@@ -240,8 +240,8 @@ asmlinkage long tag_send(int tag, int level, char *buffer, size_t size) {
   // e la sostituisco a quella presente che mi interessa
 
   newChat = makeChatRoom();
-
   do {
+    barrier();
     oldChat = p->level[level];
   } while (!__sync_bool_compare_and_swap(&p->level[level], oldChat, newChat));
   // Ora oldChat è solo mia
@@ -315,15 +315,16 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
   }
 
   // Devo ottenere il puntatore all'ultima room serializzata e aumentare il contatore atomicamente
+  // todo: potrebbe essere freeata nel frattempo
   preempt_disable();
   curChat = p->level[level];
   chatRoomRefLock(curChat);
-  preempt_enable_notrace();
-  // preempt_enable_no_resched();
 
   // Todo: la micro race condition può esistere?
-  if (__sync_add_and_fetch(&curChat->ready, 0) != 1)
-    retWait = wait_event_interruptible(curChat->readerQueue, curChat->ready == 1);
+  retWait = wait_event_interruptible(curChat->readerQueue, __sync_add_and_fetch(&curChat->ready, 0) == 1);
+
+  preempt_enable_notrace();
+  // preempt_enable_no_resched();
 
   if (retWait != 0) { // wake_up for signal
     freeChatRoom(curChat);

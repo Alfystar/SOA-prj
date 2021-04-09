@@ -8,13 +8,13 @@
 
 #include "avl.h"
 #include <linux/errno.h>
+#include <linux/param.h>
 #include <linux/preempt.h>
 #include <linux/rcu_sync.h>
 #include <linux/syscalls.h>
 #include <linux/version.h>
 #include <linux/vmalloc.h>
 #include <linux/wait.h>
-
 #define MAX_ROOM 256 // todo: renderlo un valore parametrico
 
 #define TBDE_Audit if (0)
