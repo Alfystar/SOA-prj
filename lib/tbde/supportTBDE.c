@@ -26,40 +26,50 @@ int operationValid(room *p) {
     break;
   }
 }
-chatRoom *makeChatRoom(void) {
-  chatRoom *cr;
-  cr = kzalloc(sizeof(chatRoom), GFP_KERNEL | GFP_NOWAIT);
-  refcount_set(&cr->refCount, 0);
-  init_waitqueue_head(&cr->readerQueue);
-  return cr;
+exangeRoom *makeExangeRoom(void) {
+  exangeRoom *ex;
+  ex = kzalloc(sizeof(exangeRoom), GFP_KERNEL | GFP_NOWAIT);
+  refcount_set(&ex->refCount, 0);
+  init_waitqueue_head(&ex->readerQueue);
+  return ex;
 }
 
-inline void chatRoomRefLock(chatRoom *cr) { chatRoomRefLock_n(cr, 1); }
-
-void chatRoomRefLock_n(chatRoom *cr, unsigned int n) {
-  if (cr) {
-    refcount_add(n, &cr->refCount);
-    printk_tbdeDB("[chatRoomRefLock_n] refCount or the chatRoom %p new value = %d", cr, refcount_read(&cr->refCount));
-  } else {
-    printk_tbdeDB("[chatRoomRefLock_n] Impossible increase refCount because passing NULL ptr");
-  }
+void realExangeFree(exangeRoom *ex) {
+  if (ex->mes != NULL)
+    vfree(ex->mes);
+  kfree(ex);
 }
 
-void freeChatRoom(chatRoom *cr) {
-  if (cr != NULL) {
-    if (refcount_dec_and_test(&cr->refCount)) {
-      if (cr->mes != NULL)
-        vfree(cr->mes);
-
-      wake_up_all(&cr->readerQueue);
-      printk_tbdeDB("[freeChatRoom] kfree chatRoom %p executable, remain %d room", cr, refcount_read(&cr->refCount));
-      kfree(cr);
-    } else {
-      printk_tbdeDB("[freeChatRoom] Impossible kfree chatRoom %p because room is pointed %d", cr,
-                    refcount_read(&cr->refCount));
+// 2 = i free a exangeRoom just empty
+// 1 = i free the exangeRoom
+// 0 = i don't free exangeRoom
+// -1 = Problem in pointer
+int try_freeExangeRoom(exangeRoom *ex, refcount_t *freeLockCount) {
+  if (ex != NULL && freeLockCount != NULL) {
+    if (refcount_read(&ex->refCount) == 0) { // è una stanza vuota, posso eliminarla subito
+      // todo: capire se viene mai ragiunta in un momento inaspettato
+      printk_tbde("[try_freeExangeRoom] free exangeRoom %p, with no reference", ex);
+      realExangeFree(ex);
+      return 1;
     }
+    if (refcount_dec_not_one(&ex->refCount)) { // Se non sono l'ultimo
+      return 0;
+    }
+    // Sono l'ultimo, verifico mi sia permesso di fare la free
+    preempt_disable();
+    while (refcount_read(freeLockCount) != 0) { // Simil spinLock busy wait
+    };
+    preempt_enable();
+
+    if (refcount_dec_not_one(&ex->refCount)) { // Il reader è entrato qui, ci penserà lui a pulire
+      return 0;
+    }
+    // Sono effettivamente l'ultimo e nessuno più può entrare
+    realExangeFree(ex);
+    return 1;
   } else {
-    printk_tbdeDB("[freeChatRoom] Impossible kfree chatRoom because passing NULL ptr");
+    printk_tbde("[freeChatRoom] Impossible kfree chatRoom because passing same NULL ptr");
+    return -1;
   }
 }
 
@@ -72,20 +82,11 @@ room *roomMake(int key, unsigned int tag, int uid_Creator, int perm) {
   p->tag = tag;
   p->uid_Creator = uid_Creator;
   p->perm = perm;
-  for (i = 0; i < levelDeep; i++)
-    p->level[i] = makeChatRoom();
-  return p;
-}
-
-inline void roomRefLock(room *p) { roomRefLock_n(p, 1); }
-
-void roomRefLock_n(room *p, unsigned int n) {
-  if (p) {
-    refcount_add(n, &p->refCount);
-    printk_tbdeDB("[roomRefLock_n] refCount or the room %p new value = %d", p, refcount_read(&p->refCount));
-  } else {
-    printk_tbdeDB("[roomRefLock_n] Impossible increase refCount because passing NULL ptr");
+  for (i = 0; i < levelDeep; i++) {
+    refcount_set(&p->level[i].freeLockCount, 0);
+    p->level[i].ex = makeExangeRoom();
   }
+  return p;
 }
 
 void freeRoom(void *data) {
@@ -95,11 +96,10 @@ void freeRoom(void *data) {
   if (p != NULL) {
     if (refcount_dec_and_test(&p->refCount)) {
       for (i = 0; i < levelDeep; i++)
-        freeChatRoom(p->level[i]);
-      printk_tbdeDB("[freeRoom] kfree room %p executable, remain %d room", p, refcount_read(&p->refCount));
+        try_freeExangeRoom(p->level[i].ex, &p->level[i].freeLockCount);
       kfree(p);
     } else {
-      printk_tbdeDB("[freeRoom] Impossible kfree room %p because room is pointed %d", p, refcount_read(&p->refCount));
+      return;
     }
   } else {
     printk_tbdeDB("[freeRoom] Impossible kfree room because passing NULL ptr");

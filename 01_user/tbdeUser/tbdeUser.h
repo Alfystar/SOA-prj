@@ -37,9 +37,26 @@ void initTBDE();
 int tag_get(int key, int command, int permission);
 
 
+// Return tag_send:
+//  succes            :=    return 0
+//  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE) or no size
+//  ENOMSG            :=    Tag not found
+//  EBADRQC           :=    Permission invalid to execute the operation
+//  EBADSLT           :=    asked level is over levelDeep
+// --
+//  EILSEQ            :=    Command not valid
 int tag_send(int tag, int level, char *buffer, size_t size);
 
 
+// Return tag_receive:
+//  succes            :=    return len copied
+//  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE) or no size
+//  ENOMSG            :=    Tag not found
+//  EBADRQC           :=    Permission invalid to execute the operation
+//  EBADSLT           :=    asked level is over levelDeep
+//  ERESTARTSYS       :=    Signal wake_up the thread
+// --
+//  EILSEQ            :=    Command not valid
 int tag_receive(int tag, int level, char *buffer, size_t size);
 
 

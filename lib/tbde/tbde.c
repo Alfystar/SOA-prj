@@ -64,7 +64,7 @@ int tag_get_CREATE(int key, int command, int permission) {
 
   p = roomMake(key, 0, current->tgid, permission);
   if (p->key == TBDE_IPC_PRIVATE) {
-    roomRefLock(p); // Lock per conto di tagTree
+    refcount_inc(&p->refCount); // Lock per conto di tagTree
     write_lock_irqsave(&searchLock, flags);
     while (true) {
       __sync_add_and_fetch(&tagCounting, 1);
@@ -77,8 +77,8 @@ int tag_get_CREATE(int key, int command, int permission) {
     }
     write_unlock_irqrestore(&searchLock, flags);
     __sync_add_and_fetch(&roomCount, 1);
-  } else {               // Key public
-    roomRefLock_n(p, 2); // Lock per conto di keyTree e tagTree
+  } else {                         // Key public
+    refcount_add(2, &p->refCount); // Lock per conto di keyTree e tagTree
 
     write_lock_irqsave(&searchLock, flags);
     ret = Tree_Insert(keyTree, p);
@@ -185,7 +185,7 @@ unsigned long tag_get = (unsigned long)__x64_sys_tag_get;
 #endif
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Return ...:
+// Return tag_send:
 //  succes            :=    return 0
 //  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE) or no size
 //  ENOMSG            :=    Tag not found
@@ -201,7 +201,7 @@ __SYSCALL_DEFINEx(4, _tag_send, int, tag, int, level, char *, buffer, size_t, si
 asmlinkage long tag_send(int tag, int level, char *buffer, size_t size) {
 #endif
   room roomSearch, *p;
-  chatRoom *newChat, *oldChat;
+  exangeRoom *newEx, *oldEx;
   Node ret;
   char *buf;
   unsigned long flags;
@@ -223,7 +223,7 @@ asmlinkage long tag_send(int tag, int level, char *buffer, size_t size) {
     return -ENOMSG;
   }
   p = (room *)ret->data;
-  roomRefLock(p); // da ora ,sicuramente non mi eliminano più la stanza, al massimo non sarà più indicizzata
+  refcount_inc(&p->refCount); // da ora ,sicuramente non mi eliminano più la stanza, al massimo non sarà più indicizzata
   read_unlock_irqrestore(&searchLock, flags);
 
   if (!operationValid(p)) {
@@ -239,23 +239,21 @@ asmlinkage long tag_send(int tag, int level, char *buffer, size_t size) {
   // Operazione valida, essendo un writer creo una stanza vuota
   // e la sostituisco a quella presente che mi interessa
 
-  newChat = makeChatRoom();
+  newEx = makeExangeRoom();
   do {
-    barrier();
-    oldChat = p->level[level];
-  } while (!__sync_bool_compare_and_swap(&p->level[level], oldChat, newChat));
-  // Ora oldChat è solo mia
-  chatRoomRefLock(oldChat);
+    oldEx = p->level[level].ex;
+  } while (!__sync_bool_compare_and_swap(&p->level[level].ex, oldEx, newEx));
+  // Ora oldChat è isolata dal resto del sistema, sono l'unico write dentro
 
-  oldChat->mes = buf;
-  oldChat->len = size;
-  oldChat->ready = 1;
-  barrier(); // mi premuro vengano attuati così che la condizione sulla wake_up venga rispettata
+  refcount_inc(&oldEx->refCount);
+  oldEx->mes = buf;
+  oldEx->len = size;
+  oldEx->ready = 1;
 
-  wake_up(&oldChat->readerQueue);
+  wake_up_all(&oldEx->readerQueue);
 
-  freeChatRoom(oldChat); // Libero il mio puntatore
-  freeRoom(p);           // Libero il mio puntatore
+  try_freeExangeRoom(oldEx, &p->level[level].freeLockCount); // Libero il mio puntatore
+  freeRoom(p);                                               // Libero il mio puntatore
   return 0;
 }
 
@@ -265,7 +263,7 @@ unsigned long tag_send = (unsigned long)__x64_sys_tag_send;
 #endif
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// Return ...:
+// Return tag_receive:
 //  succes            :=    return len copied
 //  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE) or no size
 //  ENOMSG            :=    Tag not found
@@ -283,11 +281,11 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
 #endif
 
   room roomSearch, *p;
-  chatRoom *curChat;
+  exangeRoom *curExange;
   Node ret;
   int retWait = 0;
   unsigned long flags;
-  size_t bSize;
+  size_t bSize, noCopy, copied, offset;
 
   printk("%s: thread %d call [tag_receive(%d,%d,%p,%ld)]\n", MODNAME, current->pid, tag, level, buffer, size);
 
@@ -303,7 +301,7 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
     return -ENOMSG;
   }
   p = (room *)ret->data;
-  roomRefLock(p); // da ora ,sicuramente non mi eliminano più la stanza, al massimo non sarà più indicizzata
+  refcount_inc(&p->refCount); // da ora ,sicuramente non mi eliminano più la stanza, al massimo non sarà più indicizzata
   read_unlock_irqrestore(&searchLock, flags);
 
   if (!operationValid(p)) {
@@ -314,31 +312,33 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
     return -EBADSLT;
   }
 
-  // Devo ottenere il puntatore all'ultima room serializzata e aumentare il contatore atomicamente
-  // todo: potrebbe essere freeata nel frattempo
+  // Creo un lock con un soft-lock sulle free, alla stanza che mi interessa
   preempt_disable();
-  curChat = p->level[level];
-  chatRoomRefLock(curChat);
-
-  // Todo: la micro race condition può esistere?
-  retWait = wait_event_interruptible(curChat->readerQueue, __sync_add_and_fetch(&curChat->ready, 0) == 1);
-
+  refcount_inc(&p->level[level].freeLockCount); // Impedisco momentaneamente le free sul livello che mi interessa
+  curExange = p->level[level].ex;               // In base a quelo attualmente serializzato
+  refcount_inc(&curExange->refCount);           // Impedisco la distruzione della mia stanza
+  refcount_dec(&p->level[level].freeLockCount); // Ri-abilito le free sul livello che mi interessa
   preempt_enable_notrace();
-  // preempt_enable_no_resched();
 
-  if (retWait != 0) { // wake_up for signal
-    freeChatRoom(curChat);
+  retWait = wait_event_interruptible(curExange->readerQueue, __sync_add_and_fetch(&curExange->ready, 0) == 1);
+
+  if (retWait != 0) {                                              // wake_up for signal
+    try_freeExangeRoom(curExange, &p->level[level].freeLockCount); // Libero il puntatore
     freeRoom(p);
     return -ERESTARTSYS;
   }
 
-  bSize = min(size, curChat->len);
-  copy_to_user(buffer, curChat->mes, bSize);
+  bSize = min(size, curExange->len);
+  while (bSize > 0) {
+    noCopy = copy_to_user(buffer + offset, curExange->mes + offset, bSize);
+    copied = bSize - noCopy;
+    offset += copied;
+    bSize -= offset;
+  }
 
-  freeChatRoom(curChat); // Libero il puntatore
-  freeRoom(p);           // todo: capire se il reader deve tenere per tutta l'attesa il ref della coda
-
-  return 0;
+  try_freeExangeRoom(curExange, &p->level[level].freeLockCount); // Libero il puntatore
+  freeRoom(p);
+  return bSize;
 }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 17, 0)

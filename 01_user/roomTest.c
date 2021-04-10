@@ -60,14 +60,76 @@ int main(int argc, char **argv) {
     }
   }
 
-  int size = sprintf(buf, "Salve professore sono il processo : %d\n", myFork);
-  size++;
-  printf("(%d) tag_send(...)\n", myFork);
-  tag_send(tag, 0, buf, size);
-
-  printf("(%d) tag_receive(...)\n", myFork);
-  tag_receive(6, 7, buf, sizeof(buf));
-  printf("%s", buf);
+  if (commandAsk == TBDE_O_CREAT) {
+    sleep(1);
+    int size = sprintf(buf, "Salve professore sono il processo : %d\n", myFork);
+    size++;
+    printf("(%d) tag_send(...)\n", myFork);
+    int ret = tag_send(tag, 1, buf, size);
+    // Return tag_send:
+    //  succes            :=    return 0
+    //  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE) or no size
+    //  ENOMSG            :=    Tag not found
+    //  EBADRQC           :=    Permission invalid to execute the operation
+    //  EBADSLT           :=    asked level is over levelDeep
+    // --
+    //  EILSEQ            :=    Command not valid
+    switch (ret) {
+    case EXFULL:
+      /* code */
+      break;
+    case ENOMSG:
+      /* code */
+      break;
+    case EBADRQC:
+      /* code */
+      break;
+    case EBADSLT:
+      /* code */
+      break;
+    case EILSEQ:
+      /* code */
+      break;
+    default:
+      break;
+    }
+  }
+  if (commandAsk == TBDE_O_OPEN) {
+    printf("(%d) tag_receive(...)\n", myFork);
+    int bRead = tag_receive(tag, 1, buf, sizeof(buf));
+    // Return tag_receive:
+    //  succes            :=    return len copied
+    //  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE) or no size
+    //  ENOMSG            :=    Tag not found
+    //  EBADRQC           :=    Permission invalid to execute the operation
+    //  EBADSLT           :=    asked level is over levelDeep
+    //  ERESTARTSYS       :=    Signal wake_up the thread
+    // --
+    //  EILSEQ            :=    Command not valid
+    switch (bRead) {
+    case EXFULL:
+      /* code */
+      break;
+    case ENOMSG:
+      /* code */
+      break;
+    case EBADRQC:
+      /* code */
+      break;
+    case EBADSLT:
+      /* code */
+      break;
+    case ERESTARTSYS:
+      /* code */
+      break;
+    case EILSEQ:
+      /* code */
+      break;
+    default:
+      printf("%s\nReturn value = %d\n", buf, bRead);
+      break;
+    }
+  }
 
   // Return AWAKE_ALL:
   //  succes            :=    return 0

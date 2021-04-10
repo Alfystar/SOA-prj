@@ -48,7 +48,8 @@
         "device.h": "c",
         "wait.h": "c",
         "new": "cpp",
-        "preempt.h": "c"
+        "preempt.h": "c",
+        "istream": "c"
     },
     //"C_Cpp.errorSquiggles": "Disabled",
     "editor.formatOnSave": true,

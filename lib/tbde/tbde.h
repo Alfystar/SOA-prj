@@ -21,14 +21,20 @@
 #define printk_tbde(str, ...) printk("[%s::%s]: " str, MODNAME, "TBDE", ##__VA_ARGS__)
 #define printk_tbdeDB(str, ...) TBDE_Audit printk_tbde(str, ##__VA_ARGS__)
 
-// Chat-room Room Metadata
-typedef struct chatRoom_ {
-  refcount_t refCount; // structure point me
+// Exange-zone Metadata
+typedef struct exangeRoom_ {
+  refcount_t refCount; // Count how many thread aquire this obj (the small race condition is solved using freeLockCount)
   char *mes;
   size_t len;
   unsigned char ready;
 
   wait_queue_head_t readerQueue;
+} exangeRoom;
+
+// Chat-room Room Metadata
+typedef struct chatRoom_ {
+  refcount_t freeLockCount; // To delete the race-condition in refCount inc
+  exangeRoom *ex;
 } chatRoom;
 
 // Room Metadata
@@ -38,7 +44,7 @@ typedef struct room_ {
   unsigned int tag;    // indexing with tag
   int uid_Creator;
   int perm;
-  chatRoom *level[levelDeep];
+  chatRoom level[levelDeep];
 } room;
 
 extern Tree keyTree, tagTree;
@@ -67,14 +73,10 @@ int tag_ctl(int tag, int command);
 int permCheck(int perm);
 int operationValid(room *p);
 
-chatRoom *makeChatRoom(void);
-void chatRoomRefLock(chatRoom *p);
-void chatRoomRefLock_n(chatRoom *p, unsigned int n);
-void freeChatRoom(chatRoom *cr);
+exangeRoom *makeExangeRoom(void);
+int try_freeExangeRoom(exangeRoom *ex, refcount_t *freeLockCount);
 
 room *roomMake(int key, unsigned int tag, int uid_Creator, int perm);
-void roomRefLock(room *p);
-void roomRefLock_n(room *p, unsigned int n);
 void freeRoom(void *data);
 
 // Function pointer for tree prototipe
