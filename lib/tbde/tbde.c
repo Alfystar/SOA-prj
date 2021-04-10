@@ -269,7 +269,7 @@ unsigned long tag_send = (unsigned long)__x64_sys_tag_send;
 //  ENOMSG            :=    Tag not found
 //  EBADRQC           :=    Permission invalid to execute the operation
 //  EBADSLT           :=    asked level is over levelDeep
-//  ERESTARTSYS       :=    Signal wake_up the thread
+//  ERESTART       :=    Signal wake_up the thread
 // --
 //  EILSEQ            :=    Command not valid
 
@@ -325,7 +325,7 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
   if (retWait != 0) {                                              // wake_up for signal
     try_freeExangeRoom(curExange, &p->level[level].freeLockCount); // Libero il puntatore
     freeRoom(p);
-    return -ERESTARTSYS;
+    return -ERESTART;
   }
 
   bSize = min(size, curExange->len);

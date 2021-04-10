@@ -76,19 +76,19 @@ int main(int argc, char **argv) {
     //  EILSEQ            :=    Command not valid
     switch (ret) {
     case EXFULL:
-      /* code */
+      printf("tag_send @tag=%d error, Buffer too long (out of MAX_BUF_SIZE) or no size\n", tag);
       break;
     case ENOMSG:
-      /* code */
+      printf("tag_send @tag=%d error, Tag not found\n", tag);
       break;
     case EBADRQC:
-      /* code */
+      printf("tag_send @tag=%d error, Permission invalid to execute the operation\n", tag);
       break;
     case EBADSLT:
-      /* code */
+      printf("tag_send @tag=%d error, asked level is over levelDeep\n", tag);
       break;
     case EILSEQ:
-      /* code */
+      printf("tag_send @tag=%d error, Command not valid\n", tag);
       break;
     default:
       break;
@@ -103,27 +103,27 @@ int main(int argc, char **argv) {
     //  ENOMSG            :=    Tag not found
     //  EBADRQC           :=    Permission invalid to execute the operation
     //  EBADSLT           :=    asked level is over levelDeep
-    //  ERESTARTSYS       :=    Signal wake_up the thread
+    //  ERESTART       :=    Signal wake_up the thread
     // --
     //  EILSEQ            :=    Command not valid
     switch (bRead) {
     case EXFULL:
-      /* code */
+      printf("tag_send @tag=%d error, Buffer too long (out of MAX_BUF_SIZE) or no size\n", tag);
       break;
     case ENOMSG:
-      /* code */
+      printf("tag_send @tag=%d error, Tag not found\n", tag);
       break;
     case EBADRQC:
-      /* code */
+      printf("tag_send @tag=%d error, Permission invalid to execute the operation\n", tag);
       break;
     case EBADSLT:
-      /* code */
+      printf("tag_send @tag=%d error, asked level is over levelDeep\n", tag);
       break;
-    case ERESTARTSYS:
-      /* code */
+    case ERESTART:
+      printf("tag_send @tag=%d error, Signal wake_up the thread\n", tag);
       break;
     case EILSEQ:
-      /* code */
+      printf("tag_send @tag=%d error, Command not valid\n", tag);
       break;
     default:
       printf("%s\nReturn value = %d\n", buf, bRead);

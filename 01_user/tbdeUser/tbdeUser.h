@@ -54,7 +54,7 @@ int tag_send(int tag, int level, char *buffer, size_t size);
 //  ENOMSG            :=    Tag not found
 //  EBADRQC           :=    Permission invalid to execute the operation
 //  EBADSLT           :=    asked level is over levelDeep
-//  ERESTARTSYS       :=    Signal wake_up the thread
+//  ERESTART       :=    Signal wake_up the thread
 // --
 //  EILSEQ            :=    Command not valid
 int tag_receive(int tag, int level, char *buffer, size_t size);

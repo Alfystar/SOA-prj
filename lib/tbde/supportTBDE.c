@@ -53,6 +53,7 @@ int try_freeExangeRoom(exangeRoom *ex, refcount_t *freeLockCount) {
       return 1;
     }
     if (refcount_dec_not_one(&ex->refCount)) { // Se non sono l'ultimo
+      printk_tbde("[try_freeExangeRoom] free exangeRoom %p, LOOP FREE", ex);
       return 0;
     }
     // Sono l'ultimo, verifico mi sia permesso di fare la free
