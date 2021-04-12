@@ -39,7 +39,7 @@ int tag_get(int key, int command, int permission);
 
 // Return tag_send:
 //  succes            :=    return 0
-//  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE) or no size
+//  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE), or not present
 //  ENOMSG            :=    Tag not found
 //  EBADRQC           :=    Permission invalid to execute the operation
 //  EBADSLT           :=    asked level is over levelDeep
@@ -50,7 +50,7 @@ int tag_send(int tag, int level, char *buffer, size_t size);
 
 // Return tag_receive:
 //  succes            :=    return len copied
-//  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE) or no size
+//  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE), or not present
 //  ENOMSG            :=    Tag not found
 //  EBADRQC           :=    Permission invalid to execute the operation
 //  EBADSLT           :=    asked level is over levelDeep
@@ -72,4 +72,10 @@ int tag_receive(int tag, int level, char *buffer, size_t size);
 //  EILSEQ            :=    Command not valid
 int tag_ctl(int tag, int command);
 
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+void tagGet_perror(int ret, int keyAsk, int commandAsk);
+void tagSend_perror(int ret, int tag);
+void tagRecive_perror(int ret, int tag);
+void tagCtl_perror(int tag, int commandAsk);
 #endif

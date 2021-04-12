@@ -3,23 +3,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define rangeKey 10
 int tag;
 
 int main(int argc, char **argv) {
   int myFork;
-  for (myFork = 0; myFork < 100; myFork++) {
+  for (myFork = 0; myFork < rangeKey * 100; myFork++) {
     int pid = fork();
     if (pid == 0) // son
       break;
   }
   char buf[64];
   initTBDE();
+  srand(myFork); // for each fork different seed
 
   printf("(%d) tag_gets(...)\n", myFork);
   int keyAsk, commandAsk, permissionAsk;
-  keyAsk = 10;
-  permissionAsk = TBDE_OPEN_ROOM;
+  keyAsk = rand() % rangeKey;
   commandAsk = TBDE_O_CREAT;
+  permissionAsk = rand() % 2;
   tag = tag_get(keyAsk, commandAsk, permissionAsk);
 
   if (tag == -1) {

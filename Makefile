@@ -15,12 +15,13 @@ all:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
 	$(CC) $(USER_DIR)/createDeleteTest.c $(USER_DIR)/tbdeUser/tbdeUser.c -o createTest.out -Iinclude
 	$(CC) $(USER_DIR)/roomTest.c $(USER_DIR)/tbdeUser/tbdeUser.c -o roomTest.out -Iinclude
+	$(CC) $(USER_DIR)/roomTestRand.c $(USER_DIR)/tbdeUser/tbdeUser.c -o roomTestRand.out -Iinclude
 
 clean:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
 	rm createTest.out
 	rm roomTest.out
-
+	rm roomTestRand.out
 install:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules_install
 	ln -s /lib/modules/$(shell uname -r)/extra/$(MODNAME).ko /lib/modules/$(shell uname -r)

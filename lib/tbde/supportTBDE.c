@@ -35,6 +35,7 @@ exangeRoom *makeExangeRoom(void) {
 }
 
 void realExangeFree(exangeRoom *ex) {
+  return;
   if (ex->mes != NULL)
     vfree(ex->mes);
   kfree(ex);
@@ -44,21 +45,21 @@ void realExangeFree(exangeRoom *ex) {
 // 1 = i free the exangeRoom
 // 0 = i don't free exangeRoom
 // -1 = Problem in pointer
-int try_freeExangeRoom(exangeRoom *ex, refcount_t *freeLockCount) {
+int try_freeExangeRoom(exangeRoom *ex, atomic_t *freeLockCount) {
   if (ex != NULL && freeLockCount != NULL) {
     if (refcount_read(&ex->refCount) == 0) { // è una stanza vuota, posso eliminarla subito
       // todo: capire se viene mai ragiunta in un momento inaspettato
-      printk_tbde("[try_freeExangeRoom] free exangeRoom %p, with no reference", ex);
+      printk_tbdeDB("[try_freeExangeRoom] free exangeRoom %p, with no reference", ex);
       realExangeFree(ex);
       return 1;
     }
     if (refcount_dec_not_one(&ex->refCount)) { // Se non sono l'ultimo
-      printk_tbde("[try_freeExangeRoom] free exangeRoom %p, LOOP FREE", ex);
+      printk_tbdeDB("[try_freeExangeRoom] free exangeRoom %p, LOOP FREE", ex);
       return 0;
     }
     // Sono l'ultimo, verifico mi sia permesso di fare la free
     preempt_disable();
-    while (refcount_read(freeLockCount) != 0) { // Simil spinLock busy wait
+    while (arch_atomic_read(freeLockCount) != 0) { // Simil spinLock busy wait
     };
     preempt_enable();
 
@@ -84,7 +85,7 @@ room *roomMake(int key, unsigned int tag, int uid_Creator, int perm) {
   p->uid_Creator = uid_Creator;
   p->perm = perm;
   for (i = 0; i < levelDeep; i++) {
-    refcount_set(&p->level[i].freeLockCount, 0);
+    arch_atomic_set(&p->level[i].freeLockCount, 0);
     p->level[i].ex = makeExangeRoom();
   }
   return p;

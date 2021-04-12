@@ -53,12 +53,12 @@ int tag_get_CREATE(int key, int command, int permission) {
   unsigned long flags;
 
   if (__sync_add_and_fetch(&roomCount, 0) >= MAX_ROOM) {
-    printk_tbdeDB("Impossible Create another room");
+    printk_tbdeDB("[tag_get_CREATE] Impossible Create another room");
     return -ETOOMANYREFS;
   }
 
   if (permCheck(permission)) {
-    printk_tbdeDB("Permission are Invalid");
+    printk_tbdeDB("[tag_get_CREATE] Permission are Invalid");
     return -EBADRQC;
   }
 
@@ -86,7 +86,7 @@ int tag_get_CREATE(int key, int command, int permission) {
       write_unlock_irqrestore(&searchLock, flags);
       freeRoom(p); // unLock per conto di keyTree
       freeRoom(p); // unLock per conto di tagTree -> free
-      printk_tbdeDB("Impossible to execute, key are just in use");
+      printk_tbdeDB("[tag_get_CREATE] Impossible to execute, key are just in use");
       return -EBADR;
     }
     // Nodo aggiunto con successo all'albero delle key
@@ -104,7 +104,7 @@ int tag_get_CREATE(int key, int command, int permission) {
 
     __sync_add_and_fetch(&roomCount, 1);
   }
-  printk_tbde("New room Create and added to the Searches Tree");
+  printk_tbde("[tag_get_CREATE] New room Create and added to the Searches Tree");
   // TBDE_Audit
   printTrees();
 
@@ -122,7 +122,7 @@ int tag_get_OPEN(int key, int command, int permission) {
   unsigned long flags;
 
   if (key == TBDE_IPC_PRIVATE) {
-    printk_tbdeDB("Impossible to execute, the asked key is TBDE_IPC_PRIVATE");
+    printk_tbdeDB("[tag_get_OPEN] Impossible to execute, the asked key is TBDE_IPC_PRIVATE");
     return -EBADSLT;
   }
   roomSearch.key = key;
@@ -139,7 +139,7 @@ int tag_get_OPEN(int key, int command, int permission) {
     tagRet = p->tag;
     return tagRet;
   }
-  printk_tbdeDB("No key are found");
+  printk_tbdeDB("[tag_get_OPEN] No key are found");
   return -ENOMSG;
 }
 
@@ -163,7 +163,7 @@ __SYSCALL_DEFINEx(3, _tag_get, int, key, int, command, int, permission) {
 #else
 asmlinkage long tag_get(int key, int command, int permission) {
 #endif
-  printk("%s: thread %d call [tag_get(%d,%d,%d)]\n", MODNAME, current->pid, key, command, permission);
+  printk_tbde("[tag_get] thread %d call [tag_get(%d,%d,%d)]\n", current->pid, key, command, permission);
   switch (command) {
   case TBDE_O_CREAT:
     return tag_get_CREATE(key, command, permission);
@@ -172,7 +172,7 @@ asmlinkage long tag_get(int key, int command, int permission) {
     return tag_get_OPEN(key, command, permission);
     break;
   default:
-    printk_tbdeDB("[tag_get]Invalid Command");
+    printk_tbdeDB("[tag_get] Invalid Command");
     return -EILSEQ;
     break;
   }
@@ -187,7 +187,7 @@ unsigned long tag_get = (unsigned long)__x64_sys_tag_get;
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Return tag_send:
 //  succes            :=    return 0
-//  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE) or no size
+//  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE), or not present
 //  ENOMSG            :=    Tag not found
 //  EBADRQC           :=    Permission invalid to execute the operation
 //  EBADSLT           :=    asked level is over levelDeep
@@ -206,9 +206,9 @@ asmlinkage long tag_send(int tag, int level, char *buffer, size_t size) {
   char *buf;
   unsigned long flags;
 
-  printk("%s: thread %d call [tag_send(%d,%d,%p,%ld)]\n", MODNAME, current->pid, tag, level, buffer, size);
+  printk_tbde("[tag_send] thread %d call [tag_send(%d,%d,%p,%ld)]\n", current->pid, tag, level, buffer, size);
 
-  if (size > MAX_MESSAGE_SIZE && size < 1)
+  if (size > MAX_MESSAGE_SIZE || buffer == NULL)
     return -EXFULL;
   buf = vzalloc(size);
   copy_from_user(buf, buffer, size);
@@ -238,7 +238,7 @@ asmlinkage long tag_send(int tag, int level, char *buffer, size_t size) {
 
   // Operazione valida, essendo un writer creo una stanza vuota
   // e la sostituisco a quella presente che mi interessa
-
+  printk_tbdeDB("[tag_send] Making new exange room ...");
   newEx = makeExangeRoom();
   do {
     oldEx = p->level[level].ex;
@@ -249,11 +249,12 @@ asmlinkage long tag_send(int tag, int level, char *buffer, size_t size) {
   oldEx->mes = buf;
   oldEx->len = size;
   oldEx->ready = 1;
-
+  printk_tbdeDB("[tag_send] Wake_upping readers ...");
   wake_up_all(&oldEx->readerQueue);
 
   try_freeExangeRoom(oldEx, &p->level[level].freeLockCount); // Libero il mio puntatore
   freeRoom(p);                                               // Libero il mio puntatore
+  printk_tbdeDB("[tag_send] Ending ...");
   return 0;
 }
 
@@ -265,7 +266,7 @@ unsigned long tag_send = (unsigned long)__x64_sys_tag_send;
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Return tag_receive:
 //  succes            :=    return len copied
-//  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE) or no size
+//  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE), or not present
 //  ENOMSG            :=    Tag not found
 //  EBADRQC           :=    Permission invalid to execute the operation
 //  EBADSLT           :=    asked level is over levelDeep
@@ -283,13 +284,13 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
   room roomSearch, *p;
   exangeRoom *curExange;
   Node ret;
-  int retWait = 0;
+  int retWait;
   unsigned long flags;
-  size_t bSize, noCopy, copied, offset;
+  size_t bSize, noCopy, offset;
 
-  printk("%s: thread %d call [tag_receive(%d,%d,%p,%ld)]\n", MODNAME, current->pid, tag, level, buffer, size);
+  printk_tbde("[tag_receive] thread %d call [tag_receive(%d,%d,%p,%ld)]\n", current->pid, tag, level, buffer, size);
 
-  if (size > MAX_MESSAGE_SIZE && size < 1)
+  if (size > MAX_MESSAGE_SIZE || buffer == NULL)
     return -EXFULL;
 
   roomSearch.tag = tag;
@@ -313,13 +314,17 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
   }
 
   // Creo un lock con un soft-lock sulle free, alla stanza che mi interessa
+  printk_tbdeDB("[tag_receive] free disable lock ...");
   preempt_disable();
-  refcount_inc(&p->level[level].freeLockCount); // Impedisco momentaneamente le free sul livello che mi interessa
-  curExange = p->level[level].ex;               // In base a quelo attualmente serializzato
-  refcount_inc(&curExange->refCount);           // Impedisco la distruzione della mia stanza
-  refcount_dec(&p->level[level].freeLockCount); // Ri-abilito le free sul livello che mi interessa
-  preempt_enable_notrace();
+  // uso "arch_atomic_inc" pochè il ref potrebbe essere a 0 ed è giusto e non voglio warning
+  arch_atomic_inc(&p->level[level].freeLockCount); // Impedisco momentaneamente le free sul livello
+  //  refcount_add(1, &p->level[level].freeLockCount);
+  curExange = p->level[level].ex;                  // In base a quelo attualmente serializzato
+  refcount_add(1, &curExange->refCount);           // Impedisco la distruzione della mia stanza
+  arch_atomic_dec(&p->level[level].freeLockCount); // Ri-abilito le free sul livello che mi interessa
+  preempt_enable();
 
+  printk_tbdeDB("[tag_receive] enqueuing ...");
   retWait = wait_event_interruptible(curExange->readerQueue, __sync_add_and_fetch(&curExange->ready, 0) == 1);
 
   if (retWait != 0) {                                              // wake_up for signal
@@ -328,16 +333,16 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
     return -ERESTART;
   }
 
+  printk_tbdeDB("[tag_receive] Data sending ...");
   bSize = min(size, curExange->len);
-  while (bSize > 0) {
-    noCopy = copy_to_user(buffer + offset, curExange->mes + offset, bSize);
-    copied = bSize - noCopy;
-    offset += copied;
-    bSize -= offset;
+  offset = 0;
+  while (bSize - offset > 0) {
+    noCopy = copy_to_user(buffer + offset, curExange->mes + offset, bSize - offset);
+    offset += (bSize - offset) - noCopy; // offset += (current copied ask) - fail copied current
   }
-
   try_freeExangeRoom(curExange, &p->level[level].freeLockCount); // Libero il puntatore
   freeRoom(p);
+  printk_tbdeDB("[tag_receive] Return data copied");
   return bSize;
 }
 
@@ -358,7 +363,7 @@ int tag_ctl_TBDE_REMOVE(int tag, int command) {
   room *p, searchRoom;
   unsigned long flags;
 
-  printk_tbdeDB("Request TBDE_REMOVE at Tag = %d", tag);
+  printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Request TBDE_REMOVE at Tag = %d", tag);
   if (tag == -1)
     return -ENOSR;
   searchRoom.tag = tag;
@@ -367,41 +372,42 @@ int tag_ctl_TBDE_REMOVE(int tag, int command) {
   retTag = Tree_SearchNode(tagTree, &searchRoom);
   if (retTag) {
     p = (room *)retTag->data;
-    printk_tbdeDB("Tag to delete found");
+    printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Tag to delete found");
     if (!operationValid(p)) {
       write_unlock_irqrestore(&searchLock, flags);
       return -EBADE;
     }
     p = Tree_DeleteNode(tagTree, retTag);
     if (Tree_SearchNode(tagTree, &searchRoom) != NULL) {
-      printk_tbde("!!!! Key wasn't deleted form the key tree !!!!");
+      printk_tbde("[tag_ctl_TBDE_REMOVE] !!!! Key wasn't deleted form the key tree !!!!");
     }
-    printk_tbde("room %p, will free after tagTree search", p);
+    printk_tbde("[tag_ctl_TBDE_REMOVE] room %p, will free after tagTree search", p);
     freeRoom(p);
 
     if (p->key != TBDE_IPC_PRIVATE) { // devo trovare la key
       searchRoom.key = p->key;
-      printk_tbdeDB("Now will be search key=%d", p->key);
+      printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Now will be search key=%d", p->key);
       retKey = Tree_SearchNode(keyTree, &searchRoom);
 
       // todo: dopo aver creato la recive, Verificare che la stanza sia senza nessun thread in lettura
       if (retKey) {
-        printk_tbdeDB("Tag to delete had a key");
+        printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Tag to delete had a key");
         // freeRoom(Tree_DeleteNode(keyTree, retKey)); // decrease the pointer
         p = Tree_DeleteNode(keyTree, retKey);
         if (Tree_SearchNode(keyTree, &searchRoom) != NULL) {
-          printk_tbde("!!!! Key wasn't deleted form the key tree !!!!");
+          printk_tbde("[tag_ctl_TBDE_REMOVE] !!!! Key wasn't deleted form the key tree !!!!");
         }
-        printk_tbde("room %p, will free after keyTree search", p);
+        printk_tbde("[tag_ctl_TBDE_REMOVE] room %p, will free after keyTree search", p);
         freeRoom(p);
       } else {
-        printk_tbdeDB("ERROR!!! key=%d should be present!!", p->key);
+        printk_tbdeDB("[tag_ctl_TBDE_REMOVE] ERROR!!! key=%d should be present!!", p->key);
       }
     }
     // libero il lock
     write_unlock_irqrestore(&searchLock, flags);
     __sync_sub_and_fetch(&roomCount, 1);
-    printk_tbde("Room (%d) are now Deleted, remaning %d rooms", tag, __sync_add_and_fetch(&roomCount, 0));
+    printk_tbde("[tag_ctl_TBDE_REMOVE] Room (%d) are now Deleted, remaning %d rooms", tag,
+                __sync_add_and_fetch(&roomCount, 0));
     TBDE_Audit printTrees();
     return 0;
   } // if (retTag)
@@ -425,7 +431,7 @@ __SYSCALL_DEFINEx(2, _tag_ctl, int, tag, int, command) {
 #else
 asmlinkage long tag_ctl(int tag, int command) {
 #endif
-  printk("%s: thread %d call [tag_ctl(%d,%d)]\n", MODNAME, current->pid, tag, command);
+  printk_tbde("[tag_ctl] thread %d call [tag_ctl(%d,%d)]\n", current->pid, tag, command);
   switch (command) {
   case TBDE_AWAKE_ALL:
     // todo: Implementare dopo aver creato la recive

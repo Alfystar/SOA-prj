@@ -10,8 +10,8 @@
 #include <linux/errno.h>
 #include <linux/param.h>
 #include <linux/preempt.h>
-#include <linux/rcu_sync.h>
 #include <linux/syscalls.h>
+#include <linux/uaccess.h>
 #include <linux/version.h>
 #include <linux/vmalloc.h>
 #include <linux/wait.h>
@@ -33,7 +33,7 @@ typedef struct exangeRoom_ {
 
 // Chat-room Room Metadata
 typedef struct chatRoom_ {
-  refcount_t freeLockCount; // To delete the race-condition in refCount inc
+  atomic_t freeLockCount; // To delete the race-condition in refCount inc
   exangeRoom *ex;
 } chatRoom;
 
@@ -74,7 +74,7 @@ int permCheck(int perm);
 int operationValid(room *p);
 
 exangeRoom *makeExangeRoom(void);
-int try_freeExangeRoom(exangeRoom *ex, refcount_t *freeLockCount);
+int try_freeExangeRoom(exangeRoom *ex, atomic_t *freeLockCount);
 
 room *roomMake(int key, unsigned int tag, int uid_Creator, int perm);
 void freeRoom(void *data);
