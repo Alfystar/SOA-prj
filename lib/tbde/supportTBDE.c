@@ -108,6 +108,16 @@ void freeRoom(void *data) {
   }
 }
 
+// shuld be used in write-lock context
+size_t waitersInRoom(room *p) {
+  int i;
+  size_t waiters = 0;
+  for (i = 0; i < levelDeep; i++) {
+    waiters += refcount_read(&p->level[i].ex->refCount);
+  }
+  return waiters;
+}
+
 int tagRoomCMP(void *a, void *b) { // return -1:a<b | 0:a==b | 1:a>b
   room *nd1 = (room *)a;
   room *nd2 = (room *)b;

@@ -54,20 +54,24 @@ int tag_send(int tag, int level, char *buffer, size_t size);
 //  ENOMSG            :=    Tag not found
 //  EBADRQC           :=    Permission invalid to execute the operation
 //  EBADSLT           :=    asked level is over levelDeep
-//  ERESTART       :=    Signal wake_up the thread
+//  ERESTART          :=    Signal wake_up the thread
+//  EUCLEAN           :=    Receved TBDE_AWAKE_ALL
 // --
 //  EILSEQ            :=    Command not valid
 int tag_receive(int tag, int level, char *buffer, size_t size);
 
 
-// Return AWAKE_ALL:
+// Return TBDE_AWAKE_ALL:
 //  succes            :=    return 0
-// --
+//  ENOSR             :=    tag negative number
+//  ENODATA           :=    Notting to be wake_up was found (all ok, just notification)
+//  EBADE             :=    Permission invalid to execute the operation// --
 // Return TBDE_REMOVE:
 //  succes            :=    return 0
 //  ENOSR             :=    tag negative number
-//  EBADRQC           :=    Permission invalid to execute the operation
 //  ENODATA           :=    Notting to be deleted was found (all ok, just notification)
+//  EBADE             :=    Permission invalid to execute the operation
+//  EADDRINUSE        :=    Reader in wait on some level
 // --
 //  EILSEQ            :=    Command not valid
 int tag_ctl(int tag, int command);

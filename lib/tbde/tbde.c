@@ -270,7 +270,8 @@ unsigned long tag_send = (unsigned long)__x64_sys_tag_send;
 //  ENOMSG            :=    Tag not found
 //  EBADRQC           :=    Permission invalid to execute the operation
 //  EBADSLT           :=    asked level is over levelDeep
-//  ERESTART       :=    Signal wake_up the thread
+//  ERESTART          :=    Signal wake_up the thread
+//  EUCLEAN           :=    Receved TBDE_AWAKE_ALL
 // --
 //  EILSEQ            :=    Command not valid
 
@@ -333,6 +334,12 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
     return -ERESTART;
   }
 
+  if (curExange->wakeUpALL == 1) {
+    try_freeExangeRoom(curExange, &p->level[level].freeLockCount); // Libero il puntatore
+    freeRoom(p);
+    return -EUCLEAN;
+  }
+
   printk_tbdeDB("[tag_receive] Data sending ...");
   bSize = min(size, curExange->len);
   offset = 0;
@@ -353,76 +360,140 @@ unsigned long tag_receive = (unsigned long)__x64_sys_tag_receive;
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+// Return TBDE_AWAKE_ALL:
+//  succes            :=    return 0
+//  ENOSR             :=    tag negative number
+//  ENODATA           :=    Notting to be wake_up was found (all ok, just notification)
+//  EBADE             :=    Permission invalid to execute the operation
+int tag_ctl_TBDE_AWAKE_ALL(int tag, int command) {
+  Node retTag;
+  room *p, searchRoom;
+  exangeRoom *newEx, *oldEx;
+  unsigned long flags;
+  int i;
+
+  printk_tbdeDB("[tag_ctl_TBDE_AWAKE_ALL] Request TBDE_AWAKE_ALL at Tag = %d", tag);
+  if (tag < 0)
+    return -ENOSR;
+  searchRoom.tag = tag;
+
+  write_lock_irqsave(&searchLock, flags);
+  retTag = Tree_SearchNode(tagTree, &searchRoom);
+  if (!retTag) {
+    write_unlock_irqrestore(&searchLock, flags);
+    return -ENODATA; // Se non lo trovo, non c'è nulla da eliminare ma lo notifico
+  }
+
+  p = (room *)retTag->data;
+  printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Tag to delete found");
+  if (!operationValid(p)) {
+    write_unlock_irqrestore(&searchLock, flags);
+    return -EBADE;
+  }
+
+  printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Making new exanges rooms ...");
+  for (i = 0; i < levelDeep; i++) {
+    newEx = makeExangeRoom();
+    do {
+      oldEx = p->level[i].ex;
+    } while (!__sync_bool_compare_and_swap(&p->level[i].ex, oldEx, newEx));
+    // Ora oldChat è isolata dal resto del sistema, sono l'unico write dentro
+
+    refcount_inc(&oldEx->refCount);
+    oldEx->mes = NULL;
+    oldEx->len = 0;
+    oldEx->wakeUpALL = 1;
+    oldEx->ready = 1;
+    printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Wake_upping readers ...");
+    wake_up_all(&oldEx->readerQueue);
+
+    try_freeExangeRoom(oldEx, &p->level[i].freeLockCount); // Libero il mio puntatore
+  }
+  freeRoom(p); // Libero il mio puntatore
+  printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Ending ...");
+
+  write_unlock_irqrestore(&searchLock, flags);
+  return 0;
+}
+
 // Return TBDE_REMOVE:
 //  succes            :=    return 0
 //  ENOSR             :=    tag negative number
-//  EBADRQC           :=    Permission invalid to execute the operation
 //  ENODATA           :=    Notting to be deleted was found (all ok, just notification)
+//  EBADE             :=    Permission invalid to execute the operation
+//  EADDRINUSE        :=    Reader in wait on some level
 int tag_ctl_TBDE_REMOVE(int tag, int command) {
   Node retTag, retKey;
   room *p, searchRoom;
   unsigned long flags;
 
   printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Request TBDE_REMOVE at Tag = %d", tag);
-  if (tag == -1)
+  if (tag < 0)
     return -ENOSR;
   searchRoom.tag = tag;
 
   write_lock_irqsave(&searchLock, flags);
   retTag = Tree_SearchNode(tagTree, &searchRoom);
-  if (retTag) {
-    p = (room *)retTag->data;
-    printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Tag to delete found");
-    if (!operationValid(p)) {
-      write_unlock_irqrestore(&searchLock, flags);
-      return -EBADE;
-    }
-    p = Tree_DeleteNode(tagTree, retTag);
-    if (Tree_SearchNode(tagTree, &searchRoom) != NULL) {
-      printk_tbde("[tag_ctl_TBDE_REMOVE] !!!! Key wasn't deleted form the key tree !!!!");
-    }
-    printk_tbde("[tag_ctl_TBDE_REMOVE] room %p, will free after tagTree search", p);
-    freeRoom(p);
-
-    if (p->key != TBDE_IPC_PRIVATE) { // devo trovare la key
-      searchRoom.key = p->key;
-      printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Now will be search key=%d", p->key);
-      retKey = Tree_SearchNode(keyTree, &searchRoom);
-
-      // todo: dopo aver creato la recive, Verificare che la stanza sia senza nessun thread in lettura
-      if (retKey) {
-        printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Tag to delete had a key");
-        // freeRoom(Tree_DeleteNode(keyTree, retKey)); // decrease the pointer
-        p = Tree_DeleteNode(keyTree, retKey);
-        if (Tree_SearchNode(keyTree, &searchRoom) != NULL) {
-          printk_tbde("[tag_ctl_TBDE_REMOVE] !!!! Key wasn't deleted form the key tree !!!!");
-        }
-        printk_tbde("[tag_ctl_TBDE_REMOVE] room %p, will free after keyTree search", p);
-        freeRoom(p);
-      } else {
-        printk_tbdeDB("[tag_ctl_TBDE_REMOVE] ERROR!!! key=%d should be present!!", p->key);
-      }
-    }
-    // libero il lock
+  if (!retTag) {
     write_unlock_irqrestore(&searchLock, flags);
-    __sync_sub_and_fetch(&roomCount, 1);
-    printk_tbde("[tag_ctl_TBDE_REMOVE] Room (%d) are now Deleted, remaning %d rooms", tag,
-                __sync_add_and_fetch(&roomCount, 0));
-    TBDE_Audit printTrees();
-    return 0;
-  } // if (retTag)
+    return -ENODATA; // Se non lo trovo, non c'è nulla da eliminare ma lo notifico
+  }
+  p = (room *)retTag->data;
+  printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Tag to delete found");
+  if (!operationValid(p)) {
+    write_unlock_irqrestore(&searchLock, flags);
+    return -EBADE;
+  }
+
+  if (waitersInRoom(p) != 0) {
+    write_unlock_irqrestore(&searchLock, flags);
+    return -EADDRINUSE;
+  }
+  p = Tree_DeleteNode(tagTree, retTag);
+  if (Tree_SearchNode(tagTree, &searchRoom) != NULL) {
+    printk_tbde("[tag_ctl_TBDE_REMOVE] !!!! Key wasn't deleted form the key tree !!!!");
+  }
+  printk_tbde("[tag_ctl_TBDE_REMOVE] room %p, will free after tagTree search", p);
+  freeRoom(p);
+
+  if (p->key != TBDE_IPC_PRIVATE) { // devo trovare la key
+    searchRoom.key = p->key;
+    printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Now will be search key=%d", p->key);
+    retKey = Tree_SearchNode(keyTree, &searchRoom);
+
+    if (retKey) {
+      printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Tag to delete had a key");
+      // freeRoom(Tree_DeleteNode(keyTree, retKey)); // decrease the pointer
+      p = Tree_DeleteNode(keyTree, retKey);
+      if (Tree_SearchNode(keyTree, &searchRoom) != NULL) {
+        printk_tbde("[tag_ctl_TBDE_REMOVE] !!!! Key wasn't deleted form the key tree !!!!");
+      }
+      printk_tbde("[tag_ctl_TBDE_REMOVE] room %p, will free after keyTree search", p);
+      freeRoom(p);
+    } else {
+      printk_tbdeDB("[tag_ctl_TBDE_REMOVE] ERROR!!! key=%d should be present!!", p->key);
+    }
+  }
+  // libero il lock
   write_unlock_irqrestore(&searchLock, flags);
-  return -ENODATA; // Se non lo trovo, non c'è nulla da eliminare ma lo notifico
+  __sync_sub_and_fetch(&roomCount, 1);
+  printk_tbde("[tag_ctl_TBDE_REMOVE] Room (%d) are now Deleted, remaning %d rooms", tag,
+              __sync_add_and_fetch(&roomCount, 0));
+  TBDE_Audit printTrees();
+  return 0;
 }
 
-// Return AWAKE_ALL:
+// Return TBDE_AWAKE_ALL:
 //  succes            :=    return 0
-// --
+//  ENOSR             :=    tag negative number
+//  ENODATA           :=    Notting to be wake_up was found (all ok, just notification)
+//  EBADE             :=    Permission invalid to execute the operation// --
 // Return TBDE_REMOVE:
 //  succes            :=    return 0
 //  ENOSR             :=    tag negative number
-//  EBADRQC           :=    Permission invalid to execute the operation
 //  ENODATA           :=    Notting to be deleted was found (all ok, just notification)
+//  EBADE             :=    Permission invalid to execute the operation
+//  EADDRINUSE        :=    Reader in wait on some level
 // --
 //  EILSEQ            :=    Command not valid
 // int tag_ctl(int tag, int command);
@@ -434,7 +505,7 @@ asmlinkage long tag_ctl(int tag, int command) {
   printk_tbde("[tag_ctl] thread %d call [tag_ctl(%d,%d)]\n", current->pid, tag, command);
   switch (command) {
   case TBDE_AWAKE_ALL:
-    // todo: Implementare dopo aver creato la recive
+    return tag_ctl_TBDE_AWAKE_ALL(tag, command);
     break;
   case TBDE_REMOVE:
     return tag_ctl_TBDE_REMOVE(tag, command);

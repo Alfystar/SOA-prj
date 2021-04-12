@@ -27,6 +27,7 @@ typedef struct exangeRoom_ {
   char *mes;
   size_t len;
   unsigned char ready;
+  unsigned char wakeUpALL;
 
   wait_queue_head_t readerQueue;
 } exangeRoom;
@@ -78,6 +79,8 @@ int try_freeExangeRoom(exangeRoom *ex, atomic_t *freeLockCount);
 
 room *roomMake(int key, unsigned int tag, int uid_Creator, int perm);
 void freeRoom(void *data);
+
+size_t waitersInRoom(room *p); // shuld be used in write-lock context
 
 // Function pointer for tree prototipe
 int tagRoomCMP(void *a, void *b); // return -1:a<b | 0:a==b | 1:a>b
