@@ -7,7 +7,7 @@ int tag;
 
 int main(int argc, char **argv) {
   int myFork;
-  for (myFork = 0; myFork < 10; myFork++) {
+  for (myFork = 0; myFork < 1; myFork++) {
     int pid = fork();
     if (pid == 0) // son
       break;
@@ -34,10 +34,11 @@ int main(int argc, char **argv) {
   //----------------------------------------------------------------------------------
 
   if (commandAsk == TBDE_O_CREAT) {
-    usleep(100 * 1000UL); // 10 ms
-
+    sleep(1); // 10 ms
+    printf("(%d) tag_ctl(tag, TBDE_AWAKE_ALL)\n", myFork);
     int ret = tag_ctl(tag, TBDE_AWAKE_ALL);
-    tagSend_perror(ret, tag);
+    if (ret == -1)
+      tagCtl_perror(ret, TBDE_AWAKE_ALL);
   }
   // \/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
   if (commandAsk == TBDE_O_OPEN) {

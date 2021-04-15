@@ -1,0 +1,134 @@
+[  909.010723] [TAG_DataExchange::TBDE]: [tag_get] thread 7276 call [tag_get(10,0,0)]
+[  909.010728] [TAG_DataExchange::TBDE]: [tag_get_CREATE] New room Create and added to the Searches Tree
+[  909.010733] [TAG_DataExchange::TBDE]: tagTree:
+[  909.010736] 
+               ---(1-10) [Creator=7276-perm=0] {000000004321e7dc} 
+                (+0)
+
+[  909.010736] [TAG_DataExchange::TBDE]: keyTree:
+[  909.010738] 
+               ---(1-10) [Creator=7276-perm=0] {000000004321e7dc} 
+                (+0)
+
+[  909.010769] [TAG_DataExchange::TBDE]: [tag_get] thread 7277 call [tag_get(10,0,0)]
+[  909.010774] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 0000000051014a82, with no reference
+[  909.010775] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 0000000035b0cd94, with no reference
+[  909.010775] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000f6aed8af, with no reference
+[  909.010776] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000cfb23c02, with no reference
+[  909.010776] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000561d3502, with no reference
+[  909.010777] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000364682fa, with no reference
+[  909.010778] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000009563b791, with no reference
+[  909.010778] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000cf540591, with no reference
+[  909.010779] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000e2385408, with no reference
+[  909.010779] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000a29620a7, with no reference
+[  909.010780] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000edf179bc, with no reference
+[  909.010780] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000e09d61a6, with no reference
+[  909.010781] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000eb45683c, with no reference
+[  909.010782] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000ac8554ac, with no reference
+[  909.010782] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000006a65eff0, with no reference
+[  909.010783] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000764b8bd7, with no reference
+[  909.010783] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000a03cfdfa, with no reference
+[  909.010784] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000169637d0, with no reference
+[  909.010784] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000009132dda3, with no reference
+[  909.010785] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 0000000033fa0220, with no reference
+[  909.010786] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000b8a6d4d5, with no reference
+[  909.010786] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000de056b5d, with no reference
+[  909.010787] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000007ebcf0a9, with no reference
+[  909.010787] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000005ee5ff69, with no reference
+[  909.010788] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000009561791d, with no reference
+[  909.010788] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 0000000057bea867, with no reference
+[  909.010789] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000008fd56d35, with no reference
+[  909.010789] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000008f0ac02d, with no reference
+[  909.010790] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 0000000053f21e83, with no reference
+[  909.010790] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000001d545c65, with no reference
+[  909.010791] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000002fff895b, with no reference
+[  909.010792] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000009bb223e5, with no reference
+[  909.010792] [TAG_DataExchange::TBDE]: [tag_get_CREATE] Impossible to execute, key are just in use
+[  909.010797] [TAG_DataExchange::TBDE]: [tag_get] thread 7277 call [tag_get(10,1,0)]
+[  909.010801] [TAG_DataExchange::TBDE]: [tag_receive] thread 7277 call [tag_receive(1,1,00000000ebc4d0ff,64)]
+[  909.010801] [TAG_DataExchange::TBDE]: [tag_receive] free disable lock ...
+[  909.010802] [TAG_DataExchange::TBDE]: [tag_receive] enqueuing ...
+[  910.010896] [TAG_DataExchange::TBDE]: [tag_ctl] thread 7276 call [tag_ctl(1,0)]
+[  910.010898] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_AWAKE_ALL] Request TBDE_AWAKE_ALL at Tag = 1
+[  910.010900] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Tag to delete found
+[  910.010901] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Making new exanges rooms ...
+[  910.010902] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010903] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010909] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000817a4f90, LOOP FREE
+[  910.010911] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010911] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010912] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010913] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010914] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010915] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010916] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010917] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010918] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010919] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010920] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010920] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010921] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010922] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010923] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010924] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010925] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010926] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010927] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010928] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010929] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010930] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010931] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010932] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010934] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010934] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010935] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010936] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010937] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010938] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers ...
+[  910.010939] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Ending ...
+[  910.010948] [TAG_DataExchange::TBDE]: [tag_ctl] thread 7276 call [tag_ctl(1,1)]
+[  910.010949] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Request TBDE_REMOVE at Tag = 1
+[  910.010950] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Tag to delete found
+[  910.010953] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] room 000000004321e7dc, freeing ... (after tagTree search)
+[  910.010954] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Now will be search key=10
+[  910.010958] [TAG_DataExchange::TBDE]: [tag_ctl] thread 7277 call [tag_ctl(1,1)]
+[  910.010959] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Request TBDE_REMOVE at Tag = 1
+[  910.010960] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Tag to delete had a key
+[  910.010961] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] room 000000004321e7dc, freeing ... (after keyTree search)
+[  910.010962] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000f6bc1ad0, with no reference
+[  910.010963] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 0000000037c0cbd1, with no reference
+[  910.010964] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000a5a4c6ed, with no reference
+[  910.010965] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000002dbcbf94, with no reference
+[  910.010965] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000e03f01ab, with no reference
+[  910.010966] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 0000000013bf2eea, with no reference
+[  910.010967] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000000d396e2e, with no reference
+[  910.010968] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 0000000027587f6b, with no reference
+[  910.010969] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000f44b53a8, with no reference
+[  910.010970] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000cc05f840, with no reference
+[  910.010971] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000009c17d870, with no reference
+[  910.010971] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 0000000026d3eb35, with no reference
+[  910.010973] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 0000000030f2900f, with no reference
+[  910.010974] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000001f3ac2b4, with no reference
+[  910.010974] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000a3a8a9c4, with no reference
+[  910.010975] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000000aee8a0e, with no reference
+[  910.010976] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000001e54bcab, with no reference
+[  910.010977] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000515bb191, with no reference
+[  910.010978] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000bbe32d10, with no reference
+[  910.010979] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000ac0bdb22, with no reference
+[  910.010980] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000008efb1591, with no reference
+[  910.010981] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000d766dcc4, with no reference
+[  910.010981] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 0000000061a4e35a, with no reference
+[  910.010982] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000d4de68f9, with no reference
+[  910.010983] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000003969694e, with no reference
+[  910.010984] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000a34cbb40, with no reference
+[  910.010985] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 0000000005ad6c9f, with no reference
+[  910.010986] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000a7c25d87, with no reference
+[  910.010986] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000500672e7, with no reference
+[  910.010987] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000db6e775f, with no reference
+[  910.010988] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000001122027e, with no reference
+[  910.010990] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000005aa78e04, with no reference
+[  910.010991] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Room (1) are now Deleted, remaning 0 rooms
+[  910.010999] [TAG_DataExchange::TBDE]: tagTree:
+
+[  910.011001] [TAG_DataExchange::TBDE]: keyTree:
+

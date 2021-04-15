@@ -165,7 +165,7 @@ void tagSend_perror(int ret, int tag) {
   }
 }
 
-void tagRecive_perror(int ret, int tag) {
+void tagRecive_perror(int bRead, int tag) {
   // Return tag_receive:
   //  succes            :=    return len copied
   //  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE), or not present
@@ -176,7 +176,7 @@ void tagRecive_perror(int ret, int tag) {
   //  EUCLEAN           :=    Receved TBDE_AWAKE_ALL
   // --
   //  EILSEQ            :=    Command not valid
-  switch (ret) {
+  switch (-bRead) {
   case EXFULL:
     printf("[tag_receive] @tag=%d error, Buffer too long (out of MAX_BUF_SIZE), or not present\n", tag);
     break;
@@ -199,8 +199,8 @@ void tagRecive_perror(int ret, int tag) {
     printf("[tag_receive] @tag=%d error, Command not valid\n", tag);
     break;
   default:
-    if (ret < 0) {
-      printf("[tag_send] error, Unexpected error code return: %d\n", errno);
+    if (bRead < 0) {
+      printf("[tag_receive] error, Unexpected error code return: %d\n", errno);
     } else {
       // No error
     }

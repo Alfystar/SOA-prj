@@ -311,6 +311,7 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
     return -EBADRQC;
   }
   if (level >= levelDeep) {
+    freeRoom(p);
     return -EBADSLT;
   }
 
@@ -334,7 +335,7 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
     return -ERESTART;
   }
 
-  if (curExange->wakeUpALL == 1) {
+  if (__sync_add_and_fetch(&curExange->wakeUpALL, 0) == 1) {
     try_freeExangeRoom(curExange, &p->level[level].freeLockCount); // Libero il puntatore
     freeRoom(p);
     return -EUCLEAN;
@@ -385,8 +386,10 @@ int tag_ctl_TBDE_AWAKE_ALL(int tag, int command) {
   }
 
   p = (room *)retTag->data;
+  refcount_inc(&p->refCount); // da ora ,sicuramente non mi eliminano più la stanza, al massimo non sarà più indicizzata
   printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Tag to delete found");
   if (!operationValid(p)) {
+    freeRoom(p);
     write_unlock_irqrestore(&searchLock, flags);
     return -EBADE;
   }
@@ -453,7 +456,7 @@ int tag_ctl_TBDE_REMOVE(int tag, int command) {
   if (Tree_SearchNode(tagTree, &searchRoom) != NULL) {
     printk_tbde("[tag_ctl_TBDE_REMOVE] !!!! Key wasn't deleted form the key tree !!!!");
   }
-  printk_tbde("[tag_ctl_TBDE_REMOVE] room %p, will free after tagTree search", p);
+  printk_tbde("[tag_ctl_TBDE_REMOVE] room %p, freeing ... (after tagTree search)", p);
   freeRoom(p);
 
   if (p->key != TBDE_IPC_PRIVATE) { // devo trovare la key
@@ -465,18 +468,19 @@ int tag_ctl_TBDE_REMOVE(int tag, int command) {
       printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Tag to delete had a key");
       // freeRoom(Tree_DeleteNode(keyTree, retKey)); // decrease the pointer
       p = Tree_DeleteNode(keyTree, retKey);
-      if (Tree_SearchNode(keyTree, &searchRoom) != NULL) {
-        printk_tbde("[tag_ctl_TBDE_REMOVE] !!!! Key wasn't deleted form the key tree !!!!");
-      }
-      printk_tbde("[tag_ctl_TBDE_REMOVE] room %p, will free after keyTree search", p);
+      // Dooble check
+      // if (Tree_SearchNode(keyTree, &searchRoom) != NULL) {
+      //  printk_tbde("[tag_ctl_TBDE_REMOVE] !!!! Key wasn't deleted form the key tree !!!!");
+      //}
+      printk_tbde("[tag_ctl_TBDE_REMOVE] room %p, freeing ... (after keyTree search)", p);
       freeRoom(p);
     } else {
       printk_tbdeDB("[tag_ctl_TBDE_REMOVE] ERROR!!! key=%d should be present!!", p->key);
     }
   }
   // libero il lock
-  write_unlock_irqrestore(&searchLock, flags);
   __sync_sub_and_fetch(&roomCount, 1);
+  write_unlock_irqrestore(&searchLock, flags);
   printk_tbde("[tag_ctl_TBDE_REMOVE] Room (%d) are now Deleted, remaning %d rooms", tag,
               __sync_add_and_fetch(&roomCount, 0));
   TBDE_Audit printTrees();
