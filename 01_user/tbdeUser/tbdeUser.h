@@ -24,7 +24,6 @@ void initTBDE();
 // Return CREATE:
 //  succes            :=    tag value
 //  ETOOMANYREFS      :=    Too many room was created
-//  EBADRQC           :=    Permission Wrong parameter
 //  EBADR             :=    Key already in use
 // --
 // Return OPEN:
@@ -33,6 +32,7 @@ void initTBDE();
 //  EBADRQC           :=    Permission invalid to execute the operation
 //  ENOMSG            :=    Key not found
 // --
+//  EBADRQC           :=    Permission Wrong parameter
 //  EILSEQ            :=    Command not valid
 int tag_get(int key, int command, int permission);
 

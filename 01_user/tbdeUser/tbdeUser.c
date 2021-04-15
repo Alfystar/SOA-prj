@@ -80,7 +80,6 @@ void tagGet_perror(int keyAsk, int commandAsk) {
   // Return CREATE:
   //  succes            :=    tag value
   //  ETOOMANYREFS      :=    Too many room was created
-  //  EBADRQC           :=    Permission Wrong parameter
   //  EBADR             :=    Key already in use
   // --
   // Return OPEN:
@@ -89,19 +88,24 @@ void tagGet_perror(int keyAsk, int commandAsk) {
   //  EBADRQC           :=    Permission invalid to execute the operation
   //  ENOMSG            :=    Key not found
   // --
+  //  EBADRQC           :=    Permission Wrong parameter
   //  EILSEQ            :=    Command not valid
-  if (errno == EILSEQ) {
+
+  switch (errno) {
+  case EBADRQC:
+    printf("[tag_get] TBDE_O_CREAT @key=%d error, Permission Wrong parameter\n", keyAsk);
+    return;
+  case EILSEQ:
     printf("[tag_get] error, Command is not valid, commandAsk :%d\n", commandAsk);
     return;
+  default:
+    break;
   }
 
   if (commandAsk == TBDE_O_CREAT) {
     switch (errno) {
     case ETOOMANYREFS:
       printf("[tag_get] TBDE_O_CREAT @key=%d error, Too many room was created\n", keyAsk);
-      break;
-    case EBADRQC:
-      printf("[tag_get] TBDE_O_CREAT @key=%d error, Permission Wrong parameter\n", keyAsk);
       break;
     case EBADR:
       printf("[tag_get] TBDE_O_CREAT @key=%d error, Key already in use\n", keyAsk);

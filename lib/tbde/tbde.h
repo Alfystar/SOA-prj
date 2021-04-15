@@ -48,13 +48,12 @@ typedef struct room_ {
   chatRoom level[levelDeep];
 } room;
 
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 extern Tree keyTree, tagTree;
 extern rwlock_t searchLock;
-
-// Non necessitano di essere atomiche, crescono solo al crescere dell'albero che
-// è già in una sezione critica, gestita da searchLock
-extern unsigned int roomCount;
-extern int tagCounting;
+extern unsigned int roomCount; // Safe increment thanks searchLock
+extern int tagCounting;        // Safe increment thanks searchLock
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 void initTBDE(void);    // shuld be call BEFORE installation of syscall
 void unmountTBDE(void); // shuld be call AFTER installation of syscall
@@ -71,7 +70,7 @@ int tag_receive(int tag, int level, char *buffer, size_t size);
 int tag_ctl(int tag, int command);
 #endif
 
-int permCheck(int perm);
+int permAmmisible(int perm);
 int operationValid(room *p);
 
 exangeRoom *makeExangeRoom(void);
@@ -79,6 +78,11 @@ int try_freeExangeRoom(exangeRoom *ex, atomic_t *freeLockCount);
 
 room *roomMake(int key, unsigned int tag, int uid_Creator, int perm);
 void freeRoom(void *data);
+#define doobleFreeRoom(rm)                                                                                             \
+  do {                                                                                                                 \
+    freeRoom(rm);                                                                                                      \
+    freeRoom(rm);                                                                                                      \
+  } while (0)
 
 size_t waitersInRoom(room *p); // shuld be used in write-lock context
 

@@ -34,18 +34,39 @@ void unmountTBDE() {
   keyTree = NULL;
 }
 
-// Reset to zero if value is negative
-#define negativeReset(x)                                                                                               \
-  do {                                                                                                                 \
-    if (x < 0)                                                                                                         \
-      x = 0;                                                                                                           \
-  } while (0)
+// After add, if num is negative, remove the sign bit
+#define positiveAtomic_inc(count)                                                                                      \
+  ({                                                                                                                   \
+    typeof(count) mask, __ret;                                                                                         \
+    __ret = __sync_add_and_fetch(&count, 1);                                                                           \
+    if (__ret < 0) {                                                                                                   \
+      mask = ~(1 << ((sizeof(count) * 8) - 1));                                                                        \
+      __ret = __sync_and_and_fetch(&count, mask);                                                                      \
+    }                                                                                                                  \
+    __ret;                                                                                                             \
+  })
+
+#define roomTagInsert_Force(rm)                                                                                        \
+  while (true) {                                                                                                       \
+    rm->tag = positiveAtomic_inc(tagCounting);                                                                         \
+    ret = Tree_Insert(tagTree, p);                                                                                     \
+    if (ret == NULL) {                                                                                                 \
+      break;                                                                                                           \
+    }                                                                                                                  \
+  }
+
+#define treeNode2Room(trNode)                                                                                          \
+  ({                                                                                                                   \
+    room *__ret;                                                                                                       \
+    __ret = (room *)trNode->data;                                                                                      \
+    refcount_inc(&__ret->refCount);                                                                                    \
+    __ret;                                                                                                             \
+  })
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Return CREATE:
 //  succes            :=    tag value
 //  ETOOMANYREFS      :=    Too many room was created
-//  EBADRQC           :=    Permission Wrong parameter
 //  EBADR             :=    Key already in use
 int tag_get_CREATE(int key, int command, int permission) {
   room *p;
@@ -57,51 +78,28 @@ int tag_get_CREATE(int key, int command, int permission) {
     return -ETOOMANYREFS;
   }
 
-  if (permCheck(permission)) {
-    printk_tbdeDB("[tag_get_CREATE] Permission are Invalid");
-    return -EBADRQC;
-  }
-
   p = roomMake(key, 0, current->tgid, permission);
+
   if (p->key == TBDE_IPC_PRIVATE) {
     refcount_inc(&p->refCount); // Lock per conto di tagTree
     write_lock_irqsave(&searchLock, flags);
-    while (true) {
-      __sync_add_and_fetch(&tagCounting, 1);
-      negativeReset(tagCounting);
-      p->tag = tagCounting;
-      ret = Tree_Insert(tagTree, p);
-      if (ret == NULL) {
-        break;
-      }
-    }
+    roomTagInsert_Force(p);
     write_unlock_irqrestore(&searchLock, flags);
     __sync_add_and_fetch(&roomCount, 1);
   } else {                         // Key public
     refcount_add(2, &p->refCount); // Lock per conto di keyTree e tagTree
-
     write_lock_irqsave(&searchLock, flags);
     ret = Tree_Insert(keyTree, p);
     if (ret != NULL) { // Key in use
       write_unlock_irqrestore(&searchLock, flags);
-      freeRoom(p); // unLock per conto di keyTree
-      freeRoom(p); // unLock per conto di tagTree -> free
+      doobleFreeRoom(p); // unLock per conto di keyTree e per conto di tagTree -> free
       printk_tbdeDB("[tag_get_CREATE] Impossible to execute, key are just in use");
       return -EBADR;
     }
     // Nodo aggiunto con successo all'albero delle key
     // Sono ancora in sezione critica
-    while (true) { // Devo certamente aggiungere il nodo tag
-      __sync_add_and_fetch(&tagCounting, 1);
-      negativeReset(tagCounting);
-      p->tag = tagCounting;
-      ret = Tree_Insert(tagTree, p);
-      if (ret == NULL) {
-        break;
-      }
-    }
+    roomTagInsert_Force(p);
     write_unlock_irqrestore(&searchLock, flags);
-
     __sync_add_and_fetch(&roomCount, 1);
   }
   printk_tbde("[tag_get_CREATE] New room Create and added to the Searches Tree");
@@ -146,7 +144,6 @@ int tag_get_OPEN(int key, int command, int permission) {
 // Return CREATE:
 //  succes            :=    tag value
 //  ETOOMANYREFS      :=    Too many room was created
-//  EBADRQC           :=    Permission Wrong parameter
 //  EBADR             :=    Key already in use
 // --
 // Return OPEN:
@@ -155,6 +152,7 @@ int tag_get_OPEN(int key, int command, int permission) {
 //  EBADRQC           :=    Permission invalid to execute the operation
 //  ENOMSG            :=    Key not found
 // --
+//  EBADRQC           :=    Permission Wrong parameter
 //  EILSEQ            :=    Command not valid
 
 // int tag_get(int key, int command, int permission);
@@ -164,17 +162,20 @@ __SYSCALL_DEFINEx(3, _tag_get, int, key, int, command, int, permission) {
 asmlinkage long tag_get(int key, int command, int permission) {
 #endif
   printk_tbde("[tag_get] thread %d call [tag_get(%d,%d,%d)]\n", current->pid, key, command, permission);
+
+  if (permAmmisible(permission)) {
+    printk_tbdeDB("[tag_get] Permission passed are Invalid");
+    return -EBADRQC;
+  }
+
   switch (command) {
   case TBDE_O_CREAT:
     return tag_get_CREATE(key, command, permission);
-    break;
   case TBDE_O_OPEN:
     return tag_get_OPEN(key, command, permission);
-    break;
   default:
     printk_tbdeDB("[tag_get] Invalid Command");
     return -EILSEQ;
-    break;
   }
   return 0;
 }
@@ -222,8 +223,10 @@ asmlinkage long tag_send(int tag, int level, char *buffer, size_t size) {
     vfree(buf); // Libero la memoria di appoggio
     return -ENOMSG;
   }
-  p = (room *)ret->data;
-  refcount_inc(&p->refCount); // da ora ,sicuramente non mi eliminano più la stanza, al massimo non sarà più indicizzata
+  p = treeNode2Room(ret);
+  // p = (room *)ret->data;
+  // refcount_inc(&p->refCount); // da ora ,sicuramente non mi eliminano più la stanza, al massimo non sarà più
+  // indicizzata
   read_unlock_irqrestore(&searchLock, flags);
 
   if (!operationValid(p)) {
@@ -302,9 +305,10 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
     read_unlock_irqrestore(&searchLock, flags);
     return -ENOMSG;
   }
-  p = (room *)ret->data;
-  refcount_inc(&p->refCount); // da ora ,sicuramente non mi eliminano più la stanza, al massimo non sarà più indicizzata
-  read_unlock_irqrestore(&searchLock, flags);
+  p = treeNode2Room(ret);
+  // p = (room *)ret->data;
+  // refcount_inc(&p->refCount); // da ora ,sicuramente non mi eliminano più la stanza, al massimo non sarà più
+  // indicizzata  read_unlock_irqrestore(&searchLock, flags);
 
   if (!operationValid(p)) {
     freeRoom(p);
@@ -317,10 +321,10 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
 
   // Creo un lock con un soft-lock sulle free, alla stanza che mi interessa
   printk_tbdeDB("[tag_receive] free disable lock ...");
-  preempt_disable();
+
   // uso "arch_atomic_inc" pochè il ref potrebbe essere a 0 ed è giusto e non voglio warning
+  preempt_disable();
   arch_atomic_inc(&p->level[level].freeLockCount); // Impedisco momentaneamente le free sul livello
-  //  refcount_add(1, &p->level[level].freeLockCount);
   curExange = p->level[level].ex;                  // In base a quelo attualmente serializzato
   refcount_add(1, &curExange->refCount);           // Impedisco la distruzione della mia stanza
   arch_atomic_dec(&p->level[level].freeLockCount); // Ri-abilito le free sul livello che mi interessa
@@ -385,8 +389,10 @@ int tag_ctl_TBDE_AWAKE_ALL(int tag, int command) {
     return -ENODATA; // Se non lo trovo, non c'è nulla da eliminare ma lo notifico
   }
 
-  p = (room *)retTag->data;
-  refcount_inc(&p->refCount); // da ora ,sicuramente non mi eliminano più la stanza, al massimo non sarà più indicizzata
+  p = treeNode2Room(retTag);
+  // p = (room *)ret->data;
+  // refcount_inc(&p->refCount); // da ora ,sicuramente non mi eliminano più la stanza, al massimo non sarà più
+  // indicizzata
   printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Tag to delete found");
   if (!operationValid(p)) {
     freeRoom(p);
@@ -413,8 +419,7 @@ int tag_ctl_TBDE_AWAKE_ALL(int tag, int command) {
     try_freeExangeRoom(oldEx, &p->level[i].freeLockCount); // Libero il mio puntatore
   }
   freeRoom(p); // Libero il mio puntatore
-  printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Ending ...");
-
+  printk_tbde("[tag_ctl_TBDE_REMOVE] All rooms wake_upped");
   write_unlock_irqrestore(&searchLock, flags);
   return 0;
 }
@@ -456,7 +461,7 @@ int tag_ctl_TBDE_REMOVE(int tag, int command) {
   if (Tree_SearchNode(tagTree, &searchRoom) != NULL) {
     printk_tbde("[tag_ctl_TBDE_REMOVE] !!!! Key wasn't deleted form the key tree !!!!");
   }
-  printk_tbde("[tag_ctl_TBDE_REMOVE] room %p, freeing ... (after tagTree search)", p);
+  printk_tbdeDB("[tag_ctl_TBDE_REMOVE] room %p freeing... (tagTree search)", p);
   freeRoom(p);
 
   if (p->key != TBDE_IPC_PRIVATE) { // devo trovare la key
@@ -466,13 +471,12 @@ int tag_ctl_TBDE_REMOVE(int tag, int command) {
 
     if (retKey) {
       printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Tag to delete had a key");
-      // freeRoom(Tree_DeleteNode(keyTree, retKey)); // decrease the pointer
       p = Tree_DeleteNode(keyTree, retKey);
       // Dooble check
       // if (Tree_SearchNode(keyTree, &searchRoom) != NULL) {
       //  printk_tbde("[tag_ctl_TBDE_REMOVE] !!!! Key wasn't deleted form the key tree !!!!");
       //}
-      printk_tbde("[tag_ctl_TBDE_REMOVE] room %p, freeing ... (after keyTree search)", p);
+      printk_tbdeDB("[tag_ctl_TBDE_REMOVE] room %p freeing... (keyTree search)", p);
       freeRoom(p);
     } else {
       printk_tbdeDB("[tag_ctl_TBDE_REMOVE] ERROR!!! key=%d should be present!!", p->key);
@@ -483,7 +487,8 @@ int tag_ctl_TBDE_REMOVE(int tag, int command) {
   write_unlock_irqrestore(&searchLock, flags);
   printk_tbde("[tag_ctl_TBDE_REMOVE] Room (%d) are now Deleted, remaning %d rooms", tag,
               __sync_add_and_fetch(&roomCount, 0));
-  TBDE_Audit printTrees();
+  // TBDE_Audit
+  printTrees();
   return 0;
 }
 

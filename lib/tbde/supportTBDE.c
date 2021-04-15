@@ -1,6 +1,6 @@
 #include "tbde.h"
 
-int permCheck(int perm) {
+int permAmmisible(int perm) {
   switch (perm) {
   case TBDE_OPEN_ROOM:
   case TBDE_PRIVATE_ROOM:
