@@ -23,11 +23,11 @@ int main(int argc, char **argv) {
   tag = tag_get(keyAsk, commandAsk, permissionAsk);
 
   if (tag == -1) {
-    tagGet_perror(tag, keyAsk, commandAsk);
+    tagGet_perror(keyAsk, commandAsk);
     commandAsk = TBDE_O_OPEN;
     tag = tag_get(keyAsk, commandAsk, permissionAsk);
     if (tag == -1) {
-      tagGet_perror(tag, keyAsk, commandAsk);
+      tagGet_perror(keyAsk, commandAsk);
       exit(-1);
     }
   }
@@ -39,14 +39,14 @@ int main(int argc, char **argv) {
     size++;
     printf("(%d) tag_send(...)\n", myFork);
     int ret = tag_send(tag, 1, buf, size);
-    tagSend_perror(ret, tag);
+    tagSend_perror(tag);
   }
   // \/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
   if (commandAsk == TBDE_O_OPEN) {
     printf("(%d) tag_receive(...)\n", myFork);
     int bRead = tag_receive(tag, 1, buf, sizeof(buf));
     if (bRead < 0)
-      tagRecive_perror(bRead, tag);
+      tagRecive_perror(tag);
     else
       printf("[reader %d]%s\tReturn value = %d\n", myFork, buf, bRead);
   }

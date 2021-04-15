@@ -78,8 +78,8 @@ int tag_ctl(int tag, int command);
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-void tagGet_perror(int ret, int keyAsk, int commandAsk);
-void tagSend_perror(int ret, int tag);
-void tagRecive_perror(int bRead, int tag);
+void tagGet_perror(int keyAsk, int commandAsk);
+void tagSend_perror(int tag);
+void tagRecive_perror(int tag);
 void tagCtl_perror(int tag, int commandAsk);
 #endif

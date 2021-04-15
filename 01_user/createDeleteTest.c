@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
     printf("(%d;%d)\n", myFork, i);
     tags[i] = tag_get(keyAsk, commandAsk, permissionAsk);
     if (tags[i] == -1) {
-      tagGet_perror(tags[i], keyAsk, commandAsk);
+      tagGet_perror(keyAsk, commandAsk);
     }
   }
   //----------------------------------------------------------------------------------

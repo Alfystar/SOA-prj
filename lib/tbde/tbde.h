@@ -17,7 +17,7 @@
 #include <linux/wait.h>
 #define MAX_ROOM 256 // todo: renderlo un valore parametrico
 
-#define TBDE_Audit if (1)
+#define TBDE_Audit if (0)
 #define printk_tbde(str, ...) printk("[%s::%s]: " str, MODNAME, "TBDE", ##__VA_ARGS__)
 #define printk_tbdeDB(str, ...) TBDE_Audit printk_tbde(str, ##__VA_ARGS__)
 

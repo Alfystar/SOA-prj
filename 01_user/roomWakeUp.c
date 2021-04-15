@@ -7,7 +7,7 @@ int tag;
 
 int main(int argc, char **argv) {
   int myFork;
-  for (myFork = 0; myFork < 1; myFork++) {
+  for (myFork = 0; myFork < 4; myFork++) {
     int pid = fork();
     if (pid == 0) // son
       break;
@@ -23,11 +23,11 @@ int main(int argc, char **argv) {
   tag = tag_get(keyAsk, commandAsk, permissionAsk);
 
   if (tag == -1) {
-    tagGet_perror(tag, keyAsk, commandAsk);
+    tagGet_perror(keyAsk, commandAsk);
     commandAsk = TBDE_O_OPEN;
     tag = tag_get(keyAsk, commandAsk, permissionAsk);
     if (tag == -1) {
-      tagGet_perror(tag, keyAsk, commandAsk);
+      tagGet_perror(keyAsk, commandAsk);
       exit(-1);
     }
   }
@@ -38,14 +38,14 @@ int main(int argc, char **argv) {
     printf("(%d) tag_ctl(tag, TBDE_AWAKE_ALL)\n", myFork);
     int ret = tag_ctl(tag, TBDE_AWAKE_ALL);
     if (ret == -1)
-      tagCtl_perror(ret, TBDE_AWAKE_ALL);
+      tagCtl_perror(tag, TBDE_AWAKE_ALL);
   }
   // \/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
   if (commandAsk == TBDE_O_OPEN) {
     printf("(%d) tag_receive(...)\n", myFork);
     int bRead = tag_receive(tag, 1, buf, sizeof(buf));
     if (bRead < 0)
-      tagRecive_perror(bRead, tag);
+      tagRecive_perror(tag);
     else
       printf("[reader %d]%s\tReturn value = %d\n", myFork, buf, bRead);
   }

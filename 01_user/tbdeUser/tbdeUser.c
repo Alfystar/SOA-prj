@@ -76,7 +76,7 @@ int tag_ctl(int tag, int command) {
   }
 }
 
-void tagGet_perror(int ret, int keyAsk, int commandAsk) {
+void tagGet_perror(int keyAsk, int commandAsk) {
   // Return CREATE:
   //  succes            :=    tag value
   //  ETOOMANYREFS      :=    Too many room was created
@@ -134,7 +134,7 @@ void tagGet_perror(int ret, int keyAsk, int commandAsk) {
   printf("[tag_get] error, Unexpected error code return: %d\n", errno);
 }
 
-void tagSend_perror(int ret, int tag) {
+void tagSend_perror(int tag) {
   // Return tag_send:
   //  succes            :=    return 0
   //  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE), or not present
@@ -143,7 +143,7 @@ void tagSend_perror(int ret, int tag) {
   //  EBADSLT           :=    asked level is over levelDeep
   // --
   //  EILSEQ            :=    Command not valid
-  switch (ret) {
+  switch (errno) {
   case EXFULL:
     printf("[tag_send] @tag=%d error, Buffer too long (out of MAX_BUF_SIZE), or not present\n", tag);
     break;
@@ -165,7 +165,7 @@ void tagSend_perror(int ret, int tag) {
   }
 }
 
-void tagRecive_perror(int bRead, int tag) {
+void tagRecive_perror(int tag) {
   // Return tag_receive:
   //  succes            :=    return len copied
   //  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE), or not present
@@ -176,7 +176,7 @@ void tagRecive_perror(int bRead, int tag) {
   //  EUCLEAN           :=    Receved TBDE_AWAKE_ALL
   // --
   //  EILSEQ            :=    Command not valid
-  switch (-bRead) {
+  switch (errno) {
   case EXFULL:
     printf("[tag_receive] @tag=%d error, Buffer too long (out of MAX_BUF_SIZE), or not present\n", tag);
     break;
@@ -199,11 +199,7 @@ void tagRecive_perror(int bRead, int tag) {
     printf("[tag_receive] @tag=%d error, Command not valid\n", tag);
     break;
   default:
-    if (bRead < 0) {
-      printf("[tag_receive] error, Unexpected error code return: %d\n", errno);
-    } else {
-      // No error
-    }
+    printf("[tag_receive] error, Unexpected error code return: %d\n", errno);
     break;
   }
 }
@@ -228,7 +224,6 @@ void tagCtl_perror(int tag, int commandAsk) {
   }
 
   if (commandAsk == TBDE_AWAKE_ALL) {
-    // todo: da implementare
     switch (errno) {
     case ENOSR:
       printf("[tag_ctl] TBDE_AWAKE_ALL @tag=%d error, The number is negative\n", tag);
