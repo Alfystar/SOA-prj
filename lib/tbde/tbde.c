@@ -296,20 +296,15 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
   // Creo un lock con un soft-lock sulle free, alla stanza che mi interessa
   printk_tbdeDB("[tag_receive] free disable lock ...");
 
-  // preempt_disable();
-  // arch_atomic_inc(&p->level[level].freeLockCount); // Impedisco momentaneamente le free sul livello
-
   freeMem_Lock(&p->level[level].freeLockCount);
   curExange = p->level[level].ex;        // In base a quelo attualmente serializzato
   refcount_add(1, &curExange->refCount); // Impedisco la distruzione della mia stanza
   freeMem_unLock(&p->level[level].freeLockCount);
 
-  // arch_atomic_dec(&p->level[level].freeLockCount); // Ri-abilito le free sul livello che mi interessa
-  // preempt_enable();
-
   printk_tbdeDB("[tag_receive] enqueuing ...");
   retWait = wait_event_interruptible(curExange->readerQueue, __sync_add_and_fetch(&curExange->ready, 0) == 1);
 
+  // todo: verificare interrupt da signal
   if (retWait != 0) {                                              // wake_up for signal
     try_freeExangeRoom(curExange, &p->level[level].freeLockCount); // Libero il puntatore
     freeRoom(p);
