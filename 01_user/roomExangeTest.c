@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
 
   if (commandAsk == TBDE_O_CREAT) {
     // usleep(10 * 1000UL); // 10 ms
-    sleep(3);
+    sleep(1);
     int size = sprintf(buf, "Salve figliolo sono il processo : %d", myFork);
     size++; // last null caracter
     printf("(%d) tag_send(...)\n", myFork);

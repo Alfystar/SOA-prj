@@ -5,7 +5,10 @@
 
 # The file name for the KO object to add and rm
 MODNAME=TAG_DataExchange
-USER_DIR="01_user"
+USER_DIR=01_user
+TEST_DIR=test
+
+USER_LIB_INC=$(USER_DIR)/tbdeUser/tbdeUser.c
 
 ifeq ($(KERNELRELEASE),)
 # if KERNELRELEASE is not defined, we've been called directly from the command line.
@@ -13,17 +16,19 @@ ifeq ($(KERNELRELEASE),)
 .PHONY: all install clean uninstall load unload
 all:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
-	$(CC) $(USER_DIR)/createDeleteTest.c $(USER_DIR)/tbdeUser/tbdeUser.c -o createTest.out -Iinclude
-	$(CC) $(USER_DIR)/roomTest.c $(USER_DIR)/tbdeUser/tbdeUser.c -o roomTest.out -Iinclude
-	$(CC) $(USER_DIR)/roomTestRand.c $(USER_DIR)/tbdeUser/tbdeUser.c -o roomTestRand.out -Iinclude
-	$(CC) $(USER_DIR)/roomWakeUp.c $(USER_DIR)/tbdeUser/tbdeUser.c -o roomWakeUp.out -Iinclude
+	mkdir -p $(TEST_DIR)
+#	Create/Open-delete test	
+	$(CC) $(USER_DIR)/createDeleteTest.c $(USER_LIB_INC) -o $(TEST_DIR)/createDeleteTest.out -Iinclude
+	$(CC) $(USER_DIR)/createDeleteTest_Many.c $(USER_LIB_INC) -o $(TEST_DIR)/createDeleteTest_Many.out -Iinclude
+#	Chatting on room	
+	$(CC) $(USER_DIR)/roomExangeTest.c $(USER_LIB_INC) -o $(TEST_DIR)/roomExangeTest.out -Iinclude
+	$(CC) $(USER_DIR)/roomExange_Rand.c $(USER_LIB_INC) -o $(TEST_DIR)/roomExange_Rand.out -Iinclude
+#	Wake_up all	
+	$(CC) $(USER_DIR)/wakeUpTest.c $(USER_LIB_INC) -o $(TEST_DIR)/wakeUpTest.out -Iinclude
 
 clean:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
-	rm createTest.out
-	rm roomTest.out
-	rm roomTestRand.out
-	rm roomWakeUp.out
+	rm -r $(TEST_DIR)
 	
 install:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules_install

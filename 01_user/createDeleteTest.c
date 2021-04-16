@@ -3,8 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define nTag 3
-int tags[nTag];
+int tag;
 
 int main(int argc, char **argv) {
   int myFork;
@@ -19,23 +18,20 @@ int main(int argc, char **argv) {
 
   printf("tag_gets\n");
   int keyAsk, commandAsk, permissionAsk;
-  for (int i = 0; i < nTag; i++) {
-    keyAsk = rand() % nTag;
-    commandAsk = rand() % 2;
-    permissionAsk = rand() % 2;
-    printf("(%d;%d)\n", myFork, i);
-    tags[i] = tag_get(keyAsk, commandAsk, permissionAsk);
-    if (tags[i] == -1) {
-      tagGet_perror(keyAsk, commandAsk);
-    }
+  keyAsk = 1;
+  commandAsk = TBDE_O_CREAT + myFork;
+  permissionAsk = TBDE_OPEN_ROOM;
+  printf("(%d)\n", myFork);
+  tag = tag_get(keyAsk, commandAsk, permissionAsk);
+  if (tag == -1) {
+    tagGet_perror(keyAsk, commandAsk);
   }
+
   //----------------------------------------------------------------------------------
 
   printf("tag_ctls\n");
-  for (int i = 0; i < nTag; i++) {
-    printf("(%d;%d)\n", myFork, i);
-    if (tag_ctl(tags[i], TBDE_REMOVE) == -1) {
-      tagCtl_perror(tags[i], TBDE_REMOVE);
-    }
+  printf("(%d)\n", myFork);
+  if (tag_ctl(tag, TBDE_REMOVE) == -1) {
+    tagCtl_perror(tag, TBDE_REMOVE);
   }
 }
