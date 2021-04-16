@@ -20,11 +20,13 @@ all:
 #	Create/Open-delete test	
 	$(CC) $(USER_DIR)/createDeleteTest.c $(USER_LIB_INC) -o $(TEST_DIR)/createDeleteTest.out -Iinclude
 	$(CC) $(USER_DIR)/createDeleteTest_Many.c $(USER_LIB_INC) -o $(TEST_DIR)/createDeleteTest_Many.out -Iinclude
-#	Chatting on room	
+#	Chatting on room test	
 	$(CC) $(USER_DIR)/roomExangeTest.c $(USER_LIB_INC) -o $(TEST_DIR)/roomExangeTest.out -Iinclude
 	$(CC) $(USER_DIR)/roomExange_Rand.c $(USER_LIB_INC) -o $(TEST_DIR)/roomExange_Rand.out -Iinclude
-#	Wake_up all	
+#	Wake_up test
 	$(CC) $(USER_DIR)/wakeUpTest.c $(USER_LIB_INC) -o $(TEST_DIR)/wakeUpTest.out -Iinclude
+#	Signal test	
+	$(CC) $(USER_DIR)/signalWait.c $(USER_LIB_INC) -o $(TEST_DIR)/signalWait.out -Iinclude
 
 clean:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
