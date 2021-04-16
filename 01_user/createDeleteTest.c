@@ -3,12 +3,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define nTag 300
+#define nTag 3
 int tags[nTag];
 
 int main(int argc, char **argv) {
   int myFork;
-  for (myFork = 0; myFork < 9; myFork++) {
+  for (myFork = 0; myFork < 1; myFork++) {
     int pid = fork();
     if (pid == 0) // son
       break;

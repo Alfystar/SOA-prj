@@ -7,7 +7,7 @@ int tag;
 
 int main(int argc, char **argv) {
   int myFork;
-  for (myFork = 0; myFork < 100; myFork++) {
+  for (myFork = 0; myFork < 1; myFork++) {
     int pid = fork();
     if (pid == 0) // son
       break;
@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
   if (commandAsk == TBDE_O_CREAT) {
     usleep(1 * 1000UL); // 10 ms
     int size = sprintf(buf, "Salve professore sono il processo : %d", myFork);
-    size++;
+    size++; // last null caracter
     printf("(%d) tag_send(...)\n", myFork);
     int ret = tag_send(tag, 1, buf, size);
     tagSend_perror(tag);
