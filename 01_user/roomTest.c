@@ -35,11 +35,12 @@ int main(int argc, char **argv) {
 
   if (commandAsk == TBDE_O_CREAT) {
     usleep(1 * 1000UL); // 10 ms
-    int size = sprintf(buf, "Salve professore sono il processo : %d", myFork);
+    int size = sprintf(buf, "Salve figliolo sono il processo : %d", myFork);
     size++; // last null caracter
     printf("(%d) tag_send(...)\n", myFork);
     int ret = tag_send(tag, 1, buf, size);
-    tagSend_perror(tag);
+    if (ret < 0)
+      tagSend_perror(tag);
   }
   // \/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
   if (commandAsk == TBDE_O_OPEN) {

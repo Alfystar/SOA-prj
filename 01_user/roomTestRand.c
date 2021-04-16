@@ -2,6 +2,7 @@
 #include "tbdeUser/tbdeUser.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #define rangeKey 10
 int tag;
@@ -36,21 +37,25 @@ int main(int argc, char **argv) {
   //----------------------------------------------------------------------------------
 
   if (commandAsk == TBDE_O_CREAT) {
-    usleep(1 * 1000UL); // 10 ms
-    int size = sprintf(buf, "Salve professore sono il processo : %d", myFork);
+    usleep(10 * 1000UL); // 10 ms
+    int size = sprintf(buf, "Salve figliolo sono il processo : %d", myFork);
     size++;
     printf("(%d) tag_send(...)\n", myFork);
     int ret = tag_send(tag, 1, buf, size);
-    tagSend_perror(tag);
+    if (ret < 0)
+      tagSend_perror(tag);
   }
   // \/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
   if (commandAsk == TBDE_O_OPEN) {
     printf("(%d) tag_receive(...)\n", myFork);
+    alarm(3);
     int bRead = tag_receive(tag, 1, buf, sizeof(buf));
     if (bRead < 0)
       tagRecive_perror(tag);
-    else
+    else {
+      alarm(0);
       printf("[reader %d]%s\tReturn value = %d\n", myFork, buf, bRead);
+    }
   }
   //----------------------------------------------------------------------------------
 
