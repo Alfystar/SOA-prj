@@ -7,7 +7,7 @@ int tag;
 
 int main(int argc, char **argv) {
   int myFork;
-  for (myFork = 0; myFork < 4; myFork++) {
+  for (myFork = 0; myFork < 1; myFork++) {
     int pid = fork();
     if (pid == 0) // son
       break;

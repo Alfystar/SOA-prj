@@ -55,7 +55,7 @@ void unmountTBDE() {
     }                                                                                                                  \
   }
 
-#define treeNode2Room(trNode)                                                                                          \
+#define treeNode2Room_refInc(trNode)                                                                                   \
   ({                                                                                                                   \
     room *__ret;                                                                                                       \
     __ret = (room *)trNode->data;                                                                                      \
@@ -84,8 +84,8 @@ int tag_get_CREATE(int key, int command, int permission) {
     refcount_inc(&p->refCount); // Lock per conto di tagTree
     write_lock_irqsave(&searchLock, flags);
     roomTagInsert_Force(p);
-    write_unlock_irqrestore(&searchLock, flags);
     __sync_add_and_fetch(&roomCount, 1);
+    write_unlock_irqrestore(&searchLock, flags);
   } else {                         // Key public
     refcount_add(2, &p->refCount); // Lock per conto di keyTree e tagTree
     write_lock_irqsave(&searchLock, flags);
@@ -127,16 +127,22 @@ int tag_get_OPEN(int key, int command, int permission) {
 
   read_lock_irqsave(&searchLock, flags);
   ret = Tree_SearchNode(keyTree, &roomSearch);
-  read_unlock_irqrestore(&searchLock, flags);
 
   if (ret) {
     int tagRet;
-    room *p = (room *)ret->data;
-    if (!operationValid(p))
+    room *p = treeNode2Room_refInc(ret);
+    read_unlock_irqrestore(&searchLock, flags);
+
+    if (!operationValid(p)) {
+      freeRoom(p);
       return -EBADRQC;
+    }
+
     tagRet = p->tag;
+    freeRoom(p);
     return tagRet;
   }
+  read_unlock_irqrestore(&searchLock, flags);
   printk_tbdeDB("[tag_get_OPEN] No key are found");
   return -ENOMSG;
 }
@@ -223,10 +229,7 @@ asmlinkage long tag_send(int tag, int level, char *buffer, size_t size) {
     vfree(buf); // Libero la memoria di appoggio
     return -ENOMSG;
   }
-  p = treeNode2Room(ret);
-  // p = (room *)ret->data;
-  // refcount_inc(&p->refCount); // da ora ,sicuramente non mi eliminano più la stanza, al massimo non sarà più
-  // indicizzata
+  p = treeNode2Room_refInc(ret);
   read_unlock_irqrestore(&searchLock, flags);
 
   if (!operationValid(p)) {
@@ -235,6 +238,7 @@ asmlinkage long tag_send(int tag, int level, char *buffer, size_t size) {
     return -EBADRQC;
   }
   if (level >= levelDeep) {
+    freeRoom(p);
     vfree(buf); // Libero la memoria di appoggio
     return -EBADSLT;
   }
@@ -251,6 +255,7 @@ asmlinkage long tag_send(int tag, int level, char *buffer, size_t size) {
   refcount_inc(&oldEx->refCount);
   oldEx->mes = buf;
   oldEx->len = size;
+  oldEx->wakeUpALL = 0;
   oldEx->ready = 1;
   printk_tbdeDB("[tag_send] Wake_upping readers ...");
   wake_up_all(&oldEx->readerQueue);
@@ -305,11 +310,8 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
     read_unlock_irqrestore(&searchLock, flags);
     return -ENOMSG;
   }
-  p = treeNode2Room(ret);
-  // p = (room *)ret->data;
-  // refcount_inc(&p->refCount); // da ora ,sicuramente non mi eliminano più la stanza, al massimo non sarà più
-  // indicizzata  read_unlock_irqrestore(&searchLock, flags);
 
+  p = treeNode2Room_refInc(ret);
   if (!operationValid(p)) {
     freeRoom(p);
     return -EBADRQC;
@@ -322,11 +324,15 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
   // Creo un lock con un soft-lock sulle free, alla stanza che mi interessa
   printk_tbdeDB("[tag_receive] free disable lock ...");
 
-  // uso "arch_atomic_inc" pochè il ref potrebbe essere a 0 ed è giusto e non voglio warning
   preempt_disable();
   arch_atomic_inc(&p->level[level].freeLockCount); // Impedisco momentaneamente le free sul livello
-  curExange = p->level[level].ex;                  // In base a quelo attualmente serializzato
-  refcount_add(1, &curExange->refCount);           // Impedisco la distruzione della mia stanza
+
+  // freeMem_Lock(&p->level[level].freeLockCount);
+  curExange = p->level[level].ex;        // In base a quelo attualmente serializzato
+  refcount_add(1, &curExange->refCount); // Impedisco la distruzione della mia stanza
+
+  // freeMem_unLock(&p->level[level].freeLockCount);
+
   arch_atomic_dec(&p->level[level].freeLockCount); // Ri-abilito le free sul livello che mi interessa
   preempt_enable();
 
@@ -367,7 +373,6 @@ unsigned long tag_receive = (unsigned long)__x64_sys_tag_receive;
 
 // Return TBDE_AWAKE_ALL:
 //  succes            :=    return 0
-//  ENOSR             :=    tag negative number
 //  ENODATA           :=    Notting to be wake_up was found (all ok, just notification)
 //  EBADE             :=    Permission invalid to execute the operation
 int tag_ctl_TBDE_AWAKE_ALL(int tag, int command) {
@@ -378,8 +383,7 @@ int tag_ctl_TBDE_AWAKE_ALL(int tag, int command) {
   int i;
 
   printk_tbdeDB("[tag_ctl_TBDE_AWAKE_ALL] Request TBDE_AWAKE_ALL at Tag = %d", tag);
-  if (tag < 0)
-    return -ENOSR;
+
   searchRoom.tag = tag;
 
   write_lock_irqsave(&searchLock, flags);
@@ -389,10 +393,10 @@ int tag_ctl_TBDE_AWAKE_ALL(int tag, int command) {
     return -ENODATA; // Se non lo trovo, non c'è nulla da eliminare ma lo notifico
   }
 
-  p = treeNode2Room(retTag);
+  p = treeNode2Room_refInc(retTag);
   // p = (room *)ret->data;
-  // refcount_inc(&p->refCount); // da ora ,sicuramente non mi eliminano più la stanza, al massimo non sarà più
-  // indicizzata
+  // refcount_inc(&p->refCount); // da ora ,sicuramente non mi eliminano più la stanza, al massimo
+  // non sarà più indicizzata
   printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Tag to delete found");
   if (!operationValid(p)) {
     freeRoom(p);
@@ -426,7 +430,6 @@ int tag_ctl_TBDE_AWAKE_ALL(int tag, int command) {
 
 // Return TBDE_REMOVE:
 //  succes            :=    return 0
-//  ENOSR             :=    tag negative number
 //  ENODATA           :=    Notting to be deleted was found (all ok, just notification)
 //  EBADE             :=    Permission invalid to execute the operation
 //  EADDRINUSE        :=    Reader in wait on some level
@@ -436,8 +439,7 @@ int tag_ctl_TBDE_REMOVE(int tag, int command) {
   unsigned long flags;
 
   printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Request TBDE_REMOVE at Tag = %d", tag);
-  if (tag < 0)
-    return -ENOSR;
+
   searchRoom.tag = tag;
 
   write_lock_irqsave(&searchLock, flags);
@@ -472,10 +474,6 @@ int tag_ctl_TBDE_REMOVE(int tag, int command) {
     if (retKey) {
       printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Tag to delete had a key");
       p = Tree_DeleteNode(keyTree, retKey);
-      // Dooble check
-      // if (Tree_SearchNode(keyTree, &searchRoom) != NULL) {
-      //  printk_tbde("[tag_ctl_TBDE_REMOVE] !!!! Key wasn't deleted form the key tree !!!!");
-      //}
       printk_tbdeDB("[tag_ctl_TBDE_REMOVE] room %p freeing... (keyTree search)", p);
       freeRoom(p);
     } else {
@@ -494,16 +492,15 @@ int tag_ctl_TBDE_REMOVE(int tag, int command) {
 
 // Return TBDE_AWAKE_ALL:
 //  succes            :=    return 0
-//  ENOSR             :=    tag negative number
 //  ENODATA           :=    Notting to be wake_up was found (all ok, just notification)
 //  EBADE             :=    Permission invalid to execute the operation// --
 // Return TBDE_REMOVE:
 //  succes            :=    return 0
-//  ENOSR             :=    tag negative number
 //  ENODATA           :=    Notting to be deleted was found (all ok, just notification)
 //  EBADE             :=    Permission invalid to execute the operation
 //  EADDRINUSE        :=    Reader in wait on some level
 // --
+//  ENOSR             :=    tag negative number
 //  EILSEQ            :=    Command not valid
 // int tag_ctl(int tag, int command);
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 17, 0)
@@ -512,6 +509,9 @@ __SYSCALL_DEFINEx(2, _tag_ctl, int, tag, int, command) {
 asmlinkage long tag_ctl(int tag, int command) {
 #endif
   printk_tbde("[tag_ctl] thread %d call [tag_ctl(%d,%d)]\n", current->pid, tag, command);
+  if (tag < 0)
+    return -ENOSR;
+
   switch (command) {
   case TBDE_AWAKE_ALL:
     return tag_ctl_TBDE_AWAKE_ALL(tag, command);

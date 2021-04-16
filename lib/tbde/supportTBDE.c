@@ -46,33 +46,35 @@ void realExangeFree(exangeRoom *ex) {
 // 0 = i don't free exangeRoom
 // -1 = Problem in pointer
 int try_freeExangeRoom(exangeRoom *ex, atomic_t *freeLockCount) {
-  if (ex != NULL && freeLockCount != NULL) {
-    if (refcount_read(&ex->refCount) == 0) { // è una stanza vuota, posso eliminarla subito
-      // todo: capire se viene mai ragiunta in un momento inaspettato
-      printk_tbdeDB("[try_freeExangeRoom] free exangeRoom %p, with no reference", ex);
-      realExangeFree(ex);
-      return 1;
-    }
-    if (refcount_dec_not_one(&ex->refCount)) { // Se non sono l'ultimo
-      printk_tbdeDB("[try_freeExangeRoom] free exangeRoom %p, LOOP FREE", ex);
-      return 0;
-    }
-    // Sono l'ultimo, verifico mi sia permesso di fare la free
-    preempt_disable();
-    while (arch_atomic_read(freeLockCount) != 0) { // Simil spinLock busy wait
-    };
-    preempt_enable();
-
-    if (refcount_dec_not_one(&ex->refCount)) { // Il reader è entrato qui, ci penserà lui a pulire
-      return 0;
-    }
-    // Sono effettivamente l'ultimo e nessuno più può entrare
-    realExangeFree(ex);
-    return 1;
-  } else {
+  if (ex == NULL || freeLockCount == NULL) {
     printk_tbde("[freeChatRoom] Impossible kfree chatRoom because passing same NULL ptr");
     return -1;
   }
+
+  if (refcount_read(&ex->refCount) == 0) { // è una stanza vuota, posso eliminarla subito
+    printk_tbdeDB("[try_freeExangeRoom] free exangeRoom %p, with no reference", ex);
+    realExangeFree(ex);
+    return 1;
+  }
+  if (refcount_dec_not_one(&ex->refCount)) { // Se non sono l'ultimo
+    printk_tbdeDB("[try_freeExangeRoom] free exangeRoom %p, LOOP FREE", ex);
+    return 0;
+  }
+  // Sono l'ultimo, verifico mi sia permesso di fare la free
+
+  preempt_disable();
+  while (arch_atomic_read(freeLockCount) != 0) { // Simil spinLock busy wait
+  };
+  preempt_enable();
+
+  // waitUntil_unlock(freeLockCount);
+
+  if (refcount_dec_not_one(&ex->refCount)) { // Il reader è entrato qui, ci penserà lui a pulire
+    return 0;
+  }
+  // Sono effettivamente l'ultimo e nessuno più può entrare
+  realExangeFree(ex);
+  return 1;
 }
 
 room *roomMake(int key, unsigned int tag, int uid_Creator, int perm) {

@@ -63,16 +63,15 @@ int tag_receive(int tag, int level, char *buffer, size_t size);
 
 // Return TBDE_AWAKE_ALL:
 //  succes            :=    return 0
-//  ENOSR             :=    tag negative number
 //  ENODATA           :=    Notting to be wake_up was found (all ok, just notification)
 //  EBADE             :=    Permission invalid to execute the operation// --
 // Return TBDE_REMOVE:
 //  succes            :=    return 0
-//  ENOSR             :=    tag negative number
 //  ENODATA           :=    Notting to be deleted was found (all ok, just notification)
 //  EBADE             :=    Permission invalid to execute the operation
 //  EADDRINUSE        :=    Reader in wait on some level
 // --
+//  ENOSR             :=    tag negative number
 //  EILSEQ            :=    Command not valid
 int tag_ctl(int tag, int command);
 

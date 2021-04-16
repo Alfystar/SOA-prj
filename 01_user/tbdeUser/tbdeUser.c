@@ -211,27 +211,34 @@ void tagRecive_perror(int tag) {
 void tagCtl_perror(int tag, int commandAsk) {
   // Return TBDE_AWAKE_ALL:
   //  succes            :=    return 0
-  //  ENOSR             :=    tag negative number
   //  ENODATA           :=    Notting to be wake_up was found (all ok, just notification)
   //  EBADE             :=    Permission invalid to execute the operation// --
   // Return TBDE_REMOVE:
   //  succes            :=    return 0
-  //  ENOSR             :=    tag negative number
   //  ENODATA           :=    Notting to be deleted was found (all ok, just notification)
   //  EBADE             :=    Permission invalid to execute the operation
   //  EADDRINUSE        :=    Reader in wait on some level
   // --
+  //  ENOSR             :=    tag negative number
   //  EILSEQ            :=    Command not valid
   if (errno == EILSEQ) {
     printf("[tag_ctl] error, Command is not valid, commandAsk :%d\n", commandAsk);
     return;
   }
 
+  switch (errno) {
+  case ENOSR:
+    printf("[tag_ctl] error, The tag number is negative\n");
+    return;
+  case EILSEQ:
+    printf("[tag_ctl] error, Command is not valid, commandAsk :%d\n", commandAsk);
+    return;
+  default:
+    break;
+  }
+
   if (commandAsk == TBDE_AWAKE_ALL) {
     switch (errno) {
-    case ENOSR:
-      printf("[tag_ctl] TBDE_AWAKE_ALL @tag=%d error, The number is negative\n", tag);
-      break;
     case ENODATA:
       printf("[tag_ctl] TBDE_AWAKE_ALL @tag=%d error, Notting to be deleted was found\n", tag);
       break;

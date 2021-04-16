@@ -34,6 +34,7 @@ typedef struct exangeRoom_ {
 
 // Chat-room Room Metadata
 typedef struct chatRoom_ {
+  // uso "atomic_t" pochè il ref potrebbe essere a 0 ed è giusto e non voglio warning
   atomic_t freeLockCount; // To delete the race-condition in refCount inc
   exangeRoom *ex;
 } chatRoom;
@@ -47,6 +48,27 @@ typedef struct room_ {
   int perm;
   chatRoom level[levelDeep];
 } room;
+
+// Custom lock define
+#define freeMem_Lock(atomic_freeLockCount_ptr)                                                                         \
+  do {                                                                                                                 \
+    preempt_disable();                                                                                                 \
+    arch_atomic_inc(atomic_freeLockCount_ptr);                                                                         \
+  } while (0)
+
+#define freeMem_unLock(atomic_freeLockCount_ptr)                                                                       \
+  do {                                                                                                                 \
+    arch_atomic_dec(atomic_freeLockCount_ptr);                                                                         \
+    preempt_enable();                                                                                                  \
+  } while (0)
+
+#define waitUntil_unlock(atomic_lockCount)                                                                             \
+  do {                                                                                                                 \
+    preempt_disable();                                                                                                 \
+    while (arch_atomic_read(atomic_lockCount) != 0) {                                                                  \
+    };                                                                                                                 \
+    preempt_enable();                                                                                                  \
+  } while (0)
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 extern Tree keyTree, tagTree;
