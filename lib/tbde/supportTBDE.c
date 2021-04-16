@@ -35,7 +35,7 @@ exangeRoom *makeExangeRoom(void) {
 }
 
 void realExangeFree(exangeRoom *ex) {
-  return;
+  return; // todo: rimuovere return
   if (ex->mes != NULL)
     vfree(ex->mes);
   kfree(ex);
@@ -101,7 +101,7 @@ void freeRoom(void *data) {
     if (refcount_dec_and_test(&p->refCount)) {
       for (i = 0; i < levelDeep; i++)
         try_freeExangeRoom(p->level[i].ex, &p->level[i].freeLockCount);
-      kfree(p);
+      // kfree(p); // todo: rimuovere commento
     } else {
       return;
     }

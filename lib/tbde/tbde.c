@@ -221,9 +221,9 @@ asmlinkage long tag_send(int tag, int level, char *buffer, size_t size) {
   copy_from_user(buf, buffer, size);
 
   roomSearch.tag = tag;
+
   read_lock_irqsave(&searchLock, flags);
   ret = Tree_SearchNode(tagTree, &roomSearch);
-
   if (!ret) {
     read_unlock_irqrestore(&searchLock, flags);
     vfree(buf); // Libero la memoria di appoggio
@@ -303,15 +303,16 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
     return -EXFULL;
 
   roomSearch.tag = tag;
+
   read_lock_irqsave(&searchLock, flags);
   ret = Tree_SearchNode(tagTree, &roomSearch);
-
   if (!ret) {
     read_unlock_irqrestore(&searchLock, flags);
     return -ENOMSG;
   }
-
   p = treeNode2Room_refInc(ret);
+  read_unlock_irqrestore(&searchLock, flags);
+
   if (!operationValid(p)) {
     freeRoom(p);
     return -EBADRQC;
