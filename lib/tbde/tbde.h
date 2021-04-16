@@ -49,6 +49,7 @@ typedef struct room_ {
   chatRoom level[levelDeep];
 } room;
 
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Custom lock define
 #define freeMem_Lock(atomic_freeLockCount_ptr)                                                                         \
   do {                                                                                                                 \
@@ -70,12 +71,43 @@ typedef struct room_ {
     preempt_enable();                                                                                                  \
   } while (0)
 
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+// After add, if num is negative, remove the sign bit
+#define positiveAtomic_inc(count)                                                                                      \
+  ({                                                                                                                   \
+    typeof(count) mask, __ret;                                                                                         \
+    __ret = __sync_add_and_fetch(&count, 1);                                                                           \
+    if (__ret < 0) {                                                                                                   \
+      mask = ~(1 << ((sizeof(count) * 8) - 1));                                                                        \
+      __ret = __sync_and_and_fetch(&count, mask);                                                                      \
+    }                                                                                                                  \
+    __ret;                                                                                                             \
+  })
+
+#define roomTagInsert_Force(rm)                                                                                        \
+  while (true) {                                                                                                       \
+    rm->tag = positiveAtomic_inc(tagCounting);                                                                         \
+    ret = Tree_Insert(tagTree, p);                                                                                     \
+    if (ret == NULL) {                                                                                                 \
+      break;                                                                                                           \
+    }                                                                                                                  \
+  }
+
+#define treeNode2Room_refInc(trNode)                                                                                   \
+  ({                                                                                                                   \
+    room *__ret;                                                                                                       \
+    __ret = (room *)trNode->data;                                                                                      \
+    refcount_inc(&__ret->refCount);                                                                                    \
+    __ret;                                                                                                             \
+  })
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 extern Tree keyTree, tagTree;
 extern rwlock_t searchLock;
 extern unsigned int roomCount; // Safe increment thanks searchLock
 extern int tagCounting;        // Safe increment thanks searchLock
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 void initTBDE(void);    // shuld be call BEFORE installation of syscall
 void unmountTBDE(void); // shuld be call AFTER installation of syscall

@@ -35,7 +35,6 @@ exangeRoom *makeExangeRoom(void) {
 }
 
 void realExangeFree(exangeRoom *ex) {
-  // return; // todo: rimuovere return
   if (ex->mes != NULL)
     vfree(ex->mes);
   kfree(ex);
@@ -61,13 +60,7 @@ int try_freeExangeRoom(exangeRoom *ex, atomic_t *freeLockCount) {
     return 0;
   }
   // Sono l'ultimo, verifico mi sia permesso di fare la free
-
-  preempt_disable();
-  while (arch_atomic_read(freeLockCount) != 0) { // Simil spinLock busy wait
-  };
-  preempt_enable();
-
-  // waitUntil_unlock(freeLockCount);
+  waitUntil_unlock(freeLockCount);
 
   if (refcount_dec_not_one(&ex->refCount)) { // Il reader è entrato qui, ci penserà lui a pulire
     return 0;

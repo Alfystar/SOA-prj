@@ -2,6 +2,7 @@
 #include "tbdeUser/tbdeUser.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 int tag;
 
@@ -34,7 +35,8 @@ int main(int argc, char **argv) {
   //----------------------------------------------------------------------------------
 
   if (commandAsk == TBDE_O_CREAT) {
-    usleep(1 * 1000UL); // 10 ms
+    // usleep(10 * 1000UL); // 10 ms
+    sleep(3);
     int size = sprintf(buf, "Salve figliolo sono il processo : %d", myFork);
     size++; // last null caracter
     printf("(%d) tag_send(...)\n", myFork);
@@ -45,11 +47,14 @@ int main(int argc, char **argv) {
   // \/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
   if (commandAsk == TBDE_O_OPEN) {
     printf("(%d) tag_receive(...)\n", myFork);
+    // alarm(1);
     int bRead = tag_receive(tag, 1, buf, sizeof(buf));
     if (bRead < 0)
       tagRecive_perror(tag);
-    else
+    else {
+      // alarm(0);
       printf("[reader %d]%s\tReturn value = %d\n", myFork, buf, bRead);
+    }
   }
   //----------------------------------------------------------------------------------
 

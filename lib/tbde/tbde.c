@@ -34,35 +34,6 @@ void unmountTBDE() {
   keyTree = NULL;
 }
 
-// After add, if num is negative, remove the sign bit
-#define positiveAtomic_inc(count)                                                                                      \
-  ({                                                                                                                   \
-    typeof(count) mask, __ret;                                                                                         \
-    __ret = __sync_add_and_fetch(&count, 1);                                                                           \
-    if (__ret < 0) {                                                                                                   \
-      mask = ~(1 << ((sizeof(count) * 8) - 1));                                                                        \
-      __ret = __sync_and_and_fetch(&count, mask);                                                                      \
-    }                                                                                                                  \
-    __ret;                                                                                                             \
-  })
-
-#define roomTagInsert_Force(rm)                                                                                        \
-  while (true) {                                                                                                       \
-    rm->tag = positiveAtomic_inc(tagCounting);                                                                         \
-    ret = Tree_Insert(tagTree, p);                                                                                     \
-    if (ret == NULL) {                                                                                                 \
-      break;                                                                                                           \
-    }                                                                                                                  \
-  }
-
-#define treeNode2Room_refInc(trNode)                                                                                   \
-  ({                                                                                                                   \
-    room *__ret;                                                                                                       \
-    __ret = (room *)trNode->data;                                                                                      \
-    refcount_inc(&__ret->refCount);                                                                                    \
-    __ret;                                                                                                             \
-  })
-
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Return CREATE:
 //  succes            :=    tag value
@@ -92,8 +63,8 @@ int tag_get_CREATE(int key, int command, int permission) {
     ret = Tree_Insert(keyTree, p);
     if (ret != NULL) { // Key in use
       write_unlock_irqrestore(&searchLock, flags);
-      doobleFreeRoom(p); // unLock per conto di keyTree e per conto di tagTree -> free
       printk_tbdeDB("[tag_get_CREATE] Impossible to execute, key are just in use");
+      doobleFreeRoom(p); // unLock per conto di keyTree e per conto di tagTree -> free
       return -EBADR;
     }
     // Nodo aggiunto con successo all'albero delle key
@@ -325,17 +296,16 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
   // Creo un lock con un soft-lock sulle free, alla stanza che mi interessa
   printk_tbdeDB("[tag_receive] free disable lock ...");
 
-  preempt_disable();
-  arch_atomic_inc(&p->level[level].freeLockCount); // Impedisco momentaneamente le free sul livello
+  // preempt_disable();
+  // arch_atomic_inc(&p->level[level].freeLockCount); // Impedisco momentaneamente le free sul livello
 
-  // freeMem_Lock(&p->level[level].freeLockCount);
+  freeMem_Lock(&p->level[level].freeLockCount);
   curExange = p->level[level].ex;        // In base a quelo attualmente serializzato
   refcount_add(1, &curExange->refCount); // Impedisco la distruzione della mia stanza
+  freeMem_unLock(&p->level[level].freeLockCount);
 
-  // freeMem_unLock(&p->level[level].freeLockCount);
-
-  arch_atomic_dec(&p->level[level].freeLockCount); // Ri-abilito le free sul livello che mi interessa
-  preempt_enable();
+  // arch_atomic_dec(&p->level[level].freeLockCount); // Ri-abilito le free sul livello che mi interessa
+  // preempt_enable();
 
   printk_tbdeDB("[tag_receive] enqueuing ...");
   retWait = wait_event_interruptible(curExange->readerQueue, __sync_add_and_fetch(&curExange->ready, 0) == 1);
