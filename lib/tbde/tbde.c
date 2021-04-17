@@ -203,10 +203,7 @@ asmlinkage long tag_send(int tag, int level, char *buffer, size_t size) {
   printk_tbdeDB("[tag_send] Making new exange room ...");
   exRoom = createAndSwap_exangeRoom_refInc(rm->level[level].ex); // exRoom è isolata dal resto del sistema
   exangeMessage(exRoom, buf, size);
-  // exRoom->mes = buf;
-  // exRoom->len = size;
-  // exRoom->wakeUpALL = 0;
-  // exRoom->ready = 1;
+
   printk_tbdeDB("[tag_send] Wake_upping readers ...");
   wake_up_all(&exRoom->readerQueue);
 
@@ -353,10 +350,7 @@ int tag_ctl_TBDE_AWAKE_ALL(int tag, int command) {
   for (i = 0; i < levelDeep; i++) {
     exLev = createAndSwap_exangeRoom_refInc(rm->level[i].ex); // exLev è isolata dal resto del sistema
     exangeWakeUpAll(exLev);
-    // exLev->mes = NULL;
-    // exLev->len = 0;
-    // exLev->wakeUpALL = 1;
-    // exLev->ready = 1;
+
     printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Wake_upping readers on level %d ...", i);
     wake_up_all(&exLev->readerQueue);
 
