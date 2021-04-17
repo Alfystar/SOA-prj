@@ -104,15 +104,33 @@ typedef struct room_ {
     __ret;                                                                                                             \
   })
 
-#define createAndSwap_exangeRoom(ex_ptr)                                                                               \
+// ritorna l'attuale exengeRoom, sostituendola con una nuova, in maniera atomica
+#define createAndSwap_exangeRoom_refInc(ex_ptr)                                                                        \
   ({                                                                                                                   \
     exangeRoom *oldEx;                                                                                                 \
     exangeRoom *newEx = makeExangeRoom();                                                                              \
     do {                                                                                                               \
       oldEx = ex_ptr;                                                                                                  \
     } while (!__sync_bool_compare_and_swap(&ex_ptr, oldEx, newEx));                                                    \
+    refcount_inc(&oldEx->refCount);                                                                                    \
     oldEx;                                                                                                             \
   })
+
+#define exangeMessage(ex_ptr, buf, size)                                                                               \
+  do {                                                                                                                 \
+    ex_ptr->mes = buf;                                                                                                 \
+    ex_ptr->len = size;                                                                                                \
+    ex_ptr->wakeUpALL = 0;                                                                                             \
+    ex_ptr->ready = 1;                                                                                                 \
+  } while (0)
+
+#define exangeWakeUpAll(ex_ptr)                                                                                        \
+  do {                                                                                                                 \
+    ex_ptr->mes = NULL;                                                                                                \
+    ex_ptr->len = 0;                                                                                                   \
+    ex_ptr->wakeUpALL = 1;                                                                                             \
+    ex_ptr->ready = 1;                                                                                                 \
+  } while (0)
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 extern Tree keyTree, tagTree;
