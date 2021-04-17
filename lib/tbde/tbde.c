@@ -306,7 +306,6 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
   printk_tbdeDB("[tag_receive] enqueuing 2 ..."); // mostrato dopo del wake_up (?)
   retWait = wait_event_interruptible(curExange->readerQueue, __sync_add_and_fetch(&curExange->ready, 0) == 1);
 
-  // todo: verificare interrupt da signal
   if (retWait == -ERESTARTSYS) {                                   // wake_up for signal
     try_freeExangeRoom(curExange, &p->level[level].freeLockCount); // Libero il puntatore
     freeRoom(p);
