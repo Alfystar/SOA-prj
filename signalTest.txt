@@ -1,0 +1,180 @@
+[ 1414.861987] [TAG_DataExchange::TBDE]: [tag_get] thread 9576 call [tag_get(10,0,0)]
+[ 1414.862000] [TAG_DataExchange::TBDE]: [tag_get_CREATE] New room Create and added to the Searches Tree
+[ 1414.862014] [TAG_DataExchange::TBDE]: tagTree:
+[ 1414.862023] 
+               ---(1-10) [Creator=9576-perm=0] {000000007c2d958c} 
+                (+0)
+
+[ 1414.862024] [TAG_DataExchange::TBDE]: keyTree:
+[ 1414.862029] 
+               ---(1-10) [Creator=9576-perm=0] {000000007c2d958c} 
+                (+0)
+
+[ 1414.862167] [TAG_DataExchange::TBDE]: [tag_get] thread 9577 call [tag_get(10,0,0)]
+[ 1414.862180] [TAG_DataExchange::TBDE]: [tag_get_CREATE] Impossible to execute, key are just in use
+[ 1414.862185] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000608db3a4, with no reference
+[ 1414.862189] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000778e2627, with no reference
+[ 1414.862192] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000f88a43fa, with no reference
+[ 1414.862195] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 0000000056511281, with no reference
+[ 1414.862198] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 0000000011f82c9b, with no reference
+[ 1414.862201] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 0000000083d58cb2, with no reference
+[ 1414.862204] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000f96d3606, with no reference
+[ 1414.862206] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000776af10f, with no reference
+[ 1414.862209] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000008ac3dca4, with no reference
+[ 1414.862212] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000599ca368, with no reference
+[ 1414.862214] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000001a789072, with no reference
+[ 1414.862217] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000f88de85b, with no reference
+[ 1414.862220] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000006296b221, with no reference
+[ 1414.862223] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000002d375d23, with no reference
+[ 1414.862225] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000004fa2e8e2, with no reference
+[ 1414.862228] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000c95e404f, with no reference
+[ 1414.862231] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000ab16cecb, with no reference
+[ 1414.862234] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000d3e2379a, with no reference
+[ 1414.862236] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000f99db5e9, with no reference
+[ 1414.862239] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 0000000045cfbf20, with no reference
+[ 1414.862241] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000469fa66b, with no reference
+[ 1414.862244] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000194d91ab, with no reference
+[ 1414.862247] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000f46361dd, with no reference
+[ 1414.862249] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 0000000085652605, with no reference
+[ 1414.862252] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000d4f4116e, with no reference
+[ 1414.862255] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 0000000000ff41a7, with no reference
+[ 1414.862258] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000001ae84b31, with no reference
+[ 1414.862261] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000238c7905, with no reference
+[ 1414.862264] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 0000000053eeeb25, with no reference
+[ 1414.862266] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000f437673e, with no reference
+[ 1414.862269] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 0000000072692723, with no reference
+[ 1414.862272] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000fa4181d5, with no reference
+[ 1414.862293] [TAG_DataExchange::TBDE]: [tag_get] thread 9577 call [tag_get(10,1,0)]
+[ 1414.862307] [TAG_DataExchange::TBDE]: [tag_receive] thread 9577 call [tag_receive(1,1,00000000c4a1a465,64)]
+[ 1414.862309] [TAG_DataExchange::TBDE]: [tag_receive] free disable lock ...
+[ 1414.862311] [TAG_DataExchange::TBDE]: [tag_receive] enqueuing ...
+[ 1415.862232] [TAG_DataExchange::TBDE]: [tag_ctl] thread 9576 call [tag_ctl(1,0)]
+[ 1415.862235] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_AWAKE_ALL] Request TBDE_AWAKE_ALL at Tag = 1
+[ 1415.862237] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Tag to delete found
+[ 1415.862239] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Making new exanges rooms ...
+[ 1415.862242] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 0 ...
+[ 1415.862245] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 1 ...
+[ 1415.862255] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000a9714006, LOOP FREE
+[ 1415.862257] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 2 ...
+[ 1415.862258] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 3 ...
+[ 1415.862260] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 4 ...
+[ 1415.862262] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 5 ...
+[ 1415.862263] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 6 ...
+[ 1415.862265] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 7 ...
+[ 1415.862267] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 8 ...
+[ 1415.862268] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 9 ...
+[ 1415.862270] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 10 ...
+[ 1415.862272] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 11 ...
+[ 1415.862273] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 12 ...
+[ 1415.862276] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 13 ...
+[ 1415.862278] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 14 ...
+[ 1415.862280] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 15 ...
+[ 1415.862281] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 16 ...
+[ 1415.862283] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 17 ...
+[ 1415.862285] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 18 ...
+[ 1415.862286] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 19 ...
+[ 1415.862288] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 20 ...
+[ 1415.862291] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 21 ...
+[ 1415.862293] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 22 ...
+[ 1415.862294] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 23 ...
+[ 1415.862296] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 24 ...
+[ 1415.862298] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 25 ...
+[ 1415.862299] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 26 ...
+[ 1415.862301] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 27 ...
+[ 1415.862303] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 28 ...
+[ 1415.862305] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 29 ...
+[ 1415.862306] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 30 ...
+[ 1415.862308] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Wake_upping readers on level 31 ...
+[ 1415.862310] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] All rooms wake_upped
+[ 1415.862331] [TAG_DataExchange::TBDE]: [tag_ctl] thread 9576 call [tag_ctl(1,1)]
+[ 1415.862332] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Request TBDE_REMOVE at Tag = 1
+[ 1415.862333] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Tag to delete found
+[ 1415.862335] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] room 000000007c2d958c freeing... (tagTree search)
+[ 1415.862337] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Now will be search key=10
+[ 1415.862342] [TAG_DataExchange::TBDE]: [tag_ctl] thread 9577 call [tag_ctl(1,1)]
+[ 1415.862344] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Tag to delete had a key
+[ 1415.862347] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Request TBDE_REMOVE at Tag = 1
+[ 1415.862348] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] room 000000007c2d958c freeing... (keyTree search)
+[ 1415.862351] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000af71e5a1, with no reference
+[ 1415.862354] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 0000000090f59fb8, with no reference
+[ 1415.862356] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000b2fcd149, with no reference
+[ 1415.862358] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000d6cdaa88, with no reference
+[ 1415.862359] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000007753edce, with no reference
+[ 1415.862360] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 0000000091389e8f, with no reference
+[ 1415.862362] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000001bb078a0, with no reference
+[ 1415.862363] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000002b154860, with no reference
+[ 1415.862365] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000006e8b9ae8, with no reference
+[ 1415.862367] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000d36e8801, with no reference
+[ 1415.862370] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 0000000010d22cb2, with no reference
+[ 1415.862372] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000ee8bcd5e, with no reference
+[ 1415.862374] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000f634f83a, with no reference
+[ 1415.862376] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000acff5b1b, with no reference
+[ 1415.862377] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000f29fdc2f, with no reference
+[ 1415.862379] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000e263c294, with no reference
+[ 1415.862380] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 0000000006071b95, with no reference
+[ 1415.862382] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 0000000064cb1df4, with no reference
+[ 1415.862383] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000de2baa22, with no reference
+[ 1415.862385] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000000a4236ec, with no reference
+[ 1415.862387] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000bf874b0a, with no reference
+[ 1415.862388] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000004870de01, with no reference
+[ 1415.862390] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000005fe24435, with no reference
+[ 1415.862392] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000954694bd, with no reference
+[ 1415.862394] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000e8ce04cc, with no reference
+[ 1415.862396] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000003d990751, with no reference
+[ 1415.862397] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000dc865b17, with no reference
+[ 1415.862399] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000fd0d866e, with no reference
+[ 1415.862400] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000006432e6b9, with no reference
+[ 1415.862402] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 000000003334a96a, with no reference
+[ 1415.862404] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000b1d2d48c, with no reference
+[ 1415.862405] [TAG_DataExchange::TBDE]: [try_freeExangeRoom] free exangeRoom 00000000febfdfcd, with no reference
+[ 1415.862407] [TAG_DataExchange::TBDE]: [tag_ctl_TBDE_REMOVE] Room (1) are now Deleted, remaning 0 rooms
+[ 1415.862421] [TAG_DataExchange::TBDE]: tagTree:
+
+[ 1415.862423] [TAG_DataExchange::TBDE]: keyTree:
+
+[ 1498.942526] [TAG_DataExchange::TBDE]: [tag_get] thread 10143 call [tag_get(10,0,0)]
+[ 1498.942536] [TAG_DataExchange::TBDE]: [tag_get_CREATE] New room Create and added to the Searches Tree
+[ 1498.942549] [TAG_DataExchange::TBDE]: tagTree:
+[ 1498.942555] 
+               ---(2-10) [Creator=10143-perm=0] {00000000002bc5f7} 
+                (+0)
+
+[ 1498.942556] [TAG_DataExchange::TBDE]: keyTree:
+[ 1498.942559] 
+               ---(2-10) [Creator=10143-perm=0] {00000000002bc5f7} 
+                (+0)
+
+[ 1498.942576] [TAG_DataExchange::TBDE]: [tag_receive] thread 10143 call [tag_receive(2,1,00000000463f4a43,64)]
+[ 1498.942578] [TAG_DataExchange::TBDE]: [tag_receive] free disable lock ...
+[ 1498.942579] [TAG_DataExchange::TBDE]: [tag_receive] enqueuing ...
+[ 1745.078190] wlp4s0: authenticate with da:0d:34:c4:c5:ef
+[ 1745.081481] wlp4s0: send auth to da:0d:34:c4:c5:ef (try 1/3)
+[ 1745.084772] wlp4s0: authenticated
+[ 1745.089533] wlp4s0: associate with da:0d:34:c4:c5:ef (try 1/3)
+[ 1745.093581] wlp4s0: RX AssocResp from da:0d:34:c4:c5:ef (capab=0x411 status=0 aid=1)
+[ 1745.096189] wlp4s0: associated
+[ 1745.148922] wlp4s0: Limiting TX power to 20 (20 - 0) dBm as advertised by da:0d:34:c4:c5:ef
+[ 1755.097727] wlp4s0: deauthenticating from da:0d:34:c4:c5:ef by local choice (Reason: 3=DEAUTH_LEAVING)
+[ 1756.111983] wlp4s0: authenticate with da:0d:34:c4:c5:ef
+[ 1756.114227] wlp4s0: send auth to da:0d:34:c4:c5:ef (try 1/3)
+[ 1756.117331] wlp4s0: authenticated
+[ 1756.117689] wlp4s0: associate with da:0d:34:c4:c5:ef (try 1/3)
+[ 1756.127150] wlp4s0: RX AssocResp from da:0d:34:c4:c5:ef (capab=0x411 status=0 aid=1)
+[ 1756.131120] wlp4s0: associated
+[ 1756.207924] wlp4s0: Limiting TX power to 20 (20 - 0) dBm as advertised by da:0d:34:c4:c5:ef
+[ 1764.084757] wlp4s0: deauthenticating from da:0d:34:c4:c5:ef by local choice (Reason: 3=DEAUTH_LEAVING)
+[ 1764.943602] wlp4s0: authenticate with da:0d:34:c4:c5:ef
+[ 1764.946822] wlp4s0: send auth to da:0d:34:c4:c5:ef (try 1/3)
+[ 1764.953140] wlp4s0: authenticated
+[ 1764.953640] wlp4s0: associate with da:0d:34:c4:c5:ef (try 1/3)
+[ 1764.979724] wlp4s0: RX AssocResp from da:0d:34:c4:c5:ef (capab=0x411 status=0 aid=1)
+[ 1764.982520] wlp4s0: associated
+[ 1765.116908] wlp4s0: Limiting TX power to 20 (20 - 0) dBm as advertised by da:0d:34:c4:c5:ef
+[ 1774.984175] wlp4s0: deauthenticating from da:0d:34:c4:c5:ef by local choice (Reason: 3=DEAUTH_LEAVING)
+[ 1785.642589] wlp4s0: authenticate with da:0d:34:c4:c5:ef
+[ 1785.646020] wlp4s0: send auth to da:0d:34:c4:c5:ef (try 1/3)
+[ 1785.668002] wlp4s0: authenticated
+[ 1785.669787] wlp4s0: associate with da:0d:34:c4:c5:ef (try 1/3)
+[ 1785.685680] wlp4s0: RX AssocResp from da:0d:34:c4:c5:ef (capab=0x411 status=0 aid=1)
+[ 1785.688567] wlp4s0: associated
+[ 1785.801551] wlp4s0: Limiting TX power to 20 (20 - 0) dBm as advertised by da:0d:34:c4:c5:ef

@@ -61,7 +61,7 @@
 #define sysCall_Audit if (0)
 #define MAX_FREE 15
 
-#define printk_dis(str, ...) printk("[%s::%s]: " str, MODNAME, "Discovery", ##__VA_ARGS__)
+#define printk_dis(str, ...) printk(KERN_INFO "[%s::%s]: " str, MODNAME, "Discovery", ##__VA_ARGS__)
 #define printk_disDB(str, ...) sysCall_Audit printk_dis(str, ##__VA_ARGS__)
 
 int foundFree_entries(int num);

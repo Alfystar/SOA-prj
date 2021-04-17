@@ -19,7 +19,7 @@
 #include <linux/stddef.h>
 
 #define avl_Audit if (0)
-#define printk_avl(str, ...) printk("[%s::%s]: " str, MODNAME, "AVL", ##__VA_ARGS__)
+#define printk_avl(str, ...) printk(KERN_INFO "[%s::%s]: " str, MODNAME, "AVL", ##__VA_ARGS__)
 #define printk_avlDB(str, ...) avl_Audit printk_avl(str, ##__VA_ARGS__)
 
 // Comp is used to search node, must be the keySearc comparation function

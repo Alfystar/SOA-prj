@@ -299,15 +299,20 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
   freeMem_Lock(&p->level[level].freeLockCount);
   curExange = p->level[level].ex;        // In base a quelo attualmente serializzato
   refcount_add(1, &curExange->refCount); // Impedisco la distruzione della mia stanza
+  printk_tbdeDB("[tag_receive] refcount_add(1, &curExange->refCount) did");
   freeMem_unLock(&p->level[level].freeLockCount);
 
-  printk_tbdeDB("[tag_receive] enqueuing ...");
+  printk_tbdeDB("[tag_receive] enqueuing 1 ..."); // mostrato prima del wake_up
+  printk_tbdeDB("[tag_receive] enqueuing 2 ..."); // mostrato dopo del wake_up (?)
   retWait = wait_event_interruptible(curExange->readerQueue, __sync_add_and_fetch(&curExange->ready, 0) == 1);
 
   // todo: verificare interrupt da signal
-  if (retWait != 0) {                                              // wake_up for signal
+  if (retWait == -ERESTARTSYS) {                                   // wake_up for signal
     try_freeExangeRoom(curExange, &p->level[level].freeLockCount); // Libero il puntatore
     freeRoom(p);
+    printk_tbdeDB("[tag_receive] wake_upping for signal");
+    printk(KERN_ERR "sig[0] is 0x%08lx, sig[1] is 0x%08lx\n", current->pending.signal.sig[0],
+           current->pending.signal.sig[1]);
     return -ERESTART;
   }
 
@@ -383,7 +388,7 @@ int tag_ctl_TBDE_AWAKE_ALL(int tag, int command) {
     oldEx->len = 0;
     oldEx->wakeUpALL = 1;
     oldEx->ready = 1;
-    printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Wake_upping readers ...");
+    printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Wake_upping readers on level %d ...", i);
     wake_up_all(&oldEx->readerQueue);
 
     try_freeExangeRoom(oldEx, &p->level[i].freeLockCount); // Libero il mio puntatore

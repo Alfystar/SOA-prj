@@ -18,7 +18,7 @@
 #define MAX_ROOM 256 // todo: renderlo un valore parametrico
 
 #define TBDE_Audit if (1)
-#define printk_tbde(str, ...) printk("[%s::%s]: " str, MODNAME, "TBDE", ##__VA_ARGS__)
+#define printk_tbde(str, ...) printk(KERN_INFO "[%s::%s]: " str, MODNAME, "TBDE", ##__VA_ARGS__)
 #define printk_tbdeDB(str, ...) TBDE_Audit printk_tbde(str, ##__VA_ARGS__)
 
 // Exange-zone Metadata
@@ -54,14 +54,16 @@ typedef struct room_ {
 #define freeMem_Lock(atomic_freeLockCount_ptr)                                                                         \
   do {                                                                                                                 \
     preempt_disable();                                                                                                 \
-    arch_atomic_inc(atomic_freeLockCount_ptr);                                                                         \
+    atomic_inc(atomic_freeLockCount_ptr);                                                                              \
   } while (0)
 
 #define freeMem_unLock(atomic_freeLockCount_ptr)                                                                       \
   do {                                                                                                                 \
-    arch_atomic_dec(atomic_freeLockCount_ptr);                                                                         \
+    atomic_dec(atomic_freeLockCount_ptr);                                                                              \
     preempt_enable();                                                                                                  \
   } while (0)
+
+// preempt_enable_no_resched();
 
 #define waitUntil_unlock(atomic_lockCount)                                                                             \
   do {                                                                                                                 \

@@ -7,7 +7,7 @@ int tag;
 
 int main(int argc, char **argv) {
   int myFork;
-  for (myFork = 0; myFork < 1; myFork++) {
+  for (myFork = 0; myFork < 0; myFork++) {
     int pid = fork();
     if (pid == 0) // son
       break;
@@ -40,8 +40,9 @@ int main(int argc, char **argv) {
   else
     printf("[reader %d]%s\tReturn value = %d\n", myFork, buf, bRead);
 
-  printf("(%d) tag_ctls(...)\n", myFork);
+  /*printf("(%d) tag_ctls(...)\n", myFork);
   if (tag_ctl(tag, TBDE_REMOVE) == -1) {
     tagCtl_perror(tag, TBDE_REMOVE);
   }
+  */
 }
