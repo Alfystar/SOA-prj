@@ -65,10 +65,10 @@ typedef struct room_ {
 
 // preempt_enable_no_resched();
 
-#define waitUntil_unlock(atomic_lockCount)                                                                             \
+#define waitUntil_unlock(atomic_lockCount_ptr)                                                                         \
   do {                                                                                                                 \
     preempt_disable();                                                                                                 \
-    while (arch_atomic_read(atomic_lockCount) != 0) {                                                                  \
+    while (arch_atomic_read(atomic_lockCount_ptr) != 0) {                                                              \
     };                                                                                                                 \
     preempt_enable();                                                                                                  \
   } while (0)
@@ -87,11 +87,11 @@ typedef struct room_ {
     __ret;                                                                                                             \
   })
 
-#define roomTagInsert_Force(rm)                                                                                        \
+// tagCounting && tagTree are module variable
+#define roomTagInsert_Force(rm_ptr)                                                                                    \
   while (true) {                                                                                                       \
-    rm->tag = positiveAtomic_inc(tagCounting);                                                                         \
-    ret = Tree_Insert(tagTree, p);                                                                                     \
-    if (ret == NULL) {                                                                                                 \
+    rm_ptr->tag = positiveAtomic_inc(tagCounting);                                                                     \
+    if (Tree_Insert(tagTree, rm_ptr) == NULL) {                                                                        \
       break;                                                                                                           \
     }                                                                                                                  \
   }
@@ -102,6 +102,16 @@ typedef struct room_ {
     __ret = (room *)trNode->data;                                                                                      \
     refcount_inc(&__ret->refCount);                                                                                    \
     __ret;                                                                                                             \
+  })
+
+#define createAndSwap_exangeRoom(ex_ptr)                                                                               \
+  ({                                                                                                                   \
+    exangeRoom *oldEx;                                                                                                 \
+    exangeRoom *newEx = makeExangeRoom();                                                                              \
+    do {                                                                                                               \
+      oldEx = ex_ptr;                                                                                                  \
+    } while (!__sync_bool_compare_and_swap(&ex_ptr, oldEx, newEx));                                                    \
+    oldEx;                                                                                                             \
   })
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
