@@ -1,8 +1,7 @@
 
-#include "tbdeUser/tbdeUser.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include <tbdeUser.h>
 
 int tag;
 
@@ -35,26 +34,20 @@ int main(int argc, char **argv) {
   //----------------------------------------------------------------------------------
 
   if (commandAsk == TBDE_O_CREAT) {
-    // usleep(10 * 1000UL); // 10 ms
-    sleep(1);
-    int size = sprintf(buf, "Salve figliolo sono il processo : %d", myFork);
-    size++; // last null caracter
-    printf("(%d) tag_send(...)\n", myFork);
-    int ret = tag_send(tag, 1, buf, size);
-    if (ret < 0)
-      tagSend_perror(tag);
+    sleep(1); // 10 ms
+    printf("(%d) tag_ctl(tag, TBDE_AWAKE_ALL)\n", myFork);
+    int ret = tag_ctl(tag, TBDE_AWAKE_ALL);
+    if (ret == -1)
+      tagCtl_perror(tag, TBDE_AWAKE_ALL);
   }
   // \/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
   if (commandAsk == TBDE_O_OPEN) {
     printf("(%d) tag_receive(...)\n", myFork);
-    // alarm(1);
     int bRead = tag_receive(tag, 1, buf, sizeof(buf));
     if (bRead < 0)
       tagRecive_perror(tag);
-    else {
-      // alarm(0);
+    else
       printf("[reader %d]%s\tReturn value = %d\n", myFork, buf, bRead);
-    }
   }
   //----------------------------------------------------------------------------------
 

@@ -1,27 +1,29 @@
 
-#include "tbdeUser/tbdeUser.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <tbdeUser.h>
+#include <unistd.h>
 
+#define rangeKey 10
 int tag;
 
 int main(int argc, char **argv) {
   int myFork;
-  for (myFork = 0; myFork < 1; myFork++) {
+  for (myFork = 0; myFork < rangeKey * 100; myFork++) {
     int pid = fork();
     if (pid == 0) // son
       break;
   }
   char buf[64];
   initTBDE();
+  srand(myFork); // for each fork different seed
 
   printf("(%d) tag_gets(...)\n", myFork);
   int keyAsk, commandAsk, permissionAsk;
-  keyAsk = 10;
-  permissionAsk = TBDE_OPEN_ROOM;
+  keyAsk = rand() % rangeKey;
   commandAsk = TBDE_O_CREAT;
+  permissionAsk = rand() % 2;
   tag = tag_get(keyAsk, commandAsk, permissionAsk);
-
   if (tag == -1) {
     tagGet_perror(keyAsk, commandAsk);
     commandAsk = TBDE_O_OPEN;
@@ -34,11 +36,13 @@ int main(int argc, char **argv) {
   //----------------------------------------------------------------------------------
 
   if (commandAsk == TBDE_O_CREAT) {
-    sleep(1); // 10 ms
-    printf("(%d) tag_ctl(tag, TBDE_AWAKE_ALL)\n", myFork);
-    int ret = tag_ctl(tag, TBDE_AWAKE_ALL);
-    if (ret == -1)
-      tagCtl_perror(tag, TBDE_AWAKE_ALL);
+    usleep(10 * 1000UL); // 10 ms
+    int size = sprintf(buf, "Salve figliolo sono il processo : %d", myFork);
+    size++; // null caracter at end
+    printf("(%d) tag_send(...)\n", myFork);
+    int ret = tag_send(tag, 1, buf, size);
+    if (ret < 0)
+      tagSend_perror(tag);
   }
   // \/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
   if (commandAsk == TBDE_O_OPEN) {
@@ -46,8 +50,9 @@ int main(int argc, char **argv) {
     int bRead = tag_receive(tag, 1, buf, sizeof(buf));
     if (bRead < 0)
       tagRecive_perror(tag);
-    else
+    else {
       printf("[reader %d]%s\tReturn value = %d\n", myFork, buf, bRead);
+    }
   }
   //----------------------------------------------------------------------------------
 

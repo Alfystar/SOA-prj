@@ -20,6 +20,7 @@
 #define EXPORT_SYMTAB
 #include <asm/apic.h>
 #include <asm/cacheflush.h>
+#include <asm/io.h>
 #include <asm/page.h>
 #include <linux/cdev.h>
 #include <linux/device.h>

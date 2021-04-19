@@ -7,8 +7,9 @@
 MODNAME=TAG_DataExchange
 USER_DIR=01_user
 TEST_DIR=test
+CMD_DIR=cmd
 
-USER_LIB_INC=$(USER_DIR)/tbdeUser/tbdeUser.c
+USER_LIB_INC=-I$(USER_DIR)/tbdeUser $(USER_DIR)/tbdeUser/tbdeUser.c
 
 ifeq ($(KERNELRELEASE),)
 # if KERNELRELEASE is not defined, we've been called directly from the command line.
@@ -16,21 +17,28 @@ ifeq ($(KERNELRELEASE),)
 .PHONY: all install clean uninstall load unload
 all:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+	mkdir -p $(CMD_DIR)
+	$(CC) $(USER_DIR)/tbdeCmd/tagGet.c $(USER_LIB_INC) -o $(CMD_DIR)/tagGet.out -Iinclude
+	$(CC) $(USER_DIR)/tbdeCmd/tagSend.c $(USER_LIB_INC) -o $(CMD_DIR)/tagSend.out -Iinclude
+	$(CC) $(USER_DIR)/tbdeCmd/tagRecive.c $(USER_LIB_INC) -o $(CMD_DIR)/tagRecive.out -Iinclude
+	$(CC) $(USER_DIR)/tbdeCmd/tagCtl.c $(USER_LIB_INC) -o $(CMD_DIR)/tagCtl.out -Iinclude
+
 	mkdir -p $(TEST_DIR)
 #	Create/Open-delete test	
-	$(CC) $(USER_DIR)/createDeleteTest.c $(USER_LIB_INC) -o $(TEST_DIR)/createDeleteTest.out -Iinclude
-	$(CC) $(USER_DIR)/createDeleteTest_Many.c $(USER_LIB_INC) -o $(TEST_DIR)/createDeleteTest_Many.out -Iinclude
+	$(CC) $(USER_DIR)/test/createDeleteTest.c $(USER_LIB_INC) -o $(TEST_DIR)/createDeleteTest.out -Iinclude
+	$(CC) $(USER_DIR)/test/createDeleteTest_Many.c $(USER_LIB_INC) -o $(TEST_DIR)/createDeleteTest_Many.out -Iinclude
 #	Chatting on room test	
-	$(CC) $(USER_DIR)/roomExangeTest.c $(USER_LIB_INC) -o $(TEST_DIR)/roomExangeTest.out -Iinclude
-	$(CC) $(USER_DIR)/roomExange_Rand.c $(USER_LIB_INC) -o $(TEST_DIR)/roomExange_Rand.out -Iinclude
+	$(CC) $(USER_DIR)/test/roomExangeTest.c $(USER_LIB_INC) -o $(TEST_DIR)/roomExangeTest.out -Iinclude
+	$(CC) $(USER_DIR)/test/roomExange_Rand.c $(USER_LIB_INC) -o $(TEST_DIR)/roomExange_Rand.out -Iinclude
 #	Wake_up test
-	$(CC) $(USER_DIR)/wakeUpTest.c $(USER_LIB_INC) -o $(TEST_DIR)/wakeUpTest.out -Iinclude
+	$(CC) $(USER_DIR)/test/wakeUpTest.c $(USER_LIB_INC) -o $(TEST_DIR)/wakeUpTest.out -Iinclude
 #	Signal test	
-	$(CC) $(USER_DIR)/signalWait.c $(USER_LIB_INC) -o $(TEST_DIR)/signalWait.out -Iinclude
+	$(CC) $(USER_DIR)/test/signalWait.c $(USER_LIB_INC) -o $(TEST_DIR)/signalWait.out -Iinclude
 
 clean:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
 	rm -r $(TEST_DIR)
+	rm -r $(CMD_DIR)
 	
 install:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules_install

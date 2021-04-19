@@ -53,7 +53,10 @@
         "uaccess.h": "c",
         "param.h": "c",
         "chrono": "c",
-        "algorithm": "c"
+        "algorithm": "c",
+        "tbdeuser.h": "c",
+        "stdlib.h": "c",
+        "stdio.h": "c"
     },
     //"C_Cpp.errorSquiggles": "Disabled",
     "editor.formatOnSave": true,

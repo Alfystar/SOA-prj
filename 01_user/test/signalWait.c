@@ -1,7 +1,7 @@
 
-#include "tbdeUser/tbdeUser.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <tbdeUser.h>
 
 int tag;
 
@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
 
   printf("(%d) tag_gets(...)\n", myFork);
   int keyAsk, commandAsk, permissionAsk;
-  keyAsk = 10;
+  keyAsk = 20;
   permissionAsk = TBDE_OPEN_ROOM;
   commandAsk = TBDE_O_CREAT;
   tag = tag_get(keyAsk, commandAsk, permissionAsk);
@@ -40,9 +40,9 @@ int main(int argc, char **argv) {
   else
     printf("[reader %d]%s\tReturn value = %d\n", myFork, buf, bRead);
 
-  /*printf("(%d) tag_ctls(...)\n", myFork);
+  // Dovrebbe essere irragiungibile, a causa del segnale
+  printf("(%d) tag_ctls(...)\n", myFork);
   if (tag_ctl(tag, TBDE_REMOVE) == -1) {
     tagCtl_perror(tag, TBDE_REMOVE);
   }
-  */
 }

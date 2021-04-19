@@ -273,8 +273,8 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
   printk_tbdeDB("[tag_receive] free disable lock ...");
 
   freeMem_Lock(&rm->level[level].freeLockCount);
-  curExange = rm->level[level].ex;       // In base a quelo attualmente serializzato
-  refcount_add(1, &curExange->refCount); // Impedisco la distruzione della mia stanza
+  curExange = rm->level[level].ex;    // In base a quelo attualmente serializzato
+  refcount_inc(&curExange->refCount); // Impedisco la distruzione della mia stanza
   freeMem_unLock(&rm->level[level].freeLockCount);
 
   printk_tbdeDB("[tag_receive] enqueuing 1 ..."); // mostrato prima del wake_up
