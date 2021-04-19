@@ -12,3 +12,10 @@
 - [x] Room send/recive message
 - [x] Room recive wakeup after signal
 - [ ] Room driver print state
+
+### Build and load
+To build and load the project run:
+```
+make unload ; make clean ; make -j8 ; make load ; sudo dmesg --clear 
+```
+To test the varius scenarius run one of the script in the `test` directory, in other case run the `cmd` script one at time
