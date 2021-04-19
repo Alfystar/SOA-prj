@@ -288,9 +288,9 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
     exitOnly_freeExangeRoom(curExange,
                             &rm->lv[level].freeLockCnt); // mi tolgo dalla coda, SENZA eliminare la stanza
     freeRoom(rm);
-    printk_tbdeDB("[tag_receive] Wake_upped by a signal");
-    printk(KERN_ERR "sig[0] is 0x%08lx, sig[1] is 0x%08lx\n", current->pending.signal.sig[0],
-           current->pending.signal.sig[1]);
+    TBDE_Audit TBDE_Debug printk(KERN_NOTICE
+                                 "[tag_receive] Wake_upped by a signal: sig[0] is 0x%08lx, sig[1] is 0x%08lx\n",
+                                 current->pending.signal.sig[0], current->pending.signal.sig[1]);
     return -ERESTART;
   }
 
