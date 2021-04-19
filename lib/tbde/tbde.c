@@ -276,17 +276,21 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
   printk_tbdeDB("[tag_receive] free disable lock ...");
 
   freeMem_Lock(&rm->lv[level].freeLockCnt);
-  curExange = rm->lv[level].ex;       // In base a quelo attualmente serializzato
-  refcount_inc(&curExange->refCount); // Impedisco la distruzione della mia stanza
+  curExange = rm->lv[level].ex; // In base a quelo attualmente serializzato
+  // todo: ritornare alla logica con lo 0 usando atomic_inc
+  // refcount_inc(&curExange->refCount); // Impedisco la distruzione della mia stanza
+  atomic_inc(&curExange->refCount.refs);
   freeMem_unLock(&rm->lv[level].freeLockCnt);
 
   printk_tbdeDB("[tag_receive] enqueuing 1 ..."); // mostrato prima del wake_up
   printk_tbdeDB("[tag_receive] enqueuing 2 ..."); // mostrato dopo del wake_up (?)
   retWait = wait_event_interruptible(curExange->readerQueue, __sync_add_and_fetch(&curExange->ready, 0) == 1);
+  printk_tbdeDB("[tag_receive] get upped"); // mostrato dopo del wake_up (?)
 
-  if (retWait == -ERESTARTSYS) { // wake_up for signal
-    exitOnly_freeExangeRoom(curExange,
-                            &rm->lv[level].freeLockCnt); // mi tolgo dalla coda, SENZA eliminare la stanza
+  // wake_up for signal
+  if (retWait == -ERESTARTSYS) {
+    // mi tolgo dalla coda, SENZA eliminare la stanza
+    exitOnly_freeExangeRoom(curExange, &rm->lv[level].freeLockCnt);
     freeRoom(rm);
     TBDE_Audit TBDE_Debug printk(KERN_NOTICE
                                  "[tag_receive] Wake_upped by a signal: sig[0] is 0x%08lx, sig[1] is 0x%08lx\n",

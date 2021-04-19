@@ -17,14 +17,21 @@
 #include <linux/wait.h>
 #define MAX_ROOM 256 // todo: renderlo un valore parametrico
 
-#define TBDE_Audit if (0)
-#define TBDE_Debug if (0)
-#define printk_tbde(str, ...) TBDE_Audit printk(KERN_INFO "[%s::%s]: " str, MODNAME, "TBDE", ##__VA_ARGS__)
+#define TBDE_Audit if (1)
+#define TBDE_Debug if (1)
+#define printk_tbde(str, ...)                                                                                          \
+  do {                                                                                                                 \
+    TBDE_Audit printk(KERN_INFO "[%s::%s]: " str, MODNAME, "TBDE", ##__VA_ARGS__);                                     \
+  } while (0)
 #define printk_tbdeDB(str, ...) TBDE_Debug printk_tbde(str, ##__VA_ARGS__)
 
 // Exange-zone Metadata
+// Until this object is reachable, refCount is the count of reader inside,
+// when a writer arrive, the room became unreachable
+// The small race condition caused by free before locking is solved using freeLockCount
+// int the Chat-room structure
 typedef struct exangeRoom_ {
-  refcount_t refCount; // Count how many thread aquire this obj (the small race condition is solved using freeLockCount)
+  refcount_t refCount; // Count how many thread aquire this obj
   char *mes;
   size_t len;
   unsigned char ready;

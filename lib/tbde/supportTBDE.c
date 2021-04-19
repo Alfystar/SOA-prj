@@ -29,7 +29,7 @@ int operationValid(room *p) {
 exangeRoom *makeExangeRoom(void) {
   exangeRoom *ex;
   ex = kzalloc(sizeof(exangeRoom), GFP_KERNEL | GFP_NOWAIT);
-  refcount_set(&ex->refCount, 1); // problem bevause the api cal WARM if refcount are 0 during add or inc
+  refcount_set(&ex->refCount, 0);
   init_waitqueue_head(&ex->readerQueue);
   return ex;
 }
@@ -38,9 +38,9 @@ void realExangeFree(exangeRoom *ex) {
   if (ex->mes != NULL)
     vfree(ex->mes);
   kfree(ex);
+  printk_tbde("[realExangeFree] free exangeRoom %p", ex);
 }
 
-// 2 = i free a exangeRoom just empty
 // 1 = i free the exangeRoom
 // 0 = i don't free exangeRoom
 // -1 = Problem in pointer
@@ -50,28 +50,26 @@ int try_freeExangeRoom_exex(exangeRoom *ex, atomic_t *freeLockCount, int execFre
     return -1;
   }
 
-  if (refcount_read(&ex->refCount) == 1) { // è una stanza vuota, posso eliminarla subito
+  if (refcount_read(&ex->refCount) == 0) { // è una stanza vuota, posso eliminarla subito
     printk_tbdeDB("[try_freeExangeRoom] free exangeRoom %p, with no reference", ex);
     if (execFree)
       realExangeFree(ex);
     return 1;
   }
   if (refcount_dec_not_one(&ex->refCount)) { // Se non sono l'ultimo
-    printk_tbdeDB("[try_freeExangeRoom] Decrease exangeRoom %p, actual refCount = %d", ex,
-                  refcount_read(&ex->refCount));
+    printk_tbdeDB("[try_freeExangeRoom] free exangeRoom %p, LOOP FREE", ex);
     return 0;
   }
   // Sono l'ultimo, verifico mi sia permesso di fare la free
   waitUntil_unlock(freeLockCount);
 
-  if (refcount_dec_not_one(&ex->refCount)) { // Il reader è entrato qui, ci penserà lui a pulire
-    return 0;
+  if (refcount_dec_and_test(&ex->refCount)) { // tolgo il mio riferimento
+    if (execFree)
+      realExangeFree(ex); // Sono effettivamente l'ultimo
+    return 1;
   }
-  // Sono effettivamente l'ultimo dentro la stanza
-  if (execFree)
-    realExangeFree(ex); // Se posso cancellare, cancello
-
-  return 1;
+  // Nel frattempo qualcuno è rientrato
+  return 0;
 }
 
 room *roomMake(int key, unsigned int tag, int uid_Creator, int perm) {
@@ -98,7 +96,7 @@ void freeRoom(void *data) {
     if (refcount_dec_and_test(&rm->refCount)) {
       for (i = 0; i < levelDeep; i++)
         try_freeExangeRoom(rm->lv[i].ex, &rm->lv[i].freeLockCnt);
-      printk_tbdeDB("[freeRoom] kfree of %p room", rm);
+      printk_tbde("[realFreeRoom] kfree of %p room", rm);
       kfree(rm);
     } else {
       printk_tbdeDB("[freeRoom] Decrease refCount of %p room, actual refCount = %d", rm, refcount_read(&rm->refCount));
@@ -114,7 +112,7 @@ size_t waitersInRoom(room *p) {
   int i, wLev;
   size_t waiters = 0;
   for (i = 0; i < levelDeep; i++) {
-    wLev = refcount_read(&p->lv[i].ex->refCount) - 1; // 1 mean notting inside, but valid memory area
+    wLev = refcount_read(&p->lv[i].ex->refCount); // 1 mean notting inside, but valid memory area
     waiters += wLev;
     printk_tbdeDB("[waitersInRoom] @level = %d had %d waiters reader", i, wLev);
   }
@@ -147,13 +145,28 @@ int keyRoomCMP(void *a, void *b) { // return -1:a<b | 0:a==b | 1:a>b
   }
 }
 
+#define levelSizeBuf 300
 size_t printRoom(void *data, char *buf, int size) {
   room *p;
-  size_t indexBuf = 0;
-
+  char levState[levelSizeBuf];
+  size_t indexBuf = 0, indexBufLev = 0;
+  int i, waiters, waitersAll = 0;
   p = (room *)data;
+
+  for (i = 0; i < levelDeep; i++) {
+    waiters = refcount_read(&p->lv[i].ex->refCount);
+    waitersAll += waiters;
+    if (waiters > 0)
+      indexBufLev += scnprintf(levState + indexBufLev, levelSizeBuf - indexBufLev, "|L%d=%d", i, waiters);
+  }
+  if (waitersAll == 0)
+    indexBufLev += scnprintf(levState + indexBufLev, levelSizeBuf - indexBufLev, "<no Waiters>");
+  else
+    indexBufLev += scnprintf(levState + indexBufLev, levelSizeBuf - indexBufLev, "| sum = %d", waitersAll);
+
   // TAG-key TAG-creator TAG-level Waiting-threads
-  indexBuf += scnprintf(buf, size, "(%d-%d) [Creator=%d-perm=%d] {%p} \n", p->tag, p->key, p->uid_Creator, p->perm, p);
+  indexBuf += scnprintf(buf, size, "{@tag(%d)-@key(%d)-->%p} [Creator=%d-perm=%d %s]\n", p->tag, p->key, p,
+                        p->uid_Creator, p->perm, levState);
   return indexBuf;
   // todo: implementare il print dei livelli per i driver
 }
@@ -164,9 +177,9 @@ void printTrees() {
   text = vzalloc(4096);
   printk_tbde("tagTree:");
   len = Tree_Print(tagTree, text, 4096);
-  printk("\n%s", text);
+  printk(KERN_DEBUG "\n%s", text);
   printk_tbde("keyTree:");
   len = Tree_Print(keyTree, text, 4096);
-  printk("\n%s", text);
+  printk(KERN_DEBUG "\n%s", text);
   vfree(text);
 }

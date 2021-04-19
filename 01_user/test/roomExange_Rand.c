@@ -47,10 +47,12 @@ int main(int argc, char **argv) {
   // \/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
   if (commandAsk == TBDE_O_OPEN) {
     printf("(%d) tag_receive(...)\n", myFork);
+    alarm(1);
     int bRead = tag_receive(tag, 1, buf, sizeof(buf));
     if (bRead < 0)
       tagRecive_perror(tag);
     else {
+      alarm(0);
       printf("[reader %d]%s\tReturn value = %d\n", myFork, buf, bRead);
     }
   }
