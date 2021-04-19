@@ -8,7 +8,7 @@ void help() { printf("usage: <tag> <level>\n"); }
 int tag, level;
 
 int main(int argc, char **argv) {
-  if (argc != 2) {
+  if (argc != 3) {
     help();
     exit(-1);
   }
@@ -18,8 +18,8 @@ int main(int argc, char **argv) {
   level = atoi(argv[2]);
   char buf[4096];
 
-  printf("tag_receive(%d,%d,bufPtr, bufSize)\n", tag, level);
   int bRead = tag_receive(tag, level, buf, sizeof(buf));
+  printf("@bRead = %d = tag_receive(%d,%d,bufPtr, bufSize)\n", bRead, tag, level);
   if (bRead < 0)
     tagRecive_perror(tag);
   else {

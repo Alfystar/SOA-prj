@@ -14,7 +14,7 @@ int commandAsk;
 
 int main(int argc, char **argv) {
   char buf[64];
-  if (argc != 2) {
+  if (argc != 3) {
     help();
     exit(-1);
   }

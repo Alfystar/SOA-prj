@@ -29,7 +29,7 @@ int operationValid(room *p) {
 exangeRoom *makeExangeRoom(void) {
   exangeRoom *ex;
   ex = kzalloc(sizeof(exangeRoom), GFP_KERNEL | GFP_NOWAIT);
-  refcount_set(&ex->refCount, 0);
+  refcount_set(&ex->refCount, 1); // problem bevause the api cal WARM if refcount are 0 during add or inc
   init_waitqueue_head(&ex->readerQueue);
   return ex;
 }
@@ -44,19 +44,21 @@ void realExangeFree(exangeRoom *ex) {
 // 1 = i free the exangeRoom
 // 0 = i don't free exangeRoom
 // -1 = Problem in pointer
-int try_freeExangeRoom(exangeRoom *ex, atomic_t *freeLockCount) {
+int try_freeExangeRoom_exex(exangeRoom *ex, atomic_t *freeLockCount, int execFree) {
   if (ex == NULL || freeLockCount == NULL) {
     printk_tbde("[freeChatRoom] Impossible kfree chatRoom because passing same NULL ptr");
     return -1;
   }
 
-  if (refcount_read(&ex->refCount) == 0) { // è una stanza vuota, posso eliminarla subito
+  if (refcount_read(&ex->refCount) == 1) { // è una stanza vuota, posso eliminarla subito
     printk_tbdeDB("[try_freeExangeRoom] free exangeRoom %p, with no reference", ex);
-    realExangeFree(ex);
+    if (execFree)
+      realExangeFree(ex);
     return 1;
   }
   if (refcount_dec_not_one(&ex->refCount)) { // Se non sono l'ultimo
-    printk_tbdeDB("[try_freeExangeRoom] free exangeRoom %p, LOOP FREE", ex);
+    printk_tbdeDB("[try_freeExangeRoom] Decrease exangeRoom %p, actual refCount = %d", ex,
+                  refcount_read(&ex->refCount));
     return 0;
   }
   // Sono l'ultimo, verifico mi sia permesso di fare la free
@@ -65,8 +67,10 @@ int try_freeExangeRoom(exangeRoom *ex, atomic_t *freeLockCount) {
   if (refcount_dec_not_one(&ex->refCount)) { // Il reader è entrato qui, ci penserà lui a pulire
     return 0;
   }
-  // Sono effettivamente l'ultimo e nessuno più può entrare
-  realExangeFree(ex);
+  // Sono effettivamente l'ultimo dentro la stanza
+  if (execFree)
+    realExangeFree(ex); // Se posso cancellare, cancello
+
   return 1;
 }
 
@@ -80,22 +84,24 @@ room *roomMake(int key, unsigned int tag, int uid_Creator, int perm) {
   p->uid_Creator = uid_Creator;
   p->perm = perm;
   for (i = 0; i < levelDeep; i++) {
-    arch_atomic_set(&p->level[i].freeLockCount, 0);
-    p->level[i].ex = makeExangeRoom();
+    arch_atomic_set(&p->lv[i].freeLockCnt, 0);
+    p->lv[i].ex = makeExangeRoom();
   }
   return p;
 }
 
 void freeRoom(void *data) {
-  room *p;
+  room *rm;
   int i;
-  p = (room *)data;
-  if (p != NULL) {
-    if (refcount_dec_and_test(&p->refCount)) {
+  rm = (room *)data;
+  if (rm != NULL) {
+    if (refcount_dec_and_test(&rm->refCount)) {
       for (i = 0; i < levelDeep; i++)
-        try_freeExangeRoom(p->level[i].ex, &p->level[i].freeLockCount);
-      kfree(p);
+        try_freeExangeRoom(rm->lv[i].ex, &rm->lv[i].freeLockCnt);
+      printk_tbdeDB("[freeRoom] kfree of %p room", rm);
+      kfree(rm);
     } else {
+      printk_tbdeDB("[freeRoom] Decrease refCount of %p room, actual refCount = %d", rm, refcount_read(&rm->refCount));
       return;
     }
   } else {
@@ -105,10 +111,12 @@ void freeRoom(void *data) {
 
 // shuld be used in write-lock context
 size_t waitersInRoom(room *p) {
-  int i;
+  int i, wLev;
   size_t waiters = 0;
   for (i = 0; i < levelDeep; i++) {
-    waiters += refcount_read(&p->level[i].ex->refCount);
+    wLev = refcount_read(&p->lv[i].ex->refCount) - 1; // 1 mean notting inside, but valid memory area
+    waiters += wLev;
+    printk_tbdeDB("[waitersInRoom] @level = %d had %d waiters reader", i, wLev);
   }
   return waiters;
 }

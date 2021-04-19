@@ -56,7 +56,9 @@
         "algorithm": "c",
         "tbdeuser.h": "c",
         "stdlib.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "fstream": "c",
+        "functional": "c"
     },
     //"C_Cpp.errorSquiggles": "Disabled",
     "editor.formatOnSave": true,

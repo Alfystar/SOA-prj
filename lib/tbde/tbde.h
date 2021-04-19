@@ -28,14 +28,13 @@ typedef struct exangeRoom_ {
   size_t len;
   unsigned char ready;
   unsigned char wakeUpALL;
-
   wait_queue_head_t readerQueue;
 } exangeRoom;
 
 // Chat-room Room Metadata
 typedef struct chatRoom_ {
   // uso "atomic_t" pochè il ref potrebbe essere a 0 ed è giusto e non voglio warning
-  atomic_t freeLockCount; // To delete the race-condition in refCount inc
+  atomic_t freeLockCnt; // To delete the race-condition in refCount inc
   exangeRoom *ex;
 } chatRoom;
 
@@ -46,7 +45,7 @@ typedef struct room_ {
   unsigned int tag;    // indexing with tag
   int uid_Creator;
   int perm;
-  chatRoom level[levelDeep];
+  chatRoom lv[levelDeep];
 } room;
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -158,7 +157,11 @@ int permAmmisible(int perm);
 int operationValid(room *p);
 
 exangeRoom *makeExangeRoom(void);
-int try_freeExangeRoom(exangeRoom *ex, atomic_t *freeLockCount);
+int try_freeExangeRoom_exex(exangeRoom *ex, atomic_t *freeLockCount, int execFree);
+#define try_freeExangeRoom(exangeRoom_ptr, freeLockCount_ptr)                                                          \
+  try_freeExangeRoom_exex(exangeRoom_ptr, freeLockCount_ptr, 1);
+#define exitOnly_freeExangeRoom(exangeRoom_ptr, freeLockCount_ptr)                                                     \
+  try_freeExangeRoom_exex(exangeRoom_ptr, freeLockCount_ptr, 0);
 
 room *roomMake(int key, unsigned int tag, int uid_Creator, int perm);
 void freeRoom(void *data);

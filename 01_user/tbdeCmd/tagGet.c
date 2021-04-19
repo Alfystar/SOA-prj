@@ -19,7 +19,7 @@ int keyAsk, commandAsk, permissionAsk;
 
 int main(int argc, char **argv) {
   char buf[64];
-  if (argc != 3) {
+  if (argc != 4) {
     help();
     exit(-1);
   }
@@ -29,8 +29,8 @@ int main(int argc, char **argv) {
   commandAsk = atoi(argv[2]);
   permissionAsk = atoi(argv[3]);
 
-  printf("tag_get(%d,%d,%d)n", keyAsk, commandAsk, permissionAsk);
   tag = tag_get(keyAsk, commandAsk, permissionAsk);
+  printf("@tag = %d = tag_get(%d,%d,%d)\n", tag, keyAsk, commandAsk, permissionAsk);
   if (tag == -1) {
     tagGet_perror(keyAsk, commandAsk);
   }

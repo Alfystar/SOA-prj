@@ -40,13 +40,16 @@ int tag_get_CREATE(int key, int command, int permission) {
   rm = roomMake(key, 0, current->tgid, permission);
 
   if (rm->key == TBDE_IPC_PRIVATE) {
-    refcount_inc(&rm->refCount); // Lock per conto di tagTree
+    refcount_set(&rm->refCount, 1); // Lock per conto di tagTree
+    printk_tbdeDB("[tag_get_CREATE a] room %p, actual refCount = %d", rm, refcount_read(&rm->refCount));
+
     write_lock_irqsave(&searchLock, flags);
     roomTagInsert_Force(rm);
     __sync_add_and_fetch(&roomCount, 1);
     write_unlock_irqrestore(&searchLock, flags);
   } else {                          // Key public
-    refcount_add(2, &rm->refCount); // Lock per conto di keyTree e tagTree
+    refcount_set(&rm->refCount, 2); // Lock per conto di keyTree e tagTree
+    printk_tbdeDB("[tag_get_CREATE a] room %p, actual refCount = %d", rm, refcount_read(&rm->refCount));
     write_lock_irqsave(&searchLock, flags);
     if (Tree_Insert(keyTree, rm) != NULL) { // Key in use
       write_unlock_irqrestore(&searchLock, flags);
@@ -201,14 +204,14 @@ asmlinkage long tag_send(int tag, int level, char *buffer, size_t size) {
   }
 
   printk_tbdeDB("[tag_send] Making new exange room ...");
-  exRoom = createAndSwap_exangeRoom_refInc(rm->level[level].ex); // exRoom è isolata dal resto del sistema
+  exRoom = createAndSwap_exangeRoom_refInc(rm->lv[level].ex); // exRoom è isolata dal resto del sistema
   exangeMessage(exRoom, buf, size);
 
   printk_tbdeDB("[tag_send] Wake_upping readers ...");
   wake_up_all(&exRoom->readerQueue);
 
-  try_freeExangeRoom(exRoom, &rm->level[level].freeLockCount); // Libero il mio puntatore
-  freeRoom(rm);                                                // Libero il mio puntatore
+  try_freeExangeRoom(exRoom, &rm->lv[level].freeLockCnt); // Libero il mio puntatore
+  freeRoom(rm);                                           // Libero il mio puntatore
   printk_tbdeDB("[tag_send] Ending ...");
   return 0;
 }
@@ -272,27 +275,29 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
   // Creo un lock con un soft-lock sulle free, alla stanza che mi interessa
   printk_tbdeDB("[tag_receive] free disable lock ...");
 
-  freeMem_Lock(&rm->level[level].freeLockCount);
-  curExange = rm->level[level].ex;    // In base a quelo attualmente serializzato
+  freeMem_Lock(&rm->lv[level].freeLockCnt);
+  curExange = rm->lv[level].ex;       // In base a quelo attualmente serializzato
   refcount_inc(&curExange->refCount); // Impedisco la distruzione della mia stanza
-  freeMem_unLock(&rm->level[level].freeLockCount);
+  freeMem_unLock(&rm->lv[level].freeLockCnt);
 
   printk_tbdeDB("[tag_receive] enqueuing 1 ..."); // mostrato prima del wake_up
   printk_tbdeDB("[tag_receive] enqueuing 2 ..."); // mostrato dopo del wake_up (?)
   retWait = wait_event_interruptible(curExange->readerQueue, __sync_add_and_fetch(&curExange->ready, 0) == 1);
 
-  if (retWait == -ERESTARTSYS) {                                    // wake_up for signal
-    try_freeExangeRoom(curExange, &rm->level[level].freeLockCount); // Libero il puntatore
+  if (retWait == -ERESTARTSYS) { // wake_up for signal
+    exitOnly_freeExangeRoom(curExange,
+                            &rm->lv[level].freeLockCnt); // mi tolgo dalla coda, SENZA eliminare la stanza
     freeRoom(rm);
-    printk_tbdeDB("[tag_receive] wake_upped for signal");
+    printk_tbdeDB("[tag_receive] Wake_upped by a signal");
     printk(KERN_ERR "sig[0] is 0x%08lx, sig[1] is 0x%08lx\n", current->pending.signal.sig[0],
            current->pending.signal.sig[1]);
     return -ERESTART;
   }
 
-  if (__sync_add_and_fetch(&curExange->wakeUpALL, 0) == 1) {
-    try_freeExangeRoom(curExange, &rm->level[level].freeLockCount); // Libero il puntatore
+  if (__sync_add_and_fetch(&curExange->wakeUpALL, 0) == 1) {   // Recived wakeUpAll form tag_ctl
+    try_freeExangeRoom(curExange, &rm->lv[level].freeLockCnt); // Libero il puntatore
     freeRoom(rm);
+    printk_tbdeDB("[tag_receive] Recived wakeUpAll form tag_ctl");
     return -EUCLEAN;
   }
 
@@ -303,7 +308,7 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
     noCopy = copy_to_user(buffer + offset, curExange->mes + offset, bSize - offset);
     offset += (bSize - offset) - noCopy; // offset += (current copied ask) - fail copied current
   }
-  try_freeExangeRoom(curExange, &rm->level[level].freeLockCount); // Libero il puntatore
+  try_freeExangeRoom(curExange, &rm->lv[level].freeLockCnt); // Libero il puntatore
   freeRoom(rm);
   printk_tbdeDB("[tag_receive] Return data copied");
   return bSize;
@@ -339,7 +344,7 @@ int tag_ctl_TBDE_AWAKE_ALL(int tag, int command) {
   }
 
   rm = treeNode2Room_refInc(retTagSearch);
-  printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Tag to delete found");
+  printk_tbdeDB("[tag_ctl_TBDE_AWAKE_ALL] Tag to delete found");
   if (!operationValid(rm)) {
     freeRoom(rm);
     write_unlock_irqrestore(&searchLock, flags);
@@ -348,13 +353,13 @@ int tag_ctl_TBDE_AWAKE_ALL(int tag, int command) {
 
   printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Making new exanges rooms ...");
   for (i = 0; i < levelDeep; i++) {
-    exLev = createAndSwap_exangeRoom_refInc(rm->level[i].ex); // exLev è isolata dal resto del sistema
+    exLev = createAndSwap_exangeRoom_refInc(rm->lv[i].ex); // exLev è isolata dal resto del sistema
     exangeWakeUpAll(exLev);
 
     printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Wake_upping readers on level %d ...", i);
     wake_up_all(&exLev->readerQueue);
 
-    try_freeExangeRoom(exLev, &rm->level[i].freeLockCount); // Libero il mio puntatore
+    try_freeExangeRoom(exLev, &rm->lv[i].freeLockCnt); // Libero il mio puntatore
   }
   freeRoom(rm); // Libero il mio puntatore
   printk_tbde("[tag_ctl_TBDE_REMOVE] All rooms wake_upped");
@@ -371,6 +376,7 @@ int tag_ctl_TBDE_REMOVE(int tag, int command) {
   Node retTag, retKey;
   room *rm, searchRoom;
   unsigned long flags;
+  int waiters;
 
   printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Request TBDE_REMOVE at Tag = %d", tag);
 
@@ -387,12 +393,15 @@ int tag_ctl_TBDE_REMOVE(int tag, int command) {
   if (!operationValid(rm)) {
     freeRoom(rm);
     write_unlock_irqrestore(&searchLock, flags);
+    printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Tag to delete permission invalid");
     return -EBADE;
   }
 
-  if (waitersInRoom(rm) != 0) {
+  waiters = waitersInRoom(rm);
+  if (waiters != 0) {
     freeRoom(rm);
     write_unlock_irqrestore(&searchLock, flags);
+    printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Tag to delete had %d waiters reader", waiters);
     return -EADDRINUSE;
   }
 
