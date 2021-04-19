@@ -1,5 +1,5 @@
 # Sistemi Operativi Avanzati - Project
-(Progetto di Sistemi Operativi Avanzati 2021)[https://francescoquaglia.github.io/TEACHING/AOS/PROJECTS/project-specification-2020-2021.html], prof Francesco Quaglia, Tor Vergata
+[Progetto di Sistemi Operativi Avanzati 2021](https://francescoquaglia.github.io/TEACHING/AOS/PROJECTS/project-specification-2020-2021.html), prof Francesco Quaglia, Tor Vergata
 
 ### Project state
 - [x] Rooms indexing with AVL tree for key & tag
