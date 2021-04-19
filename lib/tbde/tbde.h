@@ -1,6 +1,6 @@
 #ifndef tbde_h
 #define tbde_h
-// -1073741824
+
 #include <globalDef.h>
 #include <stddef.h>
 
