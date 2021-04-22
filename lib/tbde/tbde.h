@@ -17,13 +17,37 @@
 #include <linux/wait.h>
 #define MAX_ROOM 256 // todo: renderlo un valore parametrico
 
-#define TBDE_Audit if (1)
-#define TBDE_Debug if (1)
-#define printk_tbde(str, ...)                                                                                          \
+// Level 0 = no message
+// Level 1 = err message
+// Level 2 = Info messsage
+// Level 3 = notice messsage
+// Level 4 = dbg message
+// Level 5 = all message
+#define TBDE_VerboseLevel 1
+#define TBDE_err _codeActive(1, TBDE_VerboseLevel)
+#define TBDE_notice _codeActive(2, TBDE_VerboseLevel)
+#define TBDE_info _codeActive(3, TBDE_VerboseLevel)
+#define TBDE_Db _codeActive(4, TBDE_VerboseLevel)
+
+#define tbde_err(str, ...)                                                                                             \
   do {                                                                                                                 \
-    TBDE_Audit printk(KERN_INFO "[%s::%s]: " str, MODNAME, "TBDE", ##__VA_ARGS__);                                     \
+    TBDE_err printk_STD(KERN_ERR, "TBDE", str, ##__VA_ARGS__);                                                         \
   } while (0)
-#define printk_tbdeDB(str, ...) TBDE_Debug printk_tbde(str, ##__VA_ARGS__)
+
+#define tbde_notice(str, ...)                                                                                          \
+  do {                                                                                                                 \
+    TBDE_notice printk_STD(KERN_NOTICE, "TBDE", str, ##__VA_ARGS__);                                                   \
+  } while (0)
+
+#define tbde_info(str, ...)                                                                                            \
+  do {                                                                                                                 \
+    TBDE_info printk_STD(KERN_INFO, "TBDE", str, ##__VA_ARGS__);                                                       \
+  } while (0)
+
+#define tbde_db(str, ...)                                                                                              \
+  do {                                                                                                                 \
+    TBDE_Db printk_STD(KERN_DEBUG, "TBDE", str, ##__VA_ARGS__);                                                        \
+  } while (0)
 
 // Exange-zone Metadata
 // Until this object is reachable, refCount is the count of reader inside,

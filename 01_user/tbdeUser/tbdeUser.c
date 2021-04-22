@@ -88,12 +88,16 @@ void tagGet_perror(int keyAsk, int commandAsk) {
   //  EBADRQC           :=    Permission invalid to execute the operation
   //  ENOMSG            :=    Key not found
   // --
+  //  ENOSYS            :=    sysCall removed
   //  EBADRQC           :=    Permission Wrong parameter
   //  EILSEQ            :=    Command not valid
 
   switch (errno) {
+  case ENOSYS:
+    printf("[tag_get] sysCall removed\n");
+    return;
   case EBADRQC:
-    printf("[tag_get] TBDE_O_CREAT @key=%d error, Permission Wrong parameter\n", keyAsk);
+    printf("[tag_get] Permission Wrong parameter\n");
     return;
   case EILSEQ:
     printf("[tag_get] error, Command is not valid, commandAsk :%d\n", commandAsk);
@@ -146,6 +150,7 @@ void tagSend_perror(int tag) {
   //  EBADRQC           :=    Permission invalid to execute the operation
   //  EBADSLT           :=    asked level is over levelDeep
   // --
+  //  ENOSYS            :=    sysCall removed
   //  EILSEQ            :=    Command not valid
   switch (errno) {
   case EXFULL:
@@ -159,6 +164,9 @@ void tagSend_perror(int tag) {
     break;
   case EBADSLT:
     printf("[tag_send] @tag=%d error, asked level is over levelDeep\n", tag);
+    break;
+  case ENOSYS:
+    printf("[tag_send] sysCall removed\n");
     break;
   case EILSEQ:
     printf("[tag_send] @tag=%d error, Command not valid\n", tag);
@@ -179,6 +187,7 @@ void tagRecive_perror(int tag) {
   //  ERESTART          :=    Signal wake_up the thread
   //  EUCLEAN           :=    Receved TBDE_AWAKE_ALL
   // --
+  //  ENOSYS            :=    sysCall removed
   //  EILSEQ            :=    Command not valid
   switch (errno) {
   case EXFULL:
@@ -198,6 +207,9 @@ void tagRecive_perror(int tag) {
     break;
   case EUCLEAN:
     printf("[tag_receive] @tag=%d error, Receved TBDE_AWAKE_ALL\n", tag);
+    break;
+  case ENOSYS:
+    printf("[tag_receive] sysCall removed\n");
     break;
   case EILSEQ:
     printf("[tag_receive] @tag=%d error, Command not valid\n", tag);
@@ -219,6 +231,7 @@ void tagCtl_perror(int tag, int commandAsk) {
   //  EBADE             :=    Permission invalid to execute the operation
   //  EADDRINUSE        :=    Reader in wait on some level
   // --
+  //  ENOSYS            :=    sysCall removed
   //  ENOSR             :=    tag negative number
   //  EILSEQ            :=    Command not valid
   if (errno == EILSEQ) {
@@ -227,6 +240,9 @@ void tagCtl_perror(int tag, int commandAsk) {
   }
 
   switch (errno) {
+  case ENOSYS:
+    printf("[tag_ctl] sysCall removed\n");
+    return;
   case ENOSR:
     printf("[tag_ctl] error, The tag number is negative\n");
     return;
@@ -273,5 +289,5 @@ void tagCtl_perror(int tag, int commandAsk) {
     return;
   }
 
-  printf("[tag_send] error, Unexpected error code return: %d\n", errno);
+  printf("[tag_ctl] error, Unexpected error code return: %d\n", errno);
 }

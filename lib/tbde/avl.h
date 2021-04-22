@@ -18,9 +18,27 @@
 #include <linux/slab.h>
 #include <linux/stddef.h>
 
-#define avl_Audit if (0)
-#define printk_avl(str, ...) printk(KERN_INFO "[%s::%s]: " str, MODNAME, "AVL", ##__VA_ARGS__)
-#define printk_avlDB(str, ...) avl_Audit printk_avl(str, ##__VA_ARGS__)
+// Level 0 = no message
+// Level 1 = err message
+// Level 2 = Info messsage
+// Level 3 = notice messsage
+// Level 4 = dbg message
+// Level 5 = all message
+#define AVL_VerboseLevel 1
+#define AVL_err _codeActive(1, AVL_VerboseLevel)
+#define AVL_notice _codeActive(2, AVL_VerboseLevel)
+#define AVL_info _codeActive(3, AVL_VerboseLevel)
+#define AVL_Db _codeActive(4, AVL_VerboseLevel)
+
+#define avl_err(str, ...)                                                                                              \
+  do {                                                                                                                 \
+    AVL_err printk_STD(KERN_ERR, "AVL", str, ##__VA_ARGS__);                                                           \
+  } while (0)
+
+#define avl_db(str, ...)                                                                                               \
+  do {                                                                                                                 \
+    AVL_Db printk_STD(KERN_DEBUG, "AVL", str, ##__VA_ARGS__);                                                          \
+  } while (0)
 
 // Comp is used to search node, must be the keySearc comparation function
 typedef int (*compCallBack)(void *dataA, void *dataB); // return -1:a<b | 0:a==b | 1:a>b

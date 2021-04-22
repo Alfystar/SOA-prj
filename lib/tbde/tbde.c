@@ -33,7 +33,7 @@ int tag_get_CREATE(int key, int command, int permission) {
   unsigned long flags;
 
   if (__sync_add_and_fetch(&roomCount, 0) >= MAX_ROOM) {
-    printk_tbdeDB("[tag_get_CREATE] Impossible Create another room");
+    tbde_err("[tag_get_CREATE] Impossible Create another room");
     return -ETOOMANYREFS;
   }
 
@@ -41,7 +41,7 @@ int tag_get_CREATE(int key, int command, int permission) {
 
   if (rm->key == TBDE_IPC_PRIVATE) {
     refcount_set(&rm->refCount, 1); // Lock per conto di tagTree
-    printk_tbdeDB("[tag_get_CREATE a] room %p, actual refCount = %d", rm, refcount_read(&rm->refCount));
+    tbde_db("[tag_get_CREATE a] room %p, actual refCount = %d", rm, refcount_read(&rm->refCount));
 
     write_lock_irqsave(&searchLock, flags);
     roomTagInsert_Force(rm);
@@ -49,11 +49,11 @@ int tag_get_CREATE(int key, int command, int permission) {
     write_unlock_irqrestore(&searchLock, flags);
   } else {                          // Key public
     refcount_set(&rm->refCount, 2); // Lock per conto di keyTree e tagTree
-    printk_tbdeDB("[tag_get_CREATE a] room %p, actual refCount = %d", rm, refcount_read(&rm->refCount));
+    tbde_db("[tag_get_CREATE a] room %p, actual refCount = %d", rm, refcount_read(&rm->refCount));
     write_lock_irqsave(&searchLock, flags);
     if (Tree_Insert(keyTree, rm) != NULL) { // Key in use
       write_unlock_irqrestore(&searchLock, flags);
-      printk_tbdeDB("[tag_get_CREATE] Impossible to execute, key are just in use");
+      tbde_db("[tag_get_CREATE] Impossible to execute, key are just in use");
       doobleFreeRoom(rm); // unLock per conto di keyTree e per conto di tagTree -> free
       return -EBADR;
     }
@@ -63,7 +63,7 @@ int tag_get_CREATE(int key, int command, int permission) {
     write_unlock_irqrestore(&searchLock, flags);
     __sync_add_and_fetch(&roomCount, 1);
   }
-  printk_tbde("[tag_get_CREATE] New room Create and added to the Searches Tree");
+  tbde_info("[tag_get_CREATE] New room Create and added to the Searches Tree");
   // TBDE_Audit
   printTrees();
 
@@ -81,7 +81,7 @@ int tag_get_OPEN(int key, int command, int permission) {
   unsigned long flags;
 
   if (key == TBDE_IPC_PRIVATE) {
-    printk_tbdeDB("[tag_get_OPEN] Impossible to execute, the asked key is TBDE_IPC_PRIVATE");
+    tbde_db("[tag_get_OPEN] Impossible to execute, the asked key is TBDE_IPC_PRIVATE");
     return -EBADSLT;
   }
   roomSearch.key = key;
@@ -103,7 +103,7 @@ int tag_get_OPEN(int key, int command, int permission) {
     return tagRet;
   }
   read_unlock_irqrestore(&searchLock, flags);
-  printk_tbdeDB("[tag_get_OPEN] No key are found");
+  tbde_db("[tag_get_OPEN] No key are found");
   return -ENOMSG;
 }
 
@@ -118,6 +118,7 @@ int tag_get_OPEN(int key, int command, int permission) {
 //  EBADRQC           :=    Permission invalid to execute the operation
 //  ENOMSG            :=    Key not found
 // --
+//  ENOSYS            :=    sysCall removed
 //  EBADRQC           :=    Permission Wrong parameter
 //  EILSEQ            :=    Command not valid
 
@@ -127,23 +128,32 @@ __SYSCALL_DEFINEx(3, _tag_get, int, key, int, command, int, permission) {
 #else
 asmlinkage long tag_get(int key, int command, int permission) {
 #endif
-  printk_tbde("[tag_get] thread %d call [tag_get(%d,%d,%d)]\n", current->pid, key, command, permission);
+  int ret;
+  if (!try_module_get(THIS_MODULE))
+    return -ENOSYS;
+
+  tbde_info("[tag_get] thread %d call [tag_get(%d,%d,%d)]\n", current->pid, key, command, permission);
 
   if (permAmmisible(permission)) {
-    printk_tbdeDB("[tag_get] Permission passed are Invalid");
+    tbde_db("[tag_get] Permission passed are Invalid");
+    module_put(THIS_MODULE);
     return -EBADRQC;
   }
 
   switch (command) {
   case TBDE_O_CREAT:
-    return tag_get_CREATE(key, command, permission);
+    ret = tag_get_CREATE(key, command, permission);
+    break;
   case TBDE_O_OPEN:
-    return tag_get_OPEN(key, command, permission);
+    ret = tag_get_OPEN(key, command, permission);
+    break;
   default:
-    printk_tbdeDB("[tag_get] Invalid Command");
-    return -EILSEQ;
+    tbde_db("[tag_get] Invalid Command");
+    ret = -EILSEQ;
+    break;
   }
-  return 0;
+  module_put(THIS_MODULE);
+  return ret;
 }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 17, 0)
@@ -159,6 +169,7 @@ unsigned long tag_get = (unsigned long)__x64_sys_tag_get;
 //  EBADRQC           :=    Permission invalid to execute the operation
 //  EBADSLT           :=    asked level is over levelDeep
 // --
+//  ENOSYS            :=    sysCall removed
 //  EILSEQ            :=    Command not valid
 
 // int tag_send(int tag, int level, char *buffer, size_t size);
@@ -173,10 +184,15 @@ asmlinkage long tag_send(int tag, int level, char *buffer, size_t size) {
   unsigned long flags;
   char *buf;
 
-  printk_tbde("[tag_send] thread %d call [tag_send(%d,%d,%p,%ld)]\n", current->pid, tag, level, buffer, size);
+  if (!try_module_get(THIS_MODULE))
+    return -ENOSYS;
 
-  if (size > MAX_MESSAGE_SIZE || buffer == NULL)
+  tbde_info("[tag_send] thread %d call [tag_send(%d,%d,%p,%ld)]\n", current->pid, tag, level, buffer, size);
+
+  if (size > MAX_MESSAGE_SIZE || buffer == NULL) {
+    module_put(THIS_MODULE);
     return -EXFULL;
+  }
   buf = vzalloc(size);
   copy_from_user(buf, buffer, size);
 
@@ -187,6 +203,7 @@ asmlinkage long tag_send(int tag, int level, char *buffer, size_t size) {
   if (!nodeSearch) {
     read_unlock_irqrestore(&searchLock, flags);
     vfree(buf); // Libero la memoria di appoggio
+    module_put(THIS_MODULE);
     return -ENOMSG;
   }
   rm = treeNode2Room_refInc(nodeSearch);
@@ -195,24 +212,27 @@ asmlinkage long tag_send(int tag, int level, char *buffer, size_t size) {
   if (!operationValid(rm)) {
     freeRoom(rm);
     vfree(buf); // Libero la memoria di appoggio
+    module_put(THIS_MODULE);
     return -EBADRQC;
   }
   if (level >= levelDeep) {
     freeRoom(rm);
     vfree(buf); // Libero la memoria di appoggio
+    module_put(THIS_MODULE);
     return -EBADSLT;
   }
 
-  printk_tbdeDB("[tag_send] Making new exange room ...");
+  tbde_db("[tag_send] Making new exange room ...");
   exRoom = createAndSwap_exangeRoom_refInc(rm->lv[level].ex); // exRoom è isolata dal resto del sistema
   exangeMessage(exRoom, buf, size);
 
-  printk_tbdeDB("[tag_send] Wake_upping readers ...");
+  tbde_db("[tag_send] Wake_upping readers ...");
   wake_up_all(&exRoom->readerQueue);
 
   try_freeExangeRoom(exRoom, &rm->lv[level].freeLockCnt); // Libero il mio puntatore
   freeRoom(rm);                                           // Libero il mio puntatore
-  printk_tbdeDB("[tag_send] Ending ...");
+  tbde_db("[tag_send] Ending ...");
+  module_put(THIS_MODULE);
   return 0;
 }
 
@@ -231,6 +251,7 @@ unsigned long tag_send = (unsigned long)__x64_sys_tag_send;
 //  ERESTART          :=    Signal wake_up the thread
 //  EUCLEAN           :=    Receved TBDE_AWAKE_ALL
 // --
+//  ENOSYS            :=    sysCall removed
 //  EILSEQ            :=    Command not valid
 
 // int tag_receive(int tag, int level, char *buffer, size_t size);
@@ -247,10 +268,15 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
   unsigned long flags;
   size_t bSize, noCopy, offset;
 
-  printk_tbde("[tag_receive] thread %d call [tag_receive(%d,%d,%p,%ld)]\n", current->pid, tag, level, buffer, size);
+  if (!try_module_get(THIS_MODULE))
+    return -ENOSYS;
 
-  if (size > MAX_MESSAGE_SIZE || buffer == NULL)
+  tbde_info("[tag_receive] thread %d call [tag_receive(%d,%d,%p,%ld)]\n", current->pid, tag, level, buffer, size);
+
+  if (size > MAX_MESSAGE_SIZE || buffer == NULL) {
+    module_put(THIS_MODULE);
     return -EXFULL;
+  }
 
   roomSearch.tag = tag;
 
@@ -258,6 +284,7 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
   ret = Tree_SearchNode(tagTree, &roomSearch);
   if (!ret) {
     read_unlock_irqrestore(&searchLock, flags);
+    module_put(THIS_MODULE);
     return -ENOMSG;
   }
   rm = treeNode2Room_refInc(ret);
@@ -265,47 +292,48 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
 
   if (!operationValid(rm)) {
     freeRoom(rm);
+    module_put(THIS_MODULE);
     return -EBADRQC;
   }
   if (level >= levelDeep) {
     freeRoom(rm);
+    module_put(THIS_MODULE);
     return -EBADSLT;
   }
 
   // Creo un lock con un soft-lock sulle free, alla stanza che mi interessa
-  printk_tbdeDB("[tag_receive] free disable lock ...");
+  tbde_db("[tag_receive] free disable lock ...");
 
   freeMem_Lock(&rm->lv[level].freeLockCnt);
   curExange = rm->lv[level].ex; // In base a quelo attualmente serializzato
-  // todo: ritornare alla logica con lo 0 usando atomic_inc
-  // refcount_inc(&curExange->refCount); // Impedisco la distruzione della mia stanza
   atomic_inc(&curExange->refCount.refs);
   freeMem_unLock(&rm->lv[level].freeLockCnt);
 
-  printk_tbdeDB("[tag_receive] enqueuing 1 ..."); // mostrato prima del wake_up
-  printk_tbdeDB("[tag_receive] enqueuing 2 ..."); // mostrato dopo del wake_up (?)
+  tbde_db("[tag_receive] enqueuing 1 ..."); // mostrato prima del wake_up
+  tbde_db("[tag_receive] enqueuing 2 ..."); // mostrato dopo del wake_up (?)
   retWait = wait_event_interruptible(curExange->readerQueue, __sync_add_and_fetch(&curExange->ready, 0) == 1);
-  printk_tbdeDB("[tag_receive] get upped"); // mostrato dopo del wake_up (?)
+  tbde_db("[tag_receive] get upped"); // mostrato dopo del wake_up (?)
 
   // wake_up for signal
   if (retWait == -ERESTARTSYS) {
     // mi tolgo dalla coda, SENZA eliminare la stanza
     exitOnly_freeExangeRoom(curExange, &rm->lv[level].freeLockCnt);
     freeRoom(rm);
-    TBDE_Audit TBDE_Debug printk(KERN_NOTICE
-                                 "[tag_receive] Wake_upped by a signal: sig[0] is 0x%08lx, sig[1] is 0x%08lx\n",
-                                 current->pending.signal.sig[0], current->pending.signal.sig[1]);
+    tbde_notice("[tag_receive] Wake_upped by a signal: sig[0] is 0x%08lx, sig[1] is 0x%08lx\n",
+                current->pending.signal.sig[0], current->pending.signal.sig[1]);
+    module_put(THIS_MODULE);
     return -ERESTART;
   }
 
   if (__sync_add_and_fetch(&curExange->wakeUpALL, 0) == 1) {   // Recived wakeUpAll form tag_ctl
     try_freeExangeRoom(curExange, &rm->lv[level].freeLockCnt); // Libero il puntatore
     freeRoom(rm);
-    printk_tbdeDB("[tag_receive] Recived wakeUpAll form tag_ctl");
+    tbde_db("[tag_receive] Recived wakeUpAll form tag_ctl");
+    module_put(THIS_MODULE);
     return -EUCLEAN;
   }
 
-  printk_tbdeDB("[tag_receive] Data sending ...");
+  tbde_db("[tag_receive] Data sending ...");
   bSize = min(size, curExange->len);
   offset = 0;
   while (bSize - offset > 0) {
@@ -314,7 +342,8 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
   }
   try_freeExangeRoom(curExange, &rm->lv[level].freeLockCnt); // Libero il puntatore
   freeRoom(rm);
-  printk_tbdeDB("[tag_receive] Return data copied");
+  tbde_db("[tag_receive] Return data copied");
+  module_put(THIS_MODULE);
   return bSize;
 }
 
@@ -336,7 +365,7 @@ int tag_ctl_TBDE_AWAKE_ALL(int tag, int command) {
   unsigned long flags;
   int i;
 
-  printk_tbdeDB("[tag_ctl_TBDE_AWAKE_ALL] Request TBDE_AWAKE_ALL at Tag = %d", tag);
+  tbde_info("[tag_ctl_TBDE_AWAKE_ALL] Request TBDE_AWAKE_ALL at Tag = %d", tag);
 
   searchRoom.tag = tag;
 
@@ -348,25 +377,25 @@ int tag_ctl_TBDE_AWAKE_ALL(int tag, int command) {
   }
 
   rm = treeNode2Room_refInc(retTagSearch);
-  printk_tbdeDB("[tag_ctl_TBDE_AWAKE_ALL] Tag to delete found");
+  tbde_db("[tag_ctl_TBDE_AWAKE_ALL] Tag to delete found");
   if (!operationValid(rm)) {
     freeRoom(rm);
     write_unlock_irqrestore(&searchLock, flags);
     return -EBADE;
   }
 
-  printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Making new exanges rooms ...");
+  tbde_db("[tag_ctl_TBDE_REMOVE] Making new exanges rooms ...");
   for (i = 0; i < levelDeep; i++) {
     exLev = createAndSwap_exangeRoom_refInc(rm->lv[i].ex); // exLev è isolata dal resto del sistema
     exangeWakeUpAll(exLev);
 
-    printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Wake_upping readers on level %d ...", i);
+    tbde_db("[tag_ctl_TBDE_REMOVE] Wake_upping readers on level %d ...", i);
     wake_up_all(&exLev->readerQueue);
 
     try_freeExangeRoom(exLev, &rm->lv[i].freeLockCnt); // Libero il mio puntatore
   }
   freeRoom(rm); // Libero il mio puntatore
-  printk_tbde("[tag_ctl_TBDE_REMOVE] All rooms wake_upped");
+  tbde_info("[tag_ctl_TBDE_REMOVE] All rooms wake_upped");
   write_unlock_irqrestore(&searchLock, flags);
   return 0;
 }
@@ -382,7 +411,7 @@ int tag_ctl_TBDE_REMOVE(int tag, int command) {
   unsigned long flags;
   int waiters;
 
-  printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Request TBDE_REMOVE at Tag = %d", tag);
+  tbde_info("[tag_ctl_TBDE_REMOVE] Request TBDE_REMOVE at Tag = %d", tag);
 
   searchRoom.tag = tag;
 
@@ -393,11 +422,11 @@ int tag_ctl_TBDE_REMOVE(int tag, int command) {
     return -ENODATA; // Se non lo trovo, non c'è nulla da eliminare ma lo notifico
   }
   rm = treeNode2Room_refInc(retTag);
-  printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Tag to delete found");
+  tbde_db("[tag_ctl_TBDE_REMOVE] Tag to delete found");
   if (!operationValid(rm)) {
     freeRoom(rm);
     write_unlock_irqrestore(&searchLock, flags);
-    printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Tag to delete permission invalid");
+    tbde_db("[tag_ctl_TBDE_REMOVE] Tag to delete permission invalid");
     return -EBADE;
   }
 
@@ -405,33 +434,33 @@ int tag_ctl_TBDE_REMOVE(int tag, int command) {
   if (waiters != 0) {
     freeRoom(rm);
     write_unlock_irqrestore(&searchLock, flags);
-    printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Tag to delete had %d waiters reader", waiters);
+    tbde_db("[tag_ctl_TBDE_REMOVE] Tag to delete had %d waiters reader", waiters);
     return -EADDRINUSE;
   }
 
-  printk_tbdeDB("[tag_ctl_TBDE_REMOVE] room %p freeing... (tagTree search)", rm);
+  tbde_db("[tag_ctl_TBDE_REMOVE] room %p freeing... (tagTree search)", rm);
   Tree_DeleteNode(tagTree, retTag);
   freeRoom(rm); // free on account of tagTree
 
   if (rm->key != TBDE_IPC_PRIVATE) { // devo trovare la key
     searchRoom.key = rm->key;
-    printk_tbdeDB("[tag_ctl_TBDE_REMOVE] Now will be search key=%d", rm->key);
+    tbde_db("[tag_ctl_TBDE_REMOVE] Now will be search key=%d", rm->key);
     retKey = Tree_SearchNode(keyTree, &searchRoom);
 
     if (retKey) {
-      printk_tbdeDB("[tag_ctl_TBDE_REMOVE] room %p freeing... (keyTree search)", rm);
+      tbde_db("[tag_ctl_TBDE_REMOVE] room %p freeing... (keyTree search)", rm);
       Tree_DeleteNode(keyTree, retKey);
       freeRoom(rm); // free on account of keyTree
     } else {
-      printk_tbdeDB("[tag_ctl_TBDE_REMOVE] ERROR!!! key=%d should be present!!", rm->key);
+      tbde_db("[tag_ctl_TBDE_REMOVE] ERROR!!! key=%d should be present!!", rm->key);
     }
   }
   // libero il lock
   __sync_sub_and_fetch(&roomCount, 1);
   write_unlock_irqrestore(&searchLock, flags);
   freeRoom(rm); // free for my personal lock (after tagTree search)
-  printk_tbde("[tag_ctl_TBDE_REMOVE] Room (%d) are now Deleted, remaning %d rooms", tag,
-              __sync_add_and_fetch(&roomCount, 0));
+  tbde_info("[tag_ctl_TBDE_REMOVE] Room (%d) are now Deleted, remaning %d rooms", tag,
+            __sync_add_and_fetch(&roomCount, 0));
   // TBDE_Audit
   printTrees();
   return 0;
@@ -447,6 +476,7 @@ int tag_ctl_TBDE_REMOVE(int tag, int command) {
 //  EBADE             :=    Permission invalid to execute the operation
 //  EADDRINUSE        :=    Reader in wait on some level
 // --
+//  ENOSYS            :=    sysCall removed
 //  ENOSR             :=    tag negative number
 //  EILSEQ            :=    Command not valid
 // int tag_ctl(int tag, int command);
@@ -455,23 +485,32 @@ __SYSCALL_DEFINEx(2, _tag_ctl, int, tag, int, command) {
 #else
 asmlinkage long tag_ctl(int tag, int command) {
 #endif
-  printk_tbde("[tag_ctl] thread %d call [tag_ctl(%d,%d)]\n", current->pid, tag, command);
-  if (tag < 0)
+  int ret;
+  if (!try_module_get(THIS_MODULE))
+    return -ENOSYS;
+
+  tbde_info("[tag_ctl] thread %d call [tag_ctl(%d,%d)]\n", current->pid, tag, command);
+  if (tag < 0) {
+    module_put(THIS_MODULE);
     return -ENOSR;
+  }
 
   switch (command) {
   case TBDE_AWAKE_ALL:
-    return tag_ctl_TBDE_AWAKE_ALL(tag, command);
+    ret = tag_ctl_TBDE_AWAKE_ALL(tag, command);
+    module_put(THIS_MODULE);
     break;
   case TBDE_REMOVE:
-    return tag_ctl_TBDE_REMOVE(tag, command);
+    ret = tag_ctl_TBDE_REMOVE(tag, command);
+    module_put(THIS_MODULE);
     break;
   default:
-    printk_tbdeDB("[tag_ctl] Invalid Command");
-    return -EILSEQ;
+    tbde_db("[tag_ctl] Invalid Command");
+    module_put(THIS_MODULE);
+    ret = -EILSEQ;
     break;
   }
-  return 0;
+  return ret;
 }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 17, 0)

@@ -42,6 +42,7 @@
 #include <linux/string.h>
 //#include <linux/time.h>
 
+#include "lib/charDev/charDev.h"
 #include "lib/sysCall_Discovery/sysCall_Discovery.h"
 #include "lib/tbde/tbde.h"
 
@@ -88,13 +89,14 @@ int init_module_Default(void) {
     exposeNewSyscall(tag_ctl, 3);
   }
   printk_Main("Module correctly mounted\n");
-
+  devkoInit();
   return 0;
 }
 
 void cleanup_module_Default(void) {
   removeAllSyscall();
   // todo: getup all thread in the system, and after delete all
+  devkoExit();
   unmountTBDE();
   printk_Main("Shutting down\n");
 }

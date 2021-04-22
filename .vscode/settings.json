@@ -58,7 +58,9 @@
         "stdlib.h": "c",
         "stdio.h": "c",
         "fstream": "c",
-        "functional": "c"
+        "functional": "c",
+        "memory": "c",
+        "chardev.h": "c"
     },
     //"C_Cpp.errorSquiggles": "Disabled",
     "editor.formatOnSave": true,

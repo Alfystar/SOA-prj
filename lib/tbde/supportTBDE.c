@@ -38,7 +38,7 @@ void realExangeFree(exangeRoom *ex) {
   if (ex->mes != NULL)
     vfree(ex->mes);
   kfree(ex);
-  printk_tbde("[realExangeFree] free exangeRoom %p", ex);
+  tbde_info("[realExangeFree] free exangeRoom %p", ex);
 }
 
 // 1 = i free the exangeRoom
@@ -46,18 +46,18 @@ void realExangeFree(exangeRoom *ex) {
 // -1 = Problem in pointer
 int try_freeExangeRoom_exex(exangeRoom *ex, atomic_t *freeLockCount, int execFree) {
   if (ex == NULL || freeLockCount == NULL) {
-    printk_tbde("[freeChatRoom] Impossible kfree chatRoom because passing same NULL ptr");
+    tbde_err("[freeChatRoom] Impossible kfree chatRoom because passing same NULL ptr");
     return -1;
   }
 
   if (refcount_read(&ex->refCount) == 0) { // è una stanza vuota, posso eliminarla subito
-    printk_tbdeDB("[try_freeExangeRoom] free exangeRoom %p, with no reference", ex);
+    tbde_db("[try_freeExangeRoom] free exangeRoom %p, with no reference", ex);
     if (execFree)
       realExangeFree(ex);
     return 1;
   }
   if (refcount_dec_not_one(&ex->refCount)) { // Se non sono l'ultimo
-    printk_tbdeDB("[try_freeExangeRoom] free exangeRoom %p, LOOP FREE", ex);
+    tbde_db("[try_freeExangeRoom] free exangeRoom %p, LOOP FREE", ex);
     return 0;
   }
   // Sono l'ultimo, verifico mi sia permesso di fare la free
@@ -96,14 +96,14 @@ void freeRoom(void *data) {
     if (refcount_dec_and_test(&rm->refCount)) {
       for (i = 0; i < levelDeep; i++)
         try_freeExangeRoom(rm->lv[i].ex, &rm->lv[i].freeLockCnt);
-      printk_tbde("[realFreeRoom] kfree of %p room", rm);
+      tbde_info("[realFreeRoom] kfree of %p room", rm);
       kfree(rm);
     } else {
-      printk_tbdeDB("[freeRoom] Decrease refCount of %p room, actual refCount = %d", rm, refcount_read(&rm->refCount));
+      tbde_db("[freeRoom] Decrease refCount of %p room, actual refCount = %d", rm, refcount_read(&rm->refCount));
       return;
     }
   } else {
-    printk_tbdeDB("[freeRoom] Impossible kfree room because passing NULL ptr");
+    tbde_err("[freeRoom] Impossible kfree room because passing NULL ptr");
   }
 }
 
@@ -114,7 +114,7 @@ size_t waitersInRoom(room *p) {
   for (i = 0; i < levelDeep; i++) {
     wLev = refcount_read(&p->lv[i].ex->refCount); // 1 mean notting inside, but valid memory area
     waiters += wLev;
-    printk_tbdeDB("[waitersInRoom] @level = %d had %d waiters reader", i, wLev);
+    tbde_db("[waitersInRoom] @level = %d had %d waiters reader", i, wLev);
   }
   return waiters;
 }
@@ -168,17 +168,16 @@ size_t printRoom(void *data, char *buf, int size) {
   indexBuf += scnprintf(buf, size, "{@tag(%d)-@key(%d)-->%p} [Creator=%d-perm=%d %s]\n", p->tag, p->key, p,
                         p->uid_Creator, p->perm, levState);
   return indexBuf;
-  // todo: implementare il print dei livelli per i driver
 }
 
 void printTrees() {
   char *text;
   size_t len;
   text = vzalloc(4096);
-  printk_tbde("tagTree:");
+  tbde_info("tagTree:");
   len = Tree_Print(tagTree, text, 4096);
   printk(KERN_DEBUG "\n%s", text);
-  printk_tbde("keyTree:");
+  tbde_info("keyTree:");
   len = Tree_Print(keyTree, text, 4096);
   printk(KERN_DEBUG "\n%s", text);
   vfree(text);

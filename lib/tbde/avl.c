@@ -47,10 +47,10 @@ Tree Tree_New(compCallBack comp, printCallBack print, freeDataCallBack freeData)
 void Tree_DelAll(Tree T) {
   if (T) {
     nodeDataFree(T->root, T->freeData);
-    printk_avlDB("[Tree_DelAll] kfree Tree %p", T);
+    avl_db("[Tree_DelAll] kfree Tree %p", T);
     kfree(T);
   } else {
-    printk_avlDB("[Tree_DelAll] kfree impossible because passing NULL ptr");
+    avl_err("[Tree_DelAll] kfree impossible because passing NULL ptr");
   }
 }
 
@@ -407,24 +407,6 @@ void Tree_Replace(Node target, Node source) {
   if (rightTarget != NULL) {
     rightTarget->parent = source;
   }
-
-  /*
-  Node left = source->left;
-  Node right = source->right;
-
-  target->balance = source->balance;
-  target->data = source->data;
-  target->left = left;
-  target->right = right;
-
-  if (left != NULL) {
-    left->parent = target;
-  }
-
-  if (right != NULL) {
-    right->parent = target;
-  }
-  */
 }
 
 Node Tree_RotateLeft(Tree t, Node node) {
@@ -642,11 +624,11 @@ Node Node_New(void *data, Node parent) {
 void *Node_free(Node node) {
   if (node) {
     void *data = node->data;
-    printk_avlDB("[Node_free]kfree node %p", node);
+    avl_db("[Node_free]kfree node %p", node);
     kfree(node);
     return data;
   } else {
-    printk_avlDB("[Node_free] kfree impossible because passing NULL ptr");
+    avl_err("[Node_free] kfree impossible because passing NULL ptr");
     return NULL;
   }
 }

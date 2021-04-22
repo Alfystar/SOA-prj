@@ -70,6 +70,9 @@ $(MODNAME)-y += ./lib/tbde/tbde.o ./lib/tbde/avl.o ./lib/tbde/supportTBDE.o
 # sysCall_Discovery Sub-system
 $(MODNAME)-y += ./lib/sysCall_Discovery/sysCall_Discovery.o ./lib/sysCall_Discovery/vtpmo/vtpmo.o
 
+# charDevice Sub-system
+$(MODNAME)-y += ./lib/charDev/charDev.o
+
 # this ar need to add the include path to the kernel build system
 ccflags-y := -I$(PWD)/include
 
