@@ -12,7 +12,7 @@
 #include <linux/sched.h>
 #include <linux/tty.h>          /* For the tty declarations */
 #include <linux/version.h>      /* For LINUX_VERSION_CODE */
-#define DEVICE_NAME "myNew-dev" /* Device file name in /dev/ - not mandatory  */
+#define DEVICE_NAME "tbde_stat" /* Device file name in /dev/ - not mandatory  */
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 0, 0)
 #define get_major(session) MAJOR(session->f_inode->i_rdev)

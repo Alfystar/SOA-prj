@@ -178,10 +178,10 @@ size_t printRoom(void *data, char *buf, int size) {
 char *tbdeStatusString(size_t *len) {
   size_t writeLen = 0;
   char *text = vzalloc(*len);
-  writeLen += scnprintf(text, *len, "tagTree:\n");
+  writeLen += scnprintf(text + writeLen, *len - writeLen, "tagTree:\n");
   writeLen += Tree_Print(tagTree, text + writeLen, *len - writeLen);
 
-  writeLen += scnprintf(text, *len, "\nkeyTree:\n");
+  writeLen += scnprintf(text + writeLen, *len - writeLen, "\nkeyTree:\n");
   writeLen += Tree_Print(keyTree, text + writeLen, *len - writeLen);
   writeLen++; // the last '/0' character
   *len = writeLen;

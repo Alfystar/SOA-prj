@@ -12,24 +12,25 @@ void freeInstance(instance *inst) {
 }
 
 int dev_open(struct inode *inode, struct file *file) {
-  printk("dev_open");
+  printk("[dev_open]");
   file->private_data = allocInstance();
   return 0;
 }
 
 int dev_release(struct inode *inode, struct file *file) {
-  printk("dev_release");
+  printk("[dev_release]");
   freeInstance(file->private_data);
   return 0;
 }
 
 ssize_t dev_read(struct file *filp, char *buff, size_t len, loff_t *off) {
-  printk("dev_read");
+  instance *inst = filp->private_data;
+  printk("[dev_read] data read:\n%s", inst->text);
   return 0;
 }
 
 ssize_t dev_write(struct file *filp, const char *buff, size_t len, loff_t *off) {
-  printk("dev_write");
+  printk("[dev_write]");
   return 0;
 }
 
@@ -45,6 +46,14 @@ int majorNum;
 dev_t devNo;          // Major and Minor device numbers combined into 32 bits
 struct class *pClass; // class_create will set this
 
+static char *dev_devnode(struct device *dev, umode_t *mode) {
+  printk("\n\n****%s: %d\n\n", __func__, __LINE__);
+  if (mode != NULL)
+    *mode = 0666;
+  return kasprintf(GFP_KERNEL, "%s/%s", MODNAME, dev_name(dev));
+  ;
+}
+
 int devkoInit(void) {
   struct device *pDev;
 
@@ -56,19 +65,19 @@ int devkoInit(void) {
   }
   devNo = MKDEV(majorNum, 0); // Create a dev_t, 32 bit version of numbers
 
-  // Create /sys/class/kmem in preparation of creating /dev/kmem
+  // Create /sys/class/DEVICE_NAME in preparation of creating /dev/DEVICE_NAME
 
-  pClass = class_create(THIS_MODULE, "kmem");
+  pClass = class_create(THIS_MODULE, DEVICE_NAME);
   if (IS_ERR(pClass)) {
-    printk(KERN_WARNING "\ncan't create class");
+    printk(KERN_WARNING "\ncan't create /sys/%s class", DEVICE_NAME);
     unregister_chrdev_region(devNo, 1);
     return -1;
   }
-
-  // Create /dev/kmem for this char dev
-  if (IS_ERR(pDev = device_create(pClass, NULL, devNo, NULL, "kmem"))) {
-    printk(KERN_WARNING "devko.ko can't create device /dev/kmem\n");
-    // class_destroy(pClass);
+  pClass->devnode = dev_devnode;
+  // Create /dev/DEVICE_NAME for this char dev
+  if (IS_ERR(pDev = device_create(pClass, NULL, devNo, NULL, DEVICE_NAME))) {
+    printk(KERN_WARNING "%s.ko can't create device /dev/%s/%s\n", MODNAME, DEVICE_NAME);
+    class_destroy(pClass);
     unregister_chrdev_region(devNo, 1);
     return -1;
   }

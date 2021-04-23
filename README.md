@@ -11,6 +11,8 @@
 - [x] Room wake_up All
 - [x] Room send/recive message
 - [x] Room recive wakeup after signal
+
+- [x] Super User have alwais permission succes
 - [ ] Room driver print state
 
 ### Build and load
