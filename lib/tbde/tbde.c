@@ -498,18 +498,16 @@ asmlinkage long tag_ctl(int tag, int command) {
   switch (command) {
   case TBDE_AWAKE_ALL:
     ret = tag_ctl_TBDE_AWAKE_ALL(tag, command);
-    module_put(THIS_MODULE);
     break;
   case TBDE_REMOVE:
     ret = tag_ctl_TBDE_REMOVE(tag, command);
-    module_put(THIS_MODULE);
     break;
   default:
     tbde_db("[tag_ctl] Invalid Command");
-    module_put(THIS_MODULE);
     ret = -EILSEQ;
     break;
   }
+  module_put(THIS_MODULE);
   return ret;
 }
 

@@ -51,12 +51,14 @@ static int dev_release(struct inode *, struct file *);
 static ssize_t dev_write(struct file *, const char *, size_t, loff_t *);
 static long dev_ioctl(struct file *filp, unsigned int command, unsigned long param);
 
-static struct file_operations fileOps = {.owner = THIS_MODULE, // do not forget this
-                                         .write = dev_write,
-                                         .read = dev_read,
-                                         .open = dev_open,
-                                         .release = dev_release,
-                                         .unlocked_ioctl = dev_ioctl};
+static struct file_operations fileOps = {
+    .owner = THIS_MODULE,       // do not forget this
+ //   .write = dev_write,         //
+   // .read = dev_read,           //
+    .open = dev_open,           //
+   // .release = dev_release,     //
+   // .unlocked_ioctl = dev_ioctl //
+};
 
 extern int majorNum;
 extern dev_t devNo;          // Major and Minor device numbers combined into 32 bits

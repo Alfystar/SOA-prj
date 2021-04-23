@@ -3,7 +3,8 @@
 object_state objects[MINORS];
 
 static int dev_open(struct inode *inode, struct file *file) {
-
+  printk("DevOpen");
+  return 0;
   int minor;
   minor = get_minor(file);
 

@@ -19,11 +19,11 @@
 
 // Level 0 = no message
 // Level 1 = err message
-// Level 2 = Info messsage
-// Level 3 = notice messsage
+// Level 2 = notice messsage
+// Level 3 = Info messsage
 // Level 4 = dbg message
 // Level 5 = all message
-#define TBDE_VerboseLevel 1
+#define TBDE_VerboseLevel 2
 #define TBDE_err _codeActive(1, TBDE_VerboseLevel)
 #define TBDE_notice _codeActive(2, TBDE_VerboseLevel)
 #define TBDE_info _codeActive(3, TBDE_VerboseLevel)
