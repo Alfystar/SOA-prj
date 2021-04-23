@@ -127,6 +127,7 @@ typedef struct room_ {
     }                                                                                                                  \
   }
 
+// from the node in the tree, get the room pointer, and increase his ref count
 #define treeNode2Room_refInc(trNode)                                                                                   \
   ({                                                                                                                   \
     room *__ret;                                                                                                       \
@@ -210,6 +211,7 @@ int tagRoomCMP(void *a, void *b); // return -1:a<b | 0:a==b | 1:a>b
 int keyRoomCMP(void *a, void *b); // return -1:a<b | 0:a==b | 1:a>b
 size_t printRoom(void *data, char *buf, int size);
 
+char *tbdeStatusString(size_t *len);
 void printTrees(void);
 
 #endif

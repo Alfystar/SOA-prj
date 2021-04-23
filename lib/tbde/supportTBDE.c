@@ -13,19 +13,23 @@ int permAmmisible(int perm) {
 }
 
 int operationValid(room *p) {
+  if (current_cred()->uid.val == 0) // se è il super utente è SEMPRE valido
+    return 1;
+
   switch (p->perm) {
   case TBDE_OPEN_ROOM:
     return 1;
   case TBDE_PRIVATE_ROOM:
-    if (p->uid_Creator != current->tgid)
-      return 0;
-    else
+    if (p->uid_Creator == current->tgid) // se è il mio processo è valido
       return 1;
+    else
+      return 0;
   default:
     return 0;
     break;
   }
 }
+
 exangeRoom *makeExangeRoom(void) {
   exangeRoom *ex;
   ex = kzalloc(sizeof(exangeRoom), GFP_KERNEL | GFP_NOWAIT);
@@ -170,15 +174,24 @@ size_t printRoom(void *data, char *buf, int size) {
   return indexBuf;
 }
 
+// *len := pointer to a desidered maxSize, and at the end are the character writed
+char *tbdeStatusString(size_t *len) {
+  size_t writeLen = 0;
+  char *text = vzalloc(*len);
+  writeLen += scnprintf(text, *len, "tagTree:\n");
+  writeLen += Tree_Print(tagTree, text + writeLen, *len - writeLen);
+
+  writeLen += scnprintf(text, *len, "\nkeyTree:\n");
+  writeLen += Tree_Print(keyTree, text + writeLen, *len - writeLen);
+  writeLen++; // the last '/0' character
+  *len = writeLen;
+  return text;
+}
+
 void printTrees() {
   char *text;
-  size_t len;
-  text = vzalloc(4096);
-  tbde_info("tagTree:");
-  len = Tree_Print(tagTree, text, 4096);
-  printk(KERN_DEBUG "\n%s", text);
-  tbde_info("keyTree:");
-  len = Tree_Print(keyTree, text, 4096);
+  size_t len = 4096;
+  text = tbdeStatusString(&len);
   printk(KERN_DEBUG "\n%s", text);
   vfree(text);
 }
