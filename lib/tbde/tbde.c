@@ -266,7 +266,7 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
   Node ret;
   int retWait;
   unsigned long flags;
-  size_t bSize, noCopy, offset;
+  size_t bSize; //, noCopy, offset;
 
   if (!try_module_get(THIS_MODULE))
     return -ENOSYS;
@@ -335,11 +335,12 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
 
   tbde_db("[tag_receive] Data sending ...");
   bSize = min(size, curExange->len);
-  offset = 0;
-  while (bSize - offset > 0) {
-    noCopy = copy_to_user(buffer + offset, curExange->mes + offset, bSize - offset);
-    offset += (bSize - offset) - noCopy; // offset += (current copied ask) - fail copied current
-  }
+  // offset = 0;
+  // while (bSize - offset > 0) {
+  //  noCopy = copy_to_user(buffer + offset, curExange->mes + offset, bSize - offset);
+  //  offset += (bSize - offset) - noCopy; // offset += (current copied ask) - fail copied current
+  //}
+  data2UserForce(curExange->mes, buffer, bSize);
   try_freeExangeRoom(curExange, &rm->lv[level].freeLockCnt); // Libero il puntatore
   freeRoom(rm);
   tbde_db("[tag_receive] Return data copied");

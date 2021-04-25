@@ -177,13 +177,13 @@ size_t printRoom(void *data, char *buf, int size) {
 // *len := pointer to a desidered maxSize, and at the end are the character writed
 char *tbdeStatusString(size_t *len) {
   size_t writeLen = 0;
-  char *text = vzalloc(*len);
+  char *text = vzalloc(*len - 1);
   writeLen += scnprintf(text + writeLen, *len - writeLen, "tagTree:\n");
   writeLen += Tree_Print(tagTree, text + writeLen, *len - writeLen);
 
   writeLen += scnprintf(text + writeLen, *len - writeLen, "\nkeyTree:\n");
   writeLen += Tree_Print(keyTree, text + writeLen, *len - writeLen);
-  writeLen++; // the last '/0' character
+  text[writeLen++] = '\0';
   *len = writeLen;
   return text;
 }

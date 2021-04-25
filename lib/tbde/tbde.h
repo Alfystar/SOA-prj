@@ -165,6 +165,17 @@ typedef struct room_ {
   } while (0)
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#define data2UserForce(src, dest, bSize)                                                                               \
+  ({                                                                                                                   \
+    ssize_t offset = 0, noCopy;                                                                                        \
+    while (bSize - offset > 0) {                                                                                       \
+      noCopy = copy_to_user(dest + offset, src + offset, bSize - offset);                                              \
+      offset += (bSize - offset) - noCopy;                                                                             \
+    }                                                                                                                  \
+  })
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 extern Tree keyTree, tagTree;
 extern rwlock_t searchLock;
 extern unsigned int roomCount; // Safe increment thanks searchLock
