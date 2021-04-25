@@ -13,7 +13,7 @@
 - [x] Room recive wakeup after signal
 
 - [x] Super User have alwais permission succes
-- [ ] Room driver print state
+- [x] Room driver print state
 
 ### Build and load
 To build and load the project run:

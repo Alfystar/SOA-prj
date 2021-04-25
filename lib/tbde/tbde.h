@@ -119,13 +119,16 @@ typedef struct room_ {
   })
 
 // tagCounting && tagTree are module variable
-#define roomTagInsert_Force(rm_ptr)                                                                                    \
-  while (true) {                                                                                                       \
-    rm_ptr->tag = positiveAtomic_inc(tagCounting);                                                                     \
-    if (Tree_Insert(tagTree, rm_ptr) == NULL) {                                                                        \
-      break;                                                                                                           \
+#define roomTagInsert_Force(rm_ptr, roomCount)                                                                         \
+  ({                                                                                                                   \
+    while (true) {                                                                                                     \
+      rm_ptr->tag = positiveAtomic_inc(tagCounting);                                                                   \
+      if (Tree_Insert(tagTree, rm_ptr) == NULL) {                                                                      \
+        break;                                                                                                         \
+      }                                                                                                                \
     }                                                                                                                  \
-  }
+    __sync_add_and_fetch(&roomCount, 1);                                                                               \
+  })
 
 // from the node in the tree, get the room pointer, and increase his ref count
 #define treeNode2Room_refInc(trNode)                                                                                   \

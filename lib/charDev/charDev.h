@@ -29,7 +29,7 @@
 // Level 3 = Info messsage
 // Level 4 = dbg message
 // Level 5 = all message
-#define DEVICE_VerboseLevel 5
+#define DEVICE_VerboseLevel 2
 #define DEVICE_err _codeActive(1, DEVICE_VerboseLevel)
 #define DEVICE_notice _codeActive(2, DEVICE_VerboseLevel)
 #define DEVICE_info _codeActive(3, DEVICE_VerboseLevel)

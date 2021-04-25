@@ -44,10 +44,11 @@ int tag_get_CREATE(int key, int command, int permission) {
     tbde_db("[tag_get_CREATE a] room %p, actual refCount = %d", rm, refcount_read(&rm->refCount));
 
     write_lock_irqsave(&searchLock, flags);
-    roomTagInsert_Force(rm);
-    __sync_add_and_fetch(&roomCount, 1);
+    roomTagInsert_Force(rm, roomCount);
     write_unlock_irqrestore(&searchLock, flags);
-  } else {                          // Key public
+
+  } else { // Key public
+
     refcount_set(&rm->refCount, 2); // Lock per conto di keyTree e tagTree
     tbde_db("[tag_get_CREATE a] room %p, actual refCount = %d", rm, refcount_read(&rm->refCount));
     write_lock_irqsave(&searchLock, flags);
@@ -59,14 +60,11 @@ int tag_get_CREATE(int key, int command, int permission) {
     }
     // Nodo aggiunto con successo all'albero delle key
     // Sono ancora in sezione critica
-    roomTagInsert_Force(rm);
+    roomTagInsert_Force(rm, roomCount);
     write_unlock_irqrestore(&searchLock, flags);
-    __sync_add_and_fetch(&roomCount, 1);
   }
   tbde_info("[tag_get_CREATE] New room Create and added to the Searches Tree");
-  // TBDE_Audit
-  printTrees();
-
+  TBDE_Db printTrees();
   return rm->tag;
 }
 
@@ -335,11 +333,6 @@ asmlinkage long tag_receive(int tag, int level, char *buffer, size_t size) {
 
   tbde_db("[tag_receive] Data sending ...");
   bSize = min(size, curExange->len);
-  // offset = 0;
-  // while (bSize - offset > 0) {
-  //  noCopy = copy_to_user(buffer + offset, curExange->mes + offset, bSize - offset);
-  //  offset += (bSize - offset) - noCopy; // offset += (current copied ask) - fail copied current
-  //}
   data2UserForce(curExange->mes, buffer, bSize);
   try_freeExangeRoom(curExange, &rm->lv[level].freeLockCnt); // Libero il puntatore
   freeRoom(rm);
@@ -446,24 +439,23 @@ int tag_ctl_TBDE_REMOVE(int tag, int command) {
   if (rm->key != TBDE_IPC_PRIVATE) { // devo trovare la key
     searchRoom.key = rm->key;
     tbde_db("[tag_ctl_TBDE_REMOVE] Now will be search key=%d", rm->key);
-    retKey = Tree_SearchNode(keyTree, &searchRoom);
 
+    retKey = Tree_SearchNode(keyTree, &searchRoom);
     if (retKey) {
       tbde_db("[tag_ctl_TBDE_REMOVE] room %p freeing... (keyTree search)", rm);
       Tree_DeleteNode(keyTree, retKey);
       freeRoom(rm); // free on account of keyTree
     } else {
-      tbde_db("[tag_ctl_TBDE_REMOVE] ERROR!!! key=%d should be present!!", rm->key);
+      tbde_err("[tag_ctl_TBDE_REMOVE] ERROR!!! key=%d should be present!!", rm->key);
     }
   }
-  // libero il lock
   __sync_sub_and_fetch(&roomCount, 1);
-  write_unlock_irqrestore(&searchLock, flags);
-  freeRoom(rm); // free for my personal lock (after tagTree search)
+  write_unlock_irqrestore(&searchLock, flags); // libero il lock
+
+  freeRoom(rm); // free for my personal lock (after tagTree & keyTree search && remote)
   tbde_info("[tag_ctl_TBDE_REMOVE] Room (%d) are now Deleted, remaning %d rooms", tag,
             __sync_add_and_fetch(&roomCount, 0));
-  // TBDE_Audit
-  printTrees();
+  TBDE_Db printTrees();
   return 0;
 }
 
