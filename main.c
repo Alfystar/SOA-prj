@@ -76,13 +76,16 @@ module_param_array(sysCallNum, int, NULL, 0444); // only readable
 
 /* Routine to execute when loading the module. */
 int init_module_Default(void) {
+  int error;
   int freeFound;
   printk_Main("Initializing\n");
 
   freeFound = foundFree_entries(4);
   printk_Main("Found %d entries\n", freeFound);
   if (freeFound > 0) {
-    initTBDE();
+    error = initTBDE();
+    if (error)
+      return error;
     exposeNewSyscall(tag_get, 0);
     exposeNewSyscall(tag_send, 1);
     exposeNewSyscall(tag_receive, 2);

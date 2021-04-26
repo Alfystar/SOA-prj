@@ -8,15 +8,51 @@ rwlock_t searchLock;
 unsigned int roomCount;
 int tagCounting;
 
-void initTBDE() {
+int MAX_ROOM;
+module_param(MAX_ROOM, int, 0444); // only to read
+
+ssize_t var_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf) {
+  tbde_db("[var_show]");
+  return sprintf(buf, "%d\n", MAX_ROOM);
+}
+
+ssize_t var_store(struct kobject *kobj, struct kobj_attribute *attr, const char *buf, size_t count) {
+  unsigned int passed;
+  tbde_db("[var_store] @count = %ld", count);
+  sscanf(buf, "%du", &passed);
+  if (passed >= min_sys_ROOM && passed >= roomCount)
+    MAX_ROOM = passed;
+  return count;
+}
+struct kobject *MAX_ROOM_kobj;
+struct kobj_attribute kobj_attr_MAX_ROOM = __ATTR(MAX_ROOM, 0664, var_show, var_store); // for read and write
+int initTBDE() {
+  int error = 0;
+  tbde_info("Initialization MAX_ROOM kobj\n");
+
+  // the kernel_kobj variable points to the /sys/kernel object
+  MAX_ROOM_kobj = kobject_create_and_add(MODNAME, kernel_kobj);
+  if (!MAX_ROOM_kobj)
+    return -ENOMEM;
+
+  error = sysfs_create_file(MAX_ROOM_kobj, &kobj_attr_MAX_ROOM.attr); // actually creating an attribute
+
+  if (error) {
+    tbde_info("failed to create the target kobj\n");
+    return error;
+  }
+
   tagTree = Tree_New(tagRoomCMP, printRoom, freeRoom);
   keyTree = Tree_New(keyRoomCMP, printRoom, freeRoom);
   roomCount = 0;
   tagCounting = 0;
   rwlock_init(&searchLock);
+  MAX_ROOM = min_sys_ROOM;
+  return 0;
 }
 
 void unmountTBDE() {
+  kobject_put(MAX_ROOM_kobj);
   Tree_DelAll(tagTree);
   tagTree = NULL;
   Tree_DelAll(keyTree);

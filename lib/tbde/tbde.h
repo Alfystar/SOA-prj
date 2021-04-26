@@ -8,14 +8,18 @@
 
 #include "avl.h"
 #include <linux/errno.h>
+#include <linux/fs.h>
+#include <linux/kobject.h>
 #include <linux/param.h>
 #include <linux/preempt.h>
 #include <linux/syscalls.h>
+#include <linux/sysfs.h>
 #include <linux/uaccess.h>
 #include <linux/version.h>
 #include <linux/vmalloc.h>
 #include <linux/wait.h>
-#define MAX_ROOM 256 // todo: renderlo un valore parametrico
+
+#define min_sys_ROOM 256
 
 // Level 0 = no message
 // Level 1 = err message
@@ -183,9 +187,10 @@ extern Tree keyTree, tagTree;
 extern rwlock_t searchLock;
 extern unsigned int roomCount; // Safe increment thanks searchLock
 extern int tagCounting;        // Safe increment thanks searchLock
+extern int MAX_ROOM;
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-void initTBDE(void);    // shuld be call BEFORE installation of syscall
+int initTBDE(void);     // shuld be call BEFORE installation of syscall
 void unmountTBDE(void); // shuld be call AFTER installation of syscall
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 17, 0)

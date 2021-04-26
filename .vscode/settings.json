@@ -75,7 +75,8 @@
         "thread": "c",
         "ratio": "c",
         "typeinfo": "c",
-        "core": "c"
+        "core": "c",
+        "kobject.h": "c"
     },
     //"C_Cpp.errorSquiggles": "Disabled",
     "editor.formatOnSave": true,
