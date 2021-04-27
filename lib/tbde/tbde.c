@@ -30,7 +30,7 @@ int initTBDE() {
   int error = 0;
   tbde_info("Initialization MAX_ROOM kobj\n");
 
-  // the kernel_kobj variable points to the /sys/kernel object
+  // the kernel_kobj variable points to the /sys/kernel/MODNAME object
   MAX_ROOM_kobj = kobject_create_and_add(MODNAME, kernel_kobj);
   if (!MAX_ROOM_kobj)
     return -ENOMEM;
