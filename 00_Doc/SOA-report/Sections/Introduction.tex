@@ -1,0 +1,47 @@
+\section{Introduction}
+
+Lo scopo del sistema è di mettere in cominicazione un numero imprecisato di
+processi all'interno dello stesso kernel, e permettere lo scambio istanteneo
+di pacchetti tra 1 writer e i reader in attesa su di un canale.
+
+All'arrivo di un Writer, tutti i reader in attesa su questo canale vengono
+svegliati e ricevono il dato trasmesso dal Writer.
+
+Il sistema è organizzato in 2 livelli di ricerca:
+\begin{enumerate}
+    \item \textbf{Tag-level search} \\
+    Nel codice ci si riferisce a lui col termine "stanza", ne possono esistere fino a 256 di default,
+    ma è possibile variare a run-time questo limite facendolo crescere a piacere, o decrescere fino al
+    numero di stanze attualmente aperto, e comunque non meno di 256.
+    \item \textbf{Level-level} \\
+    Ogni stanza, possiede a sua volta 32 sotto livelli dove effettivamente i reader e writer parlano
+\end{enumerate}
+
+Segue che nella stessa stanza(tag) è possibile svolgere in parallelo più conversazioni, e far accodare
+diversi thread su diversi topic, fino al limite di 32 topic per stanza.
+
+In aggiunta a queste 2, le stanze possono possedere un "nome" publico, detto key, che permette di
+indicizzarle e farle trovare anche ad altri processi semplicemente cercando la key corrispondente.
+
+Per interagire con il sistema sono state implementate 4 system-call "rubate"
+alla
+sys-call table dalle funzioni che puntavano alla \verb|sys_ni_syscall|, ovvero quelle ancora implementate nel kernel.
+
+\begin{enumerate}
+    \item \verb|int tag_get(int key, int command, int permission)|\\
+    Per me mezzo di questa sys-call è possibile creare una stanza publica o privata (permission)
+    rispetto ai thread di altri processi, e scegliere se deve essere indicizzata globalmente o meno (key)
+    \item \verb|int tag_send(int tag, int level, char* buffer, size_t size)|\\
+    Questa sys-call permette a un writer di publicare nella stanza desiderata al livello voluto
+    \item \verb|int tag_receive(int tag, int level, char* buffer, size_t size)|\\
+    Questa sys-call mette un reader in attesa nella stanza al livello voluto finchè un writer non la risveglia
+    \item \verb|int tag_ctl(int tag, int command)|\\
+    Con quest'ultima syscall è possibile inviare dei comandi all'intera stanza, nella fattispecie la chiusura e la wake-up-all
+\end{enumerate}
+Per avere più dettagli sulle richieste delle interfacce si faccia riferimento alla pagina ufficiale del progetto:
+\href{https://francescoquaglia.github.io/TEACHING/AOS/PROJECTS/project-specification-2020-2021.html}{SOA-prg}
+
+\rule{\textwidth}{0.2pt}
+
+L'architettura del sistema è stata pensata per minimizzare il tempo di attesa percepito dai thread durante lo scambio di messaggi,
+penalizzando lievemente le operazioni di creazione-controllo-distruzione sulle stanze all'interno del sistema.

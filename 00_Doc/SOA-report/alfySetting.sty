@@ -1,0 +1,20 @@
+% --- Alfy customization ---
+
+\usepackage[ddmmyyyy]{datetime}
+
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=cyan, urlcolor=blue}
+
+\renewenvironment{abstract}
+{ % beging part pre-append
+	\vfill
+	{\LARGE Abstract}
+	\rule{\textwidth}{0.5pt}
+	\par
+	\begin{minipage}{0.95\textwidth}
+		\par
+	}
+	{% end part post-append
+		\par\noindent\rule{\textwidth}{0.5pt}
+	\end{minipage}
+}

@@ -1,11 +1,25 @@
-% Author - Jon Arnt Kårstad, NTNU IMT
-\documentclass{article}
+\documentclass[a4paper,10pt]{article}
+%\documentclass[a4paper,10pt]{scrartcl}
 
-% Importing settings from our file "setup.sty"
+\usepackage[utf8]{inputenc}
 \usepackage{setup}
+\usepackage{alfySetting}
 
-% Beginning of document
+\title{SOA Report}
+\author{Emanuele Alfano}
+\date{\today}
+
+\pdfinfo{%
+  /Title    (Report)
+  /Author   (Emanuele Alfano)
+  /Creator  ()
+  /Producer ()
+  /Subject  ()
+  /Keywords (Sistemi Operativi Avanzati)
+}
+
 \begin{document}
+%\maketitle
 
 % Inserting title page
 \import{./Sections/}{title}
@@ -28,9 +42,9 @@
 % Introduction explaining this LaTeX-template
 \import{./Sections/}{Introduction}
 
+
 % Printing bibliography
 \newpage
 \printbibliography[heading = bibintoc]    % 'bibintoc' inserts our bibliography into the table of contents
 
-% End of document
 \end{document}
