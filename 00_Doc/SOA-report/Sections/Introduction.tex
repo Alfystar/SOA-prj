@@ -1,17 +1,19 @@
 \section{Introduzione}
 
-Lo scopo del sistema è di mettere in cominicazione un numero imprecisato di
-processi all'interno dello stesso kernel, e permettere lo scambio istanteneo
-di pacchetti tra 1 \Writer e i \Reader in attesa su di un canale.
+Lo scopo del sistema è di mettere in cominicazione un numero imprecisato di processi all'interno dello stesso kernel, e
+permettere lo scambio istanteneo di pacchetti tra 1 \Writer e i \Reader in attesa su di un canale.
 
-All'arrivo di 1-\Writer ed n-\Reader precedentemente in attesa sul canale.
+La comunicazione viene svolta nel minor tempo possibile e adottando un algorimo \textit{Semi-Lock Free}
 
-Il sistema è organizzato in 2 livelli di ricerca:
+Il comportamento desiderato è che l'arrivo di 1-\Writer che scrive su di un canale, porta al risveglio degli n-\Reader
+precedentemente in attesa sullo stesso, il tutto nel minor tempo possibile.
+
+Il canale di comunicazione è definito su 2 livelli di ricerca:
 \begin{enumerate}
     \item \textbf{Tag-level search} \\
-    Nel codice ci si riferisce a lui col termine "stanza", ne possono esistere fino a 256 di default,
+    Stanze effettivamente instanziate nel sistema, di default ne possono esistere fino a 256,
     ma è possibile variare a \RunTime questo limite facendolo crescere a piacere, o decrescere fino al
-    numero di stanze attualmente aperto, e comunque non meno di 256.
+    numero di stanze attualmente aperto, e comunque non meno di 256 \textbf{nell'implementazione di questo progetto}.
     \item \textbf{Topic-level} \\
     Ogni stanza, possiede a sua volta 32 sotto livelli dove effettivamente i \Reader  e \Writer  parlano
 \end{enumerate}
@@ -19,8 +21,8 @@ Il sistema è organizzato in 2 livelli di ricerca:
 Segue che nella stessa stanza(\tagSys) è possibile svolgere in parallelo più conversazioni, e far accodare
 diversi thread su diversi topic, fino al limite di 32 \textit{topic} per stanza.
 
-In aggiunta a queste 2, le stanze possono possedere un "nome" publico, detto \keySys, che permette di
-indicizzarle e farle trovare anche ad altri processi semplicemente cercando la key corrispondente.
+Le stanze possono essere pubbliche, e in tal caso gli si associa una \keySys, o private, e in tal caso la \tagSys è
+nota solo a chi ha creato la stanza.
 
 Per interagire con il sistema sono state implementate 4 system-call "rubate" alla sys-call table dalle funzioni che
 puntavano alla \verb|sys_ni_syscall|, ovvero quelle ancora implementate nel kernel.

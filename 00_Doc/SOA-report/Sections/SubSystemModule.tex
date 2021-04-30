@@ -1,6 +1,6 @@
 \section{SubSystem of Module}
 
-Il progetto è organizzato in 3 diverse macro aree:
+Il progetto è organizzato in 3 diversi sotto sistemi::
 \begin{enumerate}
 \item \nameref{SysCallDiscovery} \\
     Sviluppato direttamente dal repository del professore
@@ -13,10 +13,11 @@ Il progetto è organizzato in 3 diverse macro aree:
     caratteri
 \end{enumerate}
 
-I sotto organizzati affinchè lavorino con il maggior livello di interdipendenza possibile, facendoli mettere in
+I quali sono organizzati affinché lavorino con il maggior livello di interdipendenza possibile, facendoli mettere in
 comunicazione dentro \textit{main.c}.
 
 \subsection{SysCall Discovery} \label{SysCallDiscovery}
+
 Il Sotto-sistema che si occupa di ricercare la posizione all'interno della memoria della \verb|sys_call_table| è stato
 sviluppato partendo dal lavoro del professore Francesco Quaglia
 (\href{https://github.com/FrancescoQuaglia/Linux-sys_call_table-discoverer}{Git repository}).
@@ -27,37 +28,37 @@ adattato per diventare una libreria del sistema che espone la funzionalità di m
 ``Libere'' (le syscall che puntano a \verb|sys_ni_syscall|) necessarie.
 
 Esso comincia una ricerca lineare lungo i primi 4GB della Ram, e verifica, byte per byte, la struttura della memoria
-sottostante, se essa concide con quella della \verb|sys_call_table| nell'area di memoria che sta osservando allora la
-considera la \verb|sys_call_table|, per evitare possibili falsi positivi, vengono usate le coordinate di 7 diverse
-funzioni non implementate, così da minimizzare il rischio di falsi positivi.
+sottostante, se essa coincide con quella della \verb|sys_call_table| nell'area di memoria in esame.
+Se il test ha successo, allora l'area di memoria trovata viene considera la \verb|sys_call_table|.
+Il rischio di falsi positivi tuttavia esiste, e per minimizzare un simile rischio sono state utilizzate gli
+spiazzamenti di 7 diverse SysCall non implementate, così da rendere minimo il rischio di falsi positivi.
 
-Con questo metodo, attraverso una scansione lineare di tutto l'address space è possibile trovare la posizione
-della \verb|sys_call_table| evitando falsi positivi.
+Mediante questo metodo di attraversamento lineare di tutto l'address space è viene trovata la
+posizione della \verb|sys_call_table| evitando falsi positivi.
 
 Le posizioni trovate, vengono salvate su un array e la libreria permette di modificare queste entry.
-Durante lo smontamento del modulo, la libreria si occupa di ripristinare la tabella. Ciò è verificabile montando e
-smontando ripetutamene il modulo, se le syscall non fossero ripristinate, sarebbe impossibile individuare nuovamente la
-tabella.
+Durante lo smontamento del modulo, la libreria si occupa di ripristinare la tabella alla sua forma originale.
+Ciò è verificabile montando e smontando ripetutamene il modulo: se le syscall non fossero ripristinate, sarebbe
+impossibile individuare nuovamente la tabella.
 \newpage
 
 
 \subsection{Tag-Based Data Exange} \label{tbde}
 
-Il cuore del progetto (lo scambio di messaggi tra processi diversi) viene realizzato da questo Sotto sistema.
+Il cuore del progetto (lo scambio di messaggi tra processi) viene realizzato dal TBDE SubSystem.
 
-Per poter svolgere la funzione principale del sistema, si è scelto di organizzare la struttura dati in:
+Per poter svolgere la sua funzione, si è scelto di organizzare le strutture dati in:
 \begin{description}
 \item[AVL-Tree]:\\
-    Il sistema è formato da  2 Alberi-AVL di ricerca, \tagTree e \keyTree, essi permettono di indicizzare in
-    maniera efficiente le \textbf{Stanze} per \tagSys e per \keySys. \\
-    L'albero principale è il \tagTree, mentre il \keyTree è l'albero di supporto per una ricerca più efficiente delle
+    Il sistema usa 2 Alberi-AVL di ricerca, \tagTree e \keyTree, per indicizzare in maniera efficiente le
+    \textbf{Stanze} per \tagSys e per \keySys. \\
+    L'albero principale è il \tagTree, mentre il \keyTree è di supporto per la ricerca efficiente delle
     stanze con visibilità ``pubblica''.\\
-    Gli alberi sono sincronizzati mediante degli \texttt{Spinlock RW} che permettono di svolgere in reale parallelismo
-    le operazioni di ricerca delle stanze (eseguite per le operazioni di comunicazione), e vincolano a 1 thread alla
-    volta per le operazioni di:
+    Gli alberi sono sincronizzati mediante degli \texttt{Spinlock RW} che permettono di svolgere in \textbf{reale
+    parallelismo tutte le operazioni comunicazione} e vincolano a 1 thread alla volta per le operazioni di:
     \begin{itemize}
     \item \textit{Aggiunta} \\
-        Creazione di una stanza, pubblica o privata, con i permessi richiesti\\
+        Creazione di una stanza, pubblica o privata, con i permessi richiesti:\\
         (\texttt{aperta a tutti}/\texttt{solo ai thread del processo creante})
     \item \textit{Rimozione} \\
         Rimozione di una stanza, se i permessi lo permettono, il SUPER-UTENTE è sempre considerato valido
@@ -72,19 +73,29 @@ Per poter svolgere la funzione principale del sistema, si è scelto di organizza
     RCU, riferirsi all'approfondimento alla sezione \nameref{treePerf}.
     \end{small}
 
-    I nodi degli Alberi puntano alle \textbf{Stanze} in-stanziate nel sistema, non una copia personale per l'albero, ma
-    proprio la stessa istanza, ciò implica che i 2 alberi devono essere coinsistenti tra di loro, e che il lock
-    descritto precedentemente, copre contemporaneamente entrambi.
+    I nodi degli Alberi puntano alle \textbf{Stanze} allocate nel sistema, non una copia personale per l'albero, ma
+    proprio la stessa istanza, ciò implica che i 2 alberi devono essere consistenti tra di loro, e che il lock
+    descritto precedentemente, copre contemporaneamente entrambe le strutture dati.
 
 \item[Stanze] (\textit{Room}):\\
         Il nodo della \textbf{Stanza} è considerabile come un oggetto allocato nell'heap del kernel, si è reso
         quindi necessario usare le API dei \texttt{refcount} presenti all'interno del kernel. Il contatore cresce al
-        crescere    degli oggetti che la riferiscono, e decresce alla loro rimozione, il thread che la porta
+        crescere degli oggetti che la riferiscono, e decresce alla loro rimozione, il thread che la porta
         effettivamente a 0 il contatore esegue anche le operazioni di liberazione della memoria.
 
-\item[Topic] (\textit{exangeRoom}):\\
-    Ogni stanza ha a sua volta 32 \texttt{exangeRoom} (i Topic), che permettono lo scambio effettivo delle informazioni
+\item[Topic] (\exangeRoom):\\
+    Ogni stanza ha a sua volta 32 \exangeRoom (i Topic), che permettono lo scambio effettivo delle informazioni
     tra 1 \Writer e gli n-\Reader precedentemente in attesa su questo livello dall'arrivo del precedente \Writer.
+
+    Ognuna delle \exangeRoom è anch'essa un oggetto del sistema, e viene gestita con le API dei \texttt{refcount},
+    l'unica differenza è che per le \exangeRoom risulta ammissibile che la stanza sia valida con un contatore a 0,
+    questo perchè le \exangeRoom contengono i \Reader in attesa su quel Topic, ed è possibile che un Topic sia
+    senza \Reader in attesa, questa scelta è stata presa allo scopo di massimizzare i tempi di risposta del sistema,
+    ed evitare incoerenze.
+    Questa scelta ha però generato la necessità di un uso non proprio lecito delle API di \texttt{refcount},
+    poichéè per queste API un refcount = 0 equivale a un area di memoria che deve essere liberata, e non viene permesso
+    l'incremento. Per ovviare al problema , si è sostituita la \verb|refcount_inc| con il suo equivalente
+    \verb|atomic_inc|, che però bypassa i check di consistenza.
 
     Per approfondire il comportamento del sistema nello scambio di messaggi fare riferimento alla sezione
     \nameref{exangeDataProtocol}.
@@ -96,56 +107,135 @@ Per poter svolgere la funzione principale del sistema, si è scelto di organizza
 
 \subsubsection{Exange Data protocol} \label{exangeDataProtocol}
 
+Fin dall'inizio della sua progettazione, l'obiettivo principale del sistema è stato permettere a un \Writer di
+comunicare con tutti gli n-\Reader precedente accodati sul Topic, nel minor tempo possibile ed evitando lock
+di sincronizzazione, il risultato è un sistema rapido e snello, che ha come \textbf{unico lock} un \textit{custom lock
+di
+enable/disable della Free} (vedi seguito per dettagli), che comunque rallenta al più per un paio di cicli macchina, ma
+evita una rara, seppur possibile, corsa critica nell'accesso a un area di memoria.
+
+Per accodare e addormentare i \Reader in attesa sono state utilizzate le  \texttt{API di Wait-Queue} del Kernel che già
+evitano il problema del \underline{Wake up Lost Problem}.
+
 Il protocollo di scambio dati è progettato per garantire che un \Writer possa prendere tutti i \Reader accodati fino al
 momento del suo arrivo, evitando che 2 \Writer possano parlare agli stessi \Reader.
 
-\underline{Partendo dal presupposto che i Thread siano già arrivati nella Room corretta}, e abbiano rilasciato il lock
-dell'albero si troveranno ora a dover svolgere 2 diversi protocolli in base al loro ruolo (\Writer o \Reader):
+Esso consiste nel lasciare sempre disponibile ai \Reader del sistema, una coda su cui andare a dormire, questa coda
+viene \textbf{Atomicamente Swappata}  con una vuota all'arrivo di un \Writer, così da fargli ``catturare'' tutti i
+\Reader serializzati fino al suo arrivo; da questo momento il \Writer ha tutto il tempo che vuole per condividere i
+suoi dati e svegliare i \Reader addormentati.
 
-\begin{small}\begin{minipage}{0.45\linewidth}%
-\begin{fminipage}{\linewidth}
-\begin{program}
-\mbox{\Writer ExangeDataProtocol}
-\BEGIN \\
-  |Creo una nuova exangeRoom VUOTA| \\
-  |Atomic Swap con l'exangeRoom di mio interesse|
-  |Trasferisco i dati nel buffer comune|
-  |Risveglio tutti i \Reader nella Wait-Queue|
-  |Try_Free(this)|
-\END
-\end{program}
-\end{fminipage}
-\end{minipage}%
-\begin{minipage}{0.10\linewidth}%
-\hfill%
-\end{minipage}%
-\begin{minipage}{0.45\linewidth}%
-\begin{fminipage}{\linewidth}
-\begin{program}
-\mbox{\Reader ExangeDataProtocol}
-\BEGIN \\
-  |Interruptable sleep on Wait-Queue| \\
-  |...|
-  |Wake_UP EVENT|
-  \IF(|Wake_up for signal|)
-    |Mi rimuovo dalla lista|
-    |Exit_Free(this)|
-    \EXIT
-  \ELSE
-    |Trasferisco i dati inviati|
-    |Try_Free(this)|
-    \EXIT
-  \FI
-\END
-\end{program}
-\end{fminipage}
-\end{minipage}\end{small}
+La logica dello scambio dati è molto simile a quella di una lista RCU da 1 nodo, la differenza sta nel modo in cui
+viene considerato il periodo di grazia: in questo sistema, dove sono presenti i \texttt{refcount}, ogni thread, \Writer
+compreso, tenta di fare una free della stanza, ma solo l'ultimo, colui che porta il contatore a 0, la esegue, così
+facendo il sistema è lock-free, e solo l'ultimo thread ha il compito di liberare la memoria, evitando di tenere gli
+altri in attesa in caso un thread per qualche motivo dovesse subire un rallentamento (priorità più bassa o simili).
+
+
+Vediamo ora lo pseudo-codice dei 2 flussi:
+
+\begin{algorithm}
+\caption{\Writer ExangeDataProtocol}\label{writeExange}
+\begin{algorithmic}[1]
+\Procedure{tagSend}{$tag, level, msg$}
+\State Read-Lock(\tagTree)
+\State $roomSearch \gets Tree_Search(tag, \tagTree)$
+\If {$roomSearch == FOUND$}
+    \State $RoomRefInc(Room)$
+    \State $Read-unLock(\tagTree)$
+    \If {$permissionCheck(roomSearch) == True $}
+        \State $newER \gets makeExangeRoom()$
+        {
+        \color{red}
+        \State $exange \gets CompareSwap(newER, currER(level))$\Comment{Swap atomico}
+        \State $ExangeRefInc(currER)$
+        }
+        \State $copyToExangeRoom(msg)$
+        \State $wakeUp(WaitQueue)$
+        \State {\color{blue} $tryFreeExangeRoom(exange)$}
+        \State $TryFreeRoom(roomSearch)$
+    \Else
+        \State $TryFreeRoom(roomSearch)$
+        \State \textbf{return} $-1$\Comment{Operation fail}
+    \EndIf
+\Else
+    \State $Read-unLock(\tagTree)$
+    \State \textbf{return} $-1$\Comment{Operation fail}
+
+\EndIf
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\newpage
+
+\begin{algorithm}
+\caption{\Reader ExangeDataProtocol}\label{readExange}
+\begin{algorithmic}[1]
+\Procedure{tagRecive}{$tag, level, msg$}
+\State Read-Lock(\tagTree)
+\State $roomSearch \gets Tree_Search(tag, \tagTree)$
+\If {$roomSearch == FOUND$}
+    \State $RoomRefInc(Room)$
+    \State $Read-unLock(\tagTree)$
+    \If {$permissionCheck(roomSearch) == True $}
+        \State $newER \gets makeExangeRoom()$
+        {
+        \color{red}
+        \State $exange \gets currER(level)$\Comment{Ottengo la stanza attualmente sincronizzata}
+        \State $ExangeRefInc(currER)$
+        }
+        \State $InterruptableSleep(WaitQueue)$
+        \State ...
+        \State Wake Up Event
+            \If {Wake up for signal}
+                \State {\color{blue} $ExitFreeExangeRoom(exange)$}
+                \State \textbf{return} $-1$\Comment{Signal Wake up}
+            \EndIf
+        \State $copyFromExangeRoom(msg)$ \Comment{Normal Wake up}
+        \State {\color{blue} $tryFreeExangeRoom(exange)$}
+        \State $TryFreeRoom(roomSearch)$
+    \Else
+        \State $TryFreeRoom(roomSearch)$
+        \State \textbf{return} $-1$\Comment{Operation fail}
+    \EndIf
+\Else
+    \State $Read-unLock(\tagTree)$
+    \State \textbf{return} $-1$\Comment{Operation fail}
+\EndIf
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{N.B. Il protocollo descritto permette di far eseguire i \Writer e \Reader dello scambio dei messaggi in reale
+parallelismo!!!}
+
+Come è possibile vedere, il protocollo è molto lineare e non sono presenti lock o attese all'infuori dell'attesa del
+\Reader, necessaria e desiderata.
+
+Purtroppo però, le sezioni {\color{red} Rosse} nei 2 algoritmi necessiterebbero di poter essere eseguite Atomicamente
+per garantire la correttezza dell'algoritmo, esiste infatti la corsa critica in cui l'acquisizione del alla
+\textit{exangeRoom} e il successivo incremento del \textit{refcount} potrebbe avere in mezzo la liberazione dell'area
+di memoria che contiene il \textit{refcount}, portando ad un kernel panic.
+
+Per eliminare questa corsa critica, minimizzando il più possibile il tempo di lock, è stato implementato un
+protocollo di FreeExangeRoom che prima di tutto sottrae il \textit{refcount}, e ciò anche in parallelo, e l'ultimo che
+porta il contatore a 0 esegue la free solo se il \textit{refcount} da il via libera.
+
+Come le parti {\color{blue} blu} del codice evidenziano i 2 diversi tipi di FreeExangeRoom:
+\begin{description}
+ \item[\verb|Exit_Free]
+    in caso il contatore scenda a 0, non elimina la stanza, poichè l'area di memoria è ancora valida e ragiungibile
+ \item[\verb|Try_Free]
+\end{description}
+\textit{refcount} è un
+\textbf{custom Spinlock} che permette di fare una \verb|waitUntil_unlock| dove l'unlock avviene quando il contatore
+scende a 0.
 
 La differenza tra \verb|Exit_Free| e \verb|Try_Free| stà nel fatto che il primo, in caso il contatore scenda a 0, non
 elimina la stanza, mentre il secondo si.
 
-\textbf{N.B. Il protocollo descritto permette di far eseguire i \Writer e \Reader dello scambio dei messaggi in reale
-parallelismo!!!}
+
 
 Il protocollo è inspirato alla logica delle liste RCU, con la differenza che non è il \Writer necessariamente a dover
 attendere il periodo di grazia, ma semplicemente il Thread più ``lento`` è anche colui che libera la memoria.
@@ -155,7 +245,8 @@ variabile alla volta, ciò fa si che il sistema sia esposto per qualche ciclo ma
 area di memoria prima che si possa fare +1 al suo refcount. Per ovviare questo limite, è stata scritto un piccolo
 Spinlock custom (reperibile in tbde.h):
 
-\begin{verbatim}
+\begin{indentPar}{2.5cm}
+\begin{small}\begin{verbatim}
 // Custom lock define
 #define freeMem_Lock(atomic_freeLockCount_ptr)              \
   do {                                                      \
@@ -177,7 +268,8 @@ Spinlock custom (reperibile in tbde.h):
     preempt_enable();                                       \
   } while (0)
 \end{verbatim}
-
+\end{small}
+\end{indentPar}
 
 Partendo dal presupposto che i Thread siano già arrivati nella Room corretta, quello che si troveranno davanti saranno
 \texttt{32 exangeRoom}, esse a livello implementativo altro non sono che delle \textit{wait queue} allocate

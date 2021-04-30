@@ -42,4 +42,13 @@
  }
 
 % listing algoritm
-\usepackage{program}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% Indent paragraph
+\newenvironment{indentPar}[1]%
+ {\begin{list}{}%
+         {\setlength{\leftmargin}{#1}}%
+         \item[]%
+ }
+ {\end{list}}
