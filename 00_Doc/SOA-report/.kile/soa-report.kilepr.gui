@@ -2,7 +2,7 @@
 kile_livePreviewEnabled=true
 kile_livePreviewStatusUserSpecified=false
 kile_livePreviewTool=LivePreview-PDFLaTeX
-lastDocument=Sections/Introduction.tex
+lastDocument=Sections/SubSystemModule.tex
 
 [document-settings,item:Sections/Introduction.log]
 Bookmarks=
@@ -19,6 +19,24 @@ Encoding=UTF-8
 Highlighting=LaTeX
 Highlighting Set By User=false
 Indentation Mode=latex
+Mode=LaTeX
+Mode Set By User=false
+
+[document-settings,item:Sections/SubSystemModule.tex]
+Bookmarks=
+Encoding=UTF-8
+Highlighting=LaTeX
+Highlighting Set By User=false
+Indentation Mode=normal
+Mode=LaTeX
+Mode Set By User=false
+
+[document-settings,item:Sections/SystemModule.tex]
+Bookmarks=
+Encoding=UTF-8
+Highlighting=LaTeX
+Highlighting Set By User=false
+Indentation Mode=normal
 Mode=LaTeX
 Mode Set By User=false
 
@@ -85,6 +103,24 @@ Indentation Mode=normal
 Mode=LaTeX
 Mode Set By User=false
 
+[document-settings,item:textCommand.sty]
+Bookmarks=
+Encoding=UTF-8
+Highlighting=LaTeX
+Highlighting Set By User=false
+Indentation Mode=normal
+Mode=LaTeX
+Mode Set By User=false
+
+[document-settings,item:textStyle.sty]
+Bookmarks=
+Encoding=UTF-8
+Highlighting=LaTeX
+Highlighting Set By User=false
+Indentation Mode=normal
+Mode=LaTeX
+Mode Set By User=false
+
 [item:874d181c_dict-it.oxt]
 open=false
 order=-1
@@ -99,14 +135,18 @@ order=-1
 
 [item:Sections/Introduction.tex]
 open=true
-order=1
+order=2
+
+[item:Sections/SubSystemModule.tex]
+open=true
+order=3
 
 [item:Sections/abstact.log]
 open=false
 order=-1
 
 [item:Sections/abstact.tex]
-open=true
+open=false
 order=3
 
 [item:Sections/title.log]
@@ -114,12 +154,12 @@ open=false
 order=-1
 
 [item:Sections/title.tex]
-open=true
+open=false
 order=2
 
 [item:alfySetting.sty]
-open=false
-order=1
+open=true
+order=4
 
 [item:main.tex]
 open=true
@@ -127,11 +167,15 @@ order=0
 
 [item:setup.sty]
 open=false
-order=1
+order=5
 
 [item:soa-report.kilepr]
 open=false
 order=-1
+
+[item:textStyle.sty]
+open=true
+order=1
 
 [view-settings,view=0,item:Sections/Introduction.log]
 CursorColumn=0
@@ -142,12 +186,28 @@ TextFolding=[]
 ViMarks=
 
 [view-settings,view=0,item:Sections/Introduction.tex]
+CursorColumn=29
+CursorLine=48
+Dynamic Word Wrap=true
+JumpList=
+TextFolding=[]
+ViMarks=.,48,29,[,48,29,],48,29
+
+[view-settings,view=0,item:Sections/SubSystemModule.tex]
 CursorColumn=0
-CursorLine=47
+CursorLine=180
 Dynamic Word Wrap=false
 JumpList=
 TextFolding=[]
-ViMarks=.,25,11,[,25,11,],25,11
+ViMarks=.,159,56,[,159,53,],159,59
+
+[view-settings,view=0,item:Sections/SystemModule.tex]
+CursorColumn=0
+CursorLine=2
+Dynamic Word Wrap=false
+JumpList=
+TextFolding=[]
+ViMarks=
 
 [view-settings,view=0,item:Sections/abstact.log]
 CursorColumn=0
@@ -158,12 +218,12 @@ TextFolding=[]
 ViMarks=
 
 [view-settings,view=0,item:Sections/abstact.tex]
-CursorColumn=0
-CursorLine=15
+CursorColumn=32
+CursorLine=3
 Dynamic Word Wrap=false
 JumpList=
 TextFolding=[]
-ViMarks=.,7,79,[,7,79,],7,79
+ViMarks=.,3,31,[,3,31,],3,31
 
 [view-settings,view=0,item:Sections/title.log]
 CursorColumn=0
@@ -182,20 +242,20 @@ TextFolding=[]
 ViMarks=.,1,0,[,1,0,],1,0
 
 [view-settings,view=0,item:alfySetting.sty]
-CursorColumn=36
-CursorLine=17
+CursorColumn=25
+CursorLine=31
 Dynamic Word Wrap=false
 JumpList=
 TextFolding=[]
-ViMarks=.,17,36,[,17,36,],17,36
+ViMarks=.,7,15,[,7,0,],7,15
 
 [view-settings,view=0,item:main.tex]
-CursorColumn=10
-CursorLine=11
+CursorColumn=34
+CursorLine=43
 Dynamic Word Wrap=false
 JumpList=
 TextFolding=[]
-ViMarks=.,43,0,[,44,0,],-1,-1
+ViMarks=.,45,21,[,45,21,],45,35
 
 [view-settings,view=0,item:setup.sty]
 CursorColumn=59
@@ -204,3 +264,19 @@ Dynamic Word Wrap=false
 JumpList=
 TextFolding=[]
 ViMarks=
+
+[view-settings,view=0,item:textCommand.sty]
+CursorColumn=0
+CursorLine=0
+Dynamic Word Wrap=false
+JumpList=
+TextFolding=[]
+ViMarks=
+
+[view-settings,view=0,item:textStyle.sty]
+CursorColumn=49
+CursorLine=5
+Dynamic Word Wrap=false
+JumpList=
+TextFolding=[]
+ViMarks=.,5,49,[,5,49,],5,49

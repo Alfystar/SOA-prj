@@ -5,6 +5,7 @@
 \usepackage{hyperref}
 \hypersetup{colorlinks=true, linkcolor=cyan, urlcolor=blue}
 
+% Abstarct style
 \renewenvironment{abstract}
 { % beging part pre-append
 	\vfill
@@ -18,3 +19,27 @@
 		\par\noindent\rule{\textwidth}{0.5pt}
 	\end{minipage}
 }
+
+% show -> in bullet list
+\usepackage{enumitem}
+\usepackage{pifont}
+
+
+% Box with border
+\usepackage{lipsum}
+\usepackage{xparse}
+
+\newsavebox{\fminipagebox}
+\NewDocumentEnvironment{fminipage}{m O{\fboxsep}}
+ {\par\kern#2\noindent\begin{lrbox}{\fminipagebox}
+  \begin{minipage}{#1}\ignorespaces}
+ {\end{minipage}\end{lrbox}%
+  \makebox[#1]{%
+    \kern\dimexpr-\fboxsep-\fboxrule\relax
+    \fbox{\usebox{\fminipagebox}}%
+    \kern\dimexpr-\fboxsep-\fboxrule\relax
+  }\par\kern#2
+ }
+
+% listing algoritm
+\usepackage{program}

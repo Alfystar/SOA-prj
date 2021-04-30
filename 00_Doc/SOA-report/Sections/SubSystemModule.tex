@@ -1,0 +1,234 @@
+\section{SubSystem of Module}
+
+Il progetto è organizzato in 3 diverse macro aree:
+\begin{enumerate}
+\item \nameref{SysCallDiscovery} \\
+    Sviluppato direttamente dal repository del professore
+    (\href{https://github.com/FrancescoQuaglia/Linux-sys_call_table-discoverer}{Git repository}), la quale è stata
+    modificata per farla diventare una libreria del sistema
+\item \nameref{tbde} \\
+    Libreria core del sistema, essa implementale funzionalità richieste per il progetto
+\item \nameref{CharDevice} \\
+    Libreria che permette di esporre il Modulo al resto del sistema operativo facendolo passare per un dispositivo a
+    caratteri
+\end{enumerate}
+
+I sotto organizzati affinchè lavorino con il maggior livello di interdipendenza possibile, facendoli mettere in
+comunicazione dentro \textit{main.c}.
+
+\subsection{SysCall Discovery} \label{SysCallDiscovery}
+Il Sotto-sistema che si occupa di ricercare la posizione all'interno della memoria della \verb|sys_call_table| è stato
+sviluppato partendo dal lavoro del professore Francesco Quaglia
+(\href{https://github.com/FrancescoQuaglia/Linux-sys_call_table-discoverer}{Git repository}).
+
+In particolare il progetto è stato forkato al commit:
+\begin{verb}6eafea1bcacb0ee7f81f24657ce03290d98c7947\end{verb}, il quale è stato modificato e
+adattato per diventare una libreria del sistema che espone la funzionalità di modifica e ripristino delle syscall
+``Libere'' (le syscall che puntano a \verb|sys_ni_syscall|) necessarie.
+
+Esso comincia una ricerca lineare lungo i primi 4GB della Ram, e verifica, byte per byte, la struttura della memoria
+sottostante, se essa concide con quella della \verb|sys_call_table| nell'area di memoria che sta osservando allora la
+considera la \verb|sys_call_table|, per evitare possibili falsi positivi, vengono usate le coordinate di 7 diverse
+funzioni non implementate, così da minimizzare il rischio di falsi positivi.
+
+Con questo metodo, attraverso una scansione lineare di tutto l'address space è possibile trovare la posizione
+della \verb|sys_call_table| evitando falsi positivi.
+
+Le posizioni trovate, vengono salvate su un array e la libreria permette di modificare queste entry.
+Durante lo smontamento del modulo, la libreria si occupa di ripristinare la tabella. Ciò è verificabile montando e
+smontando ripetutamene il modulo, se le syscall non fossero ripristinate, sarebbe impossibile individuare nuovamente la
+tabella.
+\newpage
+
+
+\subsection{Tag-Based Data Exange} \label{tbde}
+
+Il cuore del progetto (lo scambio di messaggi tra processi diversi) viene realizzato da questo Sotto sistema.
+
+Per poter svolgere la funzione principale del sistema, si è scelto di organizzare la struttura dati in:
+\begin{description}
+\item[AVL-Tree]:\\
+    Il sistema è formato da  2 Alberi-AVL di ricerca, \tagTree e \keyTree, essi permettono di indicizzare in
+    maniera efficiente le \textbf{Stanze} per \tagSys e per \keySys. \\
+    L'albero principale è il \tagTree, mentre il \keyTree è l'albero di supporto per una ricerca più efficiente delle
+    stanze con visibilità ``pubblica''.\\
+    Gli alberi sono sincronizzati mediante degli \texttt{Spinlock RW} che permettono di svolgere in reale parallelismo
+    le operazioni di ricerca delle stanze (eseguite per le operazioni di comunicazione), e vincolano a 1 thread alla
+    volta per le operazioni di:
+    \begin{itemize}
+    \item \textit{Aggiunta} \\
+        Creazione di una stanza, pubblica o privata, con i permessi richiesti\\
+        (\texttt{aperta a tutti}/\texttt{solo ai thread del processo creante})
+    \item \textit{Rimozione} \\
+        Rimozione di una stanza, se i permessi lo permettono, il SUPER-UTENTE è sempre considerato valido
+    \item \textit{Status-Print} \\
+        Operazione eseguita dal driver, quando va a fare il cat dello stato del sistema corrente, per garantire la
+        coerenza dei dati letti nel trovare in quale stanze vi sono dei reader in attesa e quanti. (Operazione
+        assolutamente infrequente e user-driver)
+\end{itemize}
+
+    \begin{small}
+    Per maggiori informazioni sulla scelta di dell'uso di \texttt{Alberi-AVL RWLock} rispetto a una lista
+    RCU, riferirsi all'approfondimento alla sezione \nameref{treePerf}.
+    \end{small}
+
+    I nodi degli Alberi puntano alle \textbf{Stanze} in-stanziate nel sistema, non una copia personale per l'albero, ma
+    proprio la stessa istanza, ciò implica che i 2 alberi devono essere coinsistenti tra di loro, e che il lock
+    descritto precedentemente, copre contemporaneamente entrambi.
+
+\item[Stanze] (\textit{Room}):\\
+        Il nodo della \textbf{Stanza} è considerabile come un oggetto allocato nell'heap del kernel, si è reso
+        quindi necessario usare le API dei \texttt{refcount} presenti all'interno del kernel. Il contatore cresce al
+        crescere    degli oggetti che la riferiscono, e decresce alla loro rimozione, il thread che la porta
+        effettivamente a 0 il contatore esegue anche le operazioni di liberazione della memoria.
+
+\item[Topic] (\textit{exangeRoom}):\\
+    Ogni stanza ha a sua volta 32 \texttt{exangeRoom} (i Topic), che permettono lo scambio effettivo delle informazioni
+    tra 1 \Writer e gli n-\Reader precedentemente in attesa su questo livello dall'arrivo del precedente \Writer.
+
+    Per approfondire il comportamento del sistema nello scambio di messaggi fare riferimento alla sezione
+    \nameref{exangeDataProtocol}.
+
+
+\end{description}
+
+\newpage
+
+\subsubsection{Exange Data protocol} \label{exangeDataProtocol}
+
+Il protocollo di scambio dati è progettato per garantire che un \Writer possa prendere tutti i \Reader accodati fino al
+momento del suo arrivo, evitando che 2 \Writer possano parlare agli stessi \Reader.
+
+\underline{Partendo dal presupposto che i Thread siano già arrivati nella Room corretta}, e abbiano rilasciato il lock
+dell'albero si troveranno ora a dover svolgere 2 diversi protocolli in base al loro ruolo (\Writer o \Reader):
+
+\begin{small}\begin{minipage}{0.45\linewidth}%
+\begin{fminipage}{\linewidth}
+\begin{program}
+\mbox{\Writer ExangeDataProtocol}
+\BEGIN \\
+  |Creo una nuova exangeRoom VUOTA| \\
+  |Atomic Swap con l'exangeRoom di mio interesse|
+  |Trasferisco i dati nel buffer comune|
+  |Risveglio tutti i \Reader nella Wait-Queue|
+  |Try_Free(this)|
+\END
+\end{program}
+\end{fminipage}
+\end{minipage}%
+\begin{minipage}{0.10\linewidth}%
+\hfill%
+\end{minipage}%
+\begin{minipage}{0.45\linewidth}%
+\begin{fminipage}{\linewidth}
+\begin{program}
+\mbox{\Reader ExangeDataProtocol}
+\BEGIN \\
+  |Interruptable sleep on Wait-Queue| \\
+  |...|
+  |Wake_UP EVENT|
+  \IF(|Wake_up for signal|)
+    |Mi rimuovo dalla lista|
+    |Exit_Free(this)|
+    \EXIT
+  \ELSE
+    |Trasferisco i dati inviati|
+    |Try_Free(this)|
+    \EXIT
+  \FI
+\END
+\end{program}
+\end{fminipage}
+\end{minipage}\end{small}
+
+La differenza tra \verb|Exit_Free| e \verb|Try_Free| stà nel fatto che il primo, in caso il contatore scenda a 0, non
+elimina la stanza, mentre il secondo si.
+
+\textbf{N.B. Il protocollo descritto permette di far eseguire i \Writer e \Reader dello scambio dei messaggi in reale
+parallelismo!!!}
+
+Il protocollo è inspirato alla logica delle liste RCU, con la differenza che non è il \Writer necessariamente a dover
+attendere il periodo di grazia, ma semplicemente il Thread più ``lento`` è anche colui che libera la memoria.
+
+Per un limite tecnico degli attuali processori, le \textbf{operazioni realmente ATOMICHE} non comprendono + di 1
+variabile alla volta, ciò fa si che il sistema sia esposto per qualche ciclo macchina al rischio di fare una Free di un
+area di memoria prima che si possa fare +1 al suo refcount. Per ovviare questo limite, è stata scritto un piccolo
+Spinlock custom (reperibile in tbde.h):
+
+\begin{verbatim}
+// Custom lock define
+#define freeMem_Lock(atomic_freeLockCount_ptr)              \
+  do {                                                      \
+    preempt_disable();                                      \
+    atomic_inc(atomic_freeLockCount_ptr);                   \
+  } while (0)
+
+#define freeMem_unLock(atomic_freeLockCount_ptr)            \
+  do {                                                      \
+    atomic_dec(atomic_freeLockCount_ptr);                   \
+    preempt_enable();                                       \
+  } while (0)
+
+#define waitUntil_unlock(atomic_lockCount_ptr)              \
+  do {                                                      \
+    preempt_disable();                                      \
+    while (arch_atomic_read(atomic_lockCount_ptr) != 0) {   \
+    };                                                      \
+    preempt_enable();                                       \
+  } while (0)
+\end{verbatim}
+
+
+Partendo dal presupposto che i Thread siano già arrivati nella Room corretta, quello che si troveranno davanti saranno
+\texttt{32 exangeRoom}, esse a livello implementativo altro non sono che delle \textit{wait queue} allocate
+dinamicamente, e ogni stanza ha la sua variabile di controllo per il risveglio. Le API del kernel sono già implementate
+al fine di evitare il problema del \underline{Wake up Lost Problem}, resta però da gestire la concorrenza e la memoria.
+
+Ogni stanza è un oggetto a parte, e in quanto tale ha anche lei il problema di dover essere riferita un numero
+consistente di volte, per risolvere il problema sono state usate anche qui le API del \texttt{refcount}, con una
+leggera modifica rispetto all'uso classico, poichè è possibile che un area sia valida ma senza nessuno che la possegga,
+invece di usare l'API \verb|refcount_inc| si è optato per il suo equivalente \verb|atomic_inc|, questo perchè se si
+esegue un incremento su una variabile con contatore pari a 0 vengono emessi dei warning e la variabile viene portata al
+numero negativo massimo.
+
+Analizziamo ora il comportamento del sistema in uno scenario normale:
+
+\begin{itemize}[label=\ding{212}]
+\begin{minipage}{0.45\linewidth}%
+%     \Reader Thread%
+    \item Room  5 Creation (create on tree)
+    \item Read on Room 5 at level 3
+    \item ...
+    \item Get up and read data...
+    \item try free of current Exange Room
+\end{minipage}%
+\begin{minipage}{0.10\linewidth}%
+\hfill%
+\end{minipage}%
+\begin{minipage}{0.45\linewidth}%
+%     \Writer Thread%
+    \item ...
+    \item Room  5 Open (search on tree system)
+    \item Write on Room 5 at level 3
+    \item Wake up the reader on the level
+    \item try free of current Exange Room
+\end{minipage}
+\end{itemize}
+
+Iniziamo
+
+Una volta arrivati alle Stanze i thread liberano i lock sugli Alberi, e sono garantiti che l'area di memoria su cui si
+trovano resta valida grazie all'incremento del \texttt{refcount} corrispondente.
+Nello scambio di informazioni tra il \Writer e gli n-\Reader, il sistema è progettato per rendere minimo il tempo di
+attesa da quando viene segnalata la presenza di un nuovo dato a quando essa viene consegnata, l'unico rallentamento
+necessario è sperimentato dall'ultimo thread che
+
+
+
+\subsubsection{AVL-Tree Performance} \label{treePerf}
+
+L'architettura degli Alberi-AVL del sistema è stata pensata per minimizzare il tempo di attesa percepito dai thread
+durante lo scambio di messaggi, penalizzando lievemente le operazioni di creazione-controllo-distruzione sulle stanze
+all'interno del sistema.
+
+\subsection{Char Device} \label{CharDevice}
