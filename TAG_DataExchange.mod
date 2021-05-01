@@ -1,0 +1,2 @@
+/home/alfy/Documents/uniGitHub/SOA-prj/main.o /home/alfy/Documents/uniGitHub/SOA-prj/./lib/tbde/tbde.o /home/alfy/Documents/uniGitHub/SOA-prj/./lib/tbde/avl.o /home/alfy/Documents/uniGitHub/SOA-prj/./lib/tbde/supportTBDE.o /home/alfy/Documents/uniGitHub/SOA-prj/./lib/sysCall_Discovery/sysCall_Discovery.o /home/alfy/Documents/uniGitHub/SOA-prj/./lib/sysCall_Discovery/vtpmo/vtpmo.o /home/alfy/Documents/uniGitHub/SOA-prj/./lib/charDev/charDev.o
+

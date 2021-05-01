@@ -1,6 +1,6 @@
 \section{SubSystem of Module}
 
-Il progetto è organizzato in 3 diversi sotto sistemi::
+Il progetto è organizzato in 3 diversi sotto sistemi:
 \begin{enumerate}
 \item \nameref{SysCallDiscovery} \\
     Sviluppato direttamente dal repository del professore
@@ -33,9 +33,6 @@ Se il test ha successo, allora l'area di memoria trovata viene considera la \ver
 Il rischio di falsi positivi tuttavia esiste, e per minimizzare un simile rischio sono state utilizzate gli
 spiazzamenti di 7 diverse SysCall non implementate, così da rendere minimo il rischio di falsi positivi.
 
-Mediante questo metodo di attraversamento lineare di tutto l'address space è viene trovata la
-posizione della \verb|sys_call_table| evitando falsi positivi.
-
 Le posizioni trovate, vengono salvate su un array e la libreria permette di modificare queste entry.
 Durante lo smontamento del modulo, la libreria si occupa di ripristinare la tabella alla sua forma originale.
 Ciò è verificabile montando e smontando ripetutamene il modulo: se le syscall non fossero ripristinate, sarebbe
@@ -49,9 +46,9 @@ Il cuore del progetto (lo scambio di messaggi tra processi) viene realizzato dal
 
 Per poter svolgere la sua funzione, si è scelto di organizzare le strutture dati in:
 \begin{description}
-\item[AVL-Tree]:\\
+\item[AVL-Tree] per indicizzare le stanze per \tagSys e \keySys:\\
     Il sistema usa 2 Alberi-AVL di ricerca, \tagTree e \keyTree, per indicizzare in maniera efficiente le
-    \textbf{Stanze} per \tagSys e per \keySys. \\
+    \textbf{Stanze} in base alla chiave di ricerca usata (\tagSys e \keySys). \\
     L'albero principale è il \tagTree, mentre il \keyTree è di supporto per la ricerca efficiente delle
     stanze con visibilità ``pubblica''.\\
     Gli alberi sono sincronizzati mediante degli \texttt{Spinlock RW} che permettono di svolgere in \textbf{reale
@@ -68,51 +65,50 @@ Per poter svolgere la sua funzione, si è scelto di organizzare le strutture dat
         assolutamente infrequente e user-driver)
 \end{itemize}
 
-    \begin{small}
-    Per maggiori informazioni sulla scelta di dell'uso di \texttt{Alberi-AVL RWLock} rispetto a una lista
-    RCU, riferirsi all'approfondimento alla sezione \nameref{treePerf}.
-    \end{small}
+\begin{footnotesize}
+Per maggiori informazioni sulla scelta di dell'uso di \texttt{Alberi-AVL RWLock} rispetto a una lista
+RCU, riferirsi all'approfondimento alla sezione \nameref{treePerf}.
+\end{footnotesize}
 
-    I nodi degli Alberi puntano alle \textbf{Stanze} allocate nel sistema, non una copia personale per l'albero, ma
-    proprio la stessa istanza, ciò implica che i 2 alberi devono essere consistenti tra di loro, e che il lock
-    descritto precedentemente, copre contemporaneamente entrambe le strutture dati.
+I nodi degli Alberi puntano alle \textbf{Stanze} allocate nel sistema, non una copia personale per l'albero, ma
+proprio la stessa istanza, ciò implica che i 2 alberi devono essere consistenti tra di loro, e che il lock
+descritto precedentemente, copre contemporaneamente entrambe le strutture dati.
 
 \item[Stanze] (\textit{Room}):\\
-        Il nodo della \textbf{Stanza} è considerabile come un oggetto allocato nell'heap del kernel, si è reso
-        quindi necessario usare le API dei \texttt{refcount} presenti all'interno del kernel. Il contatore cresce al
-        crescere degli oggetti che la riferiscono, e decresce alla loro rimozione, il thread che la porta
-        effettivamente a 0 il contatore esegue anche le operazioni di liberazione della memoria.
+Il nodo della \textbf{Stanza} è considerabile come un oggetto allocato nell'heap del kernel, si è reso
+quindi necessario usare le API dei \texttt{refcount} presenti all'interno del kernel. Il contatore cresce al
+crescere degli oggetti che la riferiscono, e decresce alla loro rimozione, il thread che la porta
+effettivamente a 0 il contatore esegue anche le operazioni di liberazione della memoria.
 
-\item[Topic] (\exangeRoom):\\
-    Ogni stanza ha a sua volta 32 \exangeRoom (i Topic), che permettono lo scambio effettivo delle informazioni
-    tra 1 \Writer e gli n-\Reader precedentemente in attesa su questo livello dall'arrivo del precedente \Writer.
+\item[\Topic] (\exangeRoom):\\
+Ogni stanza ha a sua volta 32 \exangeRoom (i \Topic), che permettono lo scambio effettivo delle informazioni
+tra 1 \Writer e gli n-\Reader precedentemente in attesa su questo livello dall'arrivo del precedente \Writer.
 
-    Ognuna delle \exangeRoom è anch'essa un oggetto del sistema, e viene gestita con le API dei \texttt{refcount},
-    l'unica differenza è che per le \exangeRoom risulta ammissibile che la stanza sia valida con un contatore a 0,
-    questo perchè le \exangeRoom contengono i \Reader in attesa su quel Topic, ed è possibile che un Topic sia
-    senza \Reader in attesa, questa scelta è stata presa allo scopo di massimizzare i tempi di risposta del sistema,
-    ed evitare incoerenze.
-    Questa scelta ha però generato la necessità di un uso non proprio lecito delle API di \texttt{refcount},
-    poichéè per queste API un refcount = 0 equivale a un area di memoria che deve essere liberata, e non viene permesso
-    l'incremento. Per ovviare al problema , si è sostituita la \verb|refcount_inc| con il suo equivalente
-    \verb|atomic_inc|, che però bypassa i check di consistenza.
+Ognuna delle \exangeRoom è anch'essa un oggetto del sistema, e viene gestita con le API dei \texttt{refcount},
+l'unica differenza è che per le \exangeRoom risulta ammissibile che la stanza sia valida con un contatore a 0,
+questo perchè le \exangeRoom contengono i \Reader in attesa su quel \Topic, ed è possibile che un \Topic sia
+senza \Reader in attesa.
 
-    Per approfondire il comportamento del sistema nello scambio di messaggi fare riferimento alla sezione
-    \nameref{exangeDataProtocol}.
-
-
+Questa scelta ha però generato la necessità di un uso non proprio lecito delle API di \texttt{refcount},
+poiché, per queste API, un refcount = 0 equivale a un area di memoria che deve essere liberata, e non viene permesso
+l'incremento. Per ovviare al problema , si è sostituita la \verb|refcount_inc| con il suo equivalente
+\verb|atomic_inc|, che però bypassa i check di consistenza.
 \end{description}
+
+\begin{footnotesize}
+Per approfondire il comportamento del sistema nello scambio e come queste 3 strutture dati interagiscono per permettere
+lo scambio di messaggi, fare riferimento alla sezione \nameref{exangeDataProtocol}.
+\end{footnotesize}
 
 \newpage
 
 \subsubsection{Exange Data protocol} \label{exangeDataProtocol}
 
 Fin dall'inizio della sua progettazione, l'obiettivo principale del sistema è stato permettere a un \Writer di
-comunicare con tutti gli n-\Reader precedente accodati sul Topic, nel minor tempo possibile ed evitando lock
+comunicare con tutti gli n-\Reader precedente accodati sul \Topic, nel minor tempo possibile ed evitando lock
 di sincronizzazione, il risultato è un sistema rapido e snello, che ha come \textbf{unico lock} un \textit{custom lock
-di
-enable/disable della Free} (vedi seguito per dettagli), che comunque rallenta al più per un paio di cicli macchina, ma
-evita una rara, seppur possibile, corsa critica nell'accesso a un area di memoria.
+di enable/disable della Free} (vedi \nameref{memFreeLockProt}), che comunque rallenta al più per un paio di cicli
+macchina, ma evita una rara, seppur possibile, corsa critica nell'accesso a un area di memoria.
 
 Per accodare e addormentare i \Reader in attesa sono state utilizzate le  \texttt{API di Wait-Queue} del Kernel che già
 evitano il problema del \underline{Wake up Lost Problem}.
@@ -121,35 +117,34 @@ Il protocollo di scambio dati è progettato per garantire che un \Writer possa p
 momento del suo arrivo, evitando che 2 \Writer possano parlare agli stessi \Reader.
 
 Esso consiste nel lasciare sempre disponibile ai \Reader del sistema, una coda su cui andare a dormire, questa coda
-viene \textbf{Atomicamente Swappata}  con una vuota all'arrivo di un \Writer, così da fargli ``catturare'' tutti i
-\Reader serializzati fino al suo arrivo; da questo momento il \Writer ha tutto il tempo che vuole per condividere i
-suoi dati e svegliare i \Reader addormentati.
+viene \textbf{Atomicamente Swappata}  con una vuota all'arrivo di un \Writer.
 
-La logica dello scambio dati è molto simile a quella di una lista RCU da 1 nodo, la differenza sta nel modo in cui
-viene considerato il periodo di grazia: in questo sistema, dove sono presenti i \texttt{refcount}, ogni thread, \Writer
-compreso, tenta di fare una free della stanza, ma solo l'ultimo, colui che porta il contatore a 0, la esegue, così
-facendo il sistema è lock-free, e solo l'ultimo thread ha il compito di liberare la memoria, evitando di tenere gli
-altri in attesa in caso un thread per qualche motivo dovesse subire un rallentamento (priorità più bassa o simili).
+Ciò fa ``catturare'' tutti i \Reader serializzati fino al suo arrivo e svegliare i \Reader addormentati senza
+concorrenza con altri \Writer, che possono eseguire in tranquillità parlando con i nuovi \Reader in attesa.
 
+% La logica dello scambio dati è molto simile a quella di una lista RCU da 1 nodo, la differenza sta nel modo in cui
+% viene considerato il periodo di grazia: in questo sistema, dove sono presenti i \texttt{refcount}, ogni thread,
+\Writer
+% compreso, tenta di fare una free della stanza, ma solo l'ultimo, colui che porta il contatore a 0, la esegue, così
+% facendo il sistema è lock-free, e solo l'ultimo thread ha il compito di liberare la memoria, evitando di tenere gli
+% altri in attesa in caso un thread per qualche motivo dovesse subire un rallentamento (priorità più bassa o simili).
 
+\subsubsection{Reader e Writer Protocol}
 Vediamo ora lo pseudo-codice dei 2 flussi:
 
 \begin{algorithm}
 \caption{\Writer ExangeDataProtocol}\label{writeExange}
 \begin{algorithmic}[1]
 \Procedure{tagSend}{$tag, level, msg$}
-\State Read-Lock(\tagTree)
+\State {\color{orange}$Read-Lock(\tagTree)$}
 \State $roomSearch \gets Tree_Search(tag, \tagTree)$
 \If {$roomSearch == FOUND$}
     \State $RoomRefInc(Room)$
-    \State $Read-unLock(\tagTree)$
+    \State {\color{orange}$ReadunLock(\tagTree)$}
     \If {$permissionCheck(roomSearch) == True $}
         \State $newER \gets makeExangeRoom()$
-        {
-        \color{red}
         \State $exange \gets CompareSwap(newER, currER(level))$\Comment{Swap atomico}
         \State $ExangeRefInc(currER)$
-        }
         \State $copyToExangeRoom(msg)$
         \State $wakeUp(WaitQueue)$
         \State {\color{blue} $tryFreeExangeRoom(exange)$}
@@ -159,7 +154,7 @@ Vediamo ora lo pseudo-codice dei 2 flussi:
         \State \textbf{return} $-1$\Comment{Operation fail}
     \EndIf
 \Else
-    \State $Read-unLock(\tagTree)$
+    \State {\color{orange}$ReadunLock(\tagTree)$}
     \State \textbf{return} $-1$\Comment{Operation fail}
 
 \EndIf
@@ -173,11 +168,11 @@ Vediamo ora lo pseudo-codice dei 2 flussi:
 \caption{\Reader ExangeDataProtocol}\label{readExange}
 \begin{algorithmic}[1]
 \Procedure{tagRecive}{$tag, level, msg$}
-\State Read-Lock(\tagTree)
+\State {\color{orange}$Read-Lock(\tagTree)$}
 \State $roomSearch \gets Tree_Search(tag, \tagTree)$
 \If {$roomSearch == FOUND$}
     \State $RoomRefInc(Room)$
-    \State $Read-unLock(\tagTree)$
+    \State {\color{orange}$ReadunLock(\tagTree)$}
     \If {$permissionCheck(roomSearch) == True $}
         \State $newER \gets makeExangeRoom()$
         {
@@ -200,7 +195,7 @@ Vediamo ora lo pseudo-codice dei 2 flussi:
         \State \textbf{return} $-1$\Comment{Operation fail}
     \EndIf
 \Else
-    \State $Read-unLock(\tagTree)$
+    \State {\color{orange}$ReadunLock(\tagTree)$}
     \State \textbf{return} $-1$\Comment{Operation fail}
 \EndIf
 \EndProcedure
@@ -213,37 +208,31 @@ parallelismo!!!}
 Come è possibile vedere, il protocollo è molto lineare e non sono presenti lock o attese all'infuori dell'attesa del
 \Reader, necessaria e desiderata.
 
-Purtroppo però, le sezioni {\color{red} Rosse} nei 2 algoritmi necessiterebbero di poter essere eseguite Atomicamente
-per garantire la correttezza dell'algoritmo, esiste infatti la corsa critica in cui l'acquisizione del alla
-\textit{exangeRoom} e il successivo incremento del \textit{refcount} potrebbe avere in mezzo la liberazione dell'area
-di memoria che contiene il \textit{refcount}, portando ad un kernel panic.
-
-Per eliminare questa corsa critica, minimizzando il più possibile il tempo di lock, è stato implementato un
-protocollo di FreeExangeRoom che prima di tutto sottrae il \textit{refcount}, e ciò anche in parallelo, e l'ultimo che
-porta il contatore a 0 esegue la free solo se il \textit{refcount} da il via libera.
-
-Come le parti {\color{blue} blu} del codice evidenziano i 2 diversi tipi di FreeExangeRoom:
+Da osservare i comandi in {\color{blue} blu} del codice, essi evidenziano i 2 diversi tipi di FreeExangeRoom:
 \begin{description}
- \item[\verb|Exit_Free]
-    in caso il contatore scenda a 0, non elimina la stanza, poichè l'area di memoria è ancora valida e ragiungibile
- \item[\verb|Try_Free]
+\item[Exit Free]:\\
+In caso il contatore scenda a 0, non elimina la stanza, poiché l'area di memoria è in realtà ancora valida e
+raggiungibile
+\item[Try Free]:\\
+Quando il contatore scende a 0, si può effettivamente procedere all'eliminazione dell'oggetto, poichè non è più
+riferito da nessuno.
 \end{description}
-\textit{refcount} è un
-\textbf{custom Spinlock} che permette di fare una \verb|waitUntil_unlock| dove l'unlock avviene quando il contatore
-scende a 0.
 
-La differenza tra \verb|Exit_Free| e \verb|Try_Free| stà nel fatto che il primo, in caso il contatore scenda a 0, non
-elimina la stanza, mentre il secondo si.
+\rule{\textwidth}{1pt}
+\subsubsection{Memory Free lock Protocol}\label{memFreeLockProt}
 
+Purtroppo però, la sezione {\color{red} Rossa} del \nameref{readExange} necessita di poter essere
+eseguita Atomicamente per garantire che l'incremento del contatore avvenga prima che lo stesso possa essere eliminato
+da una {\color{blue}$TryFreeRoom(roomSearch)$}. Questa corsa critica in cui l'acquisizione della \textit{exangeRoom} e
+il successivo incremento del \textit{refcount} è stata eliminata implementato un protocollo di \texttt{\textbf{Memory
+Free lock}}:
 
+Esso è inspirato alla logica delle liste RCU, con la differenza con il metodo classico è che non è il \Writer
+a dover necessariamente attendere il periodo di grazia, ma semplicemente il Thread più ``lento`` ad eseguire il lavoro
+(dovuto magari a rallentamenti dovuti alla priorità del thread).
 
-Il protocollo è inspirato alla logica delle liste RCU, con la differenza che non è il \Writer necessariamente a dover
-attendere il periodo di grazia, ma semplicemente il Thread più ``lento`` è anche colui che libera la memoria.
+Per risolvere la corsa critica è stata scritto un piccolo Spinlock custom (reperibile in tbde.h):
 
-Per un limite tecnico degli attuali processori, le \textbf{operazioni realmente ATOMICHE} non comprendono + di 1
-variabile alla volta, ciò fa si che il sistema sia esposto per qualche ciclo macchina al rischio di fare una Free di un
-area di memoria prima che si possa fare +1 al suo refcount. Per ovviare questo limite, è stata scritto un piccolo
-Spinlock custom (reperibile in tbde.h):
 
 \begin{indentPar}{2.5cm}
 \begin{small}\begin{verbatim}
@@ -271,56 +260,251 @@ Spinlock custom (reperibile in tbde.h):
 \end{small}
 \end{indentPar}
 
-Partendo dal presupposto che i Thread siano già arrivati nella Room corretta, quello che si troveranno davanti saranno
-\texttt{32 exangeRoom}, esse a livello implementativo altro non sono che delle \textit{wait queue} allocate
-dinamicamente, e ogni stanza ha la sua variabile di controllo per il risveglio. Le API del kernel sono già implementate
-al fine di evitare il problema del \underline{Wake up Lost Problem}, resta però da gestire la concorrenza e la memoria.
 
-Ogni stanza è un oggetto a parte, e in quanto tale ha anche lei il problema di dover essere riferita un numero
-consistente di volte, per risolvere il problema sono state usate anche qui le API del \texttt{refcount}, con una
-leggera modifica rispetto all'uso classico, poichè è possibile che un area sia valida ma senza nessuno che la possegga,
-invece di usare l'API \verb|refcount_inc| si è optato per il suo equivalente \verb|atomic_inc|, questo perchè se si
-esegue un incremento su una variabile con contatore pari a 0 vengono emessi dei warning e la variabile viene portata al
-numero negativo massimo.
+Queste API sono usate:
+\begin{itemize}
+\item
+Dai \Reader (\verb|freeMem_Lock| e \verb|freeMem_unLock|) attorno alla sezione critica ({\color{red}Rossa})
 
-Analizziamo ora il comportamento del sistema in uno scenario normale:
-
-\begin{itemize}[label=\ding{212}]
-\begin{minipage}{0.45\linewidth}%
-%     \Reader Thread%
-    \item Room  5 Creation (create on tree)
-    \item Read on Room 5 at level 3
-    \item ...
-    \item Get up and read data...
-    \item try free of current Exange Room
-\end{minipage}%
-\begin{minipage}{0.10\linewidth}%
-\hfill%
-\end{minipage}%
-\begin{minipage}{0.45\linewidth}%
-%     \Writer Thread%
-    \item ...
-    \item Room  5 Open (search on tree system)
-    \item Write on Room 5 at level 3
-    \item Wake up the reader on the level
-    \item try free of current Exange Room
-\end{minipage}
+\item
+All'interno della {\color{blue}$TryFreeRoom(roomSearch)$} (la \verb|waitUntil_unlock|) per poter verificare,
+\textbf{solo al raggiungimento dello 0}, che non sia in corso nessuna operazione rischiosa in memoria, e in tal caso
+attendere la terminazione e reagire di conseguenza alle modifiche del sistema.
 \end{itemize}
 
-Iniziamo
+Per minimizzare al massimo l'impatto di questo soft-lock, ogni \Topic è dotato del suo personale memoryLock, così da
+circoscrivere ai soli thread interessanti il rallentamento.
 
-Una volta arrivati alle Stanze i thread liberano i lock sugli Alberi, e sono garantiti che l'area di memoria su cui si
-trovano resta valida grazie all'incremento del \texttt{refcount} corrispondente.
-Nello scambio di informazioni tra il \Writer e gli n-\Reader, il sistema è progettato per rendere minimo il tempo di
-attesa da quando viene segnalata la presenza di un nuovo dato a quando essa viene consegnata, l'unico rallentamento
-necessario è sperimentato dall'ultimo thread che
-
-
+% \newpage
 
 \subsubsection{AVL-Tree Performance} \label{treePerf}
+Dopo aver visto l'architettura del sistema, ragionevolmente ci si può chiedere:
 
-L'architettura degli Alberi-AVL del sistema è stata pensata per minimizzare il tempo di attesa percepito dai thread
-durante lo scambio di messaggi, penalizzando lievemente le operazioni di creazione-controllo-distruzione sulle stanze
-all'interno del sistema.
+\begin{center}
+\textit{Perchè usare degli Alberi-AVL con dei RWlock invece di una lista RCU?}
+\end{center}
+
+Per rispondere a questa domanda, e per capire il perchè siano state fatte le scelte realizzative è opportuno tenere in
+mente le priorità del sistema:
+
+\begin{enumerate}
+ \item Scambio di messaggi rapido e affidabile tra i processi.
+ \item Evitare operazioni inutili
+ \item Parallelizzare le operazioni (in particolare quelle più frequenti)
+\end{enumerate}
+
+Andiamo ora a comparare le prestazioni possibili tra:
+
+\begin{minipage}{0.45\linewidth}
+\begin{center}
+\texttt{Albero-AVL con Spinlock RW}
+\end{center}
+
+\begin{itemize}
+ \item[\faSmileO] \Writer e \Reader\\
+possono accedere in contemporanea e ci mettono al {\color{red}massimo O($log(N)$)} per arrivare alla stanza di loro
+interesse
+\item[\faSmileO\faMehO] Inserire/Rimuovere\\
+nodi con {\color{orange}1 Thread}, dovendo fermare i \Writer e \Reader al più per {\color{red}O($log(N)$)}
+
+\end{itemize}
+\end{minipage}
+\hfill
+\begin{minipage}{0.45\linewidth}
+\begin{center}
+\texttt{Lista RCU}
+\end{center}
+
+\begin{itemize}
+ \item[\faFrownO] \Writer e \Reader\\
+possono accedere in contemporanea e ci mettono al {\color{red}massimo O($N$)} per arrivare alla stanza di loro
+interesse
+ \item[\faMehO] Inserire/Rimuovere\\
+nodi con {\color{orange}1 Thread}, senza mai fermare i \Writer e \Reader, ogni operazione richiede
+{\color{red}O($N$)}
+\end{itemize}
+\end{minipage}
+
+Essendo entrambe le strutture dati organizzate come dei nodi da accedere, non è possibile avere su nessuna delle 2 un
+accelerazione HW particolare, e specie per sistemi molto grandi, \textbf{l'Albero AVL scala meglio lungo un periodo},
+per capire meglio l'ultima affermazione consideriamo il seguente esempio al caso peggiore:
+
+\rule{\linewidth}{0.5pt}
+Nel sistema sono presenti {\color{orange}256 stanze}, e il SO ha a disposizione {\color{orange}8 Thread} per
+poter eseguire le operazioni, e prendiamo come periodo {\color{orange}256 operazioni} (supponiamo che ogni
+mossa tra un nodo e l'altro richieda 1 operazione), ecco le prestazioni massime che ci possiamo aspettare, supponendo
+che tutte le operazioni puntino al 256-esimo nodo:
+
+\begin{minipage}{0.45\linewidth}
+\begin{center}
+\texttt{Albero-AVL con Spinlock RW}
+\end{center}
+\begin{itemize}
+ \item[\faSmileO] Search \\
+ $8 [Thread] \cdot \frac{256 [OpTime]}{log_2(256 [Room])} = 256 [Op]$
+
+ \item[\faSmileO] Insert/Delete (alternate) \\
+ $1 [Thread] \cdot \frac{256 [OpTime]}{log_2(256 [Room])} = 32 [Op]$
+\end{itemize}
+\end{minipage}
+\hfill
+\begin{minipage}{0.45\linewidth}
+\begin{center}
+\texttt{Lista RCU}
+\end{center}
+\begin{itemize}
+ \item[\faFrownO] Search\\
+  $8 [Thread] \cdot \frac{256 [OpTime]}{256 [Room]} = 8 [Op]$
+ \item[\faFrownO] Insert/Delete (alternate) \\
+  $8 [Thread] \cdot \frac{256 [OpTime]}{256 [Room]} = 8 [Op]$
+\end{itemize}
+\end{minipage}
+
+\rule{\linewidth}{0.5pt}
+
+In oltre, all'aumentare dei nodi e del periodo la vittoria dell'Albero-AVL risulta particolarmente evidente, queste
+considerazioni hanno portato all'esclusione delle liste RCU per questa specifica implementazione del sistema, specie
+considerando che è possibile modificare a \RunTime il numero massimo di Stanze, facendo aumentare sempre più il
+vantaggio di usare un Albero-AVL.
+
+Alla fine di questi calcoli viene normale chiedersi:
+
+\begin{center}
+\textit{Perchè non usare direttamente una libreria di Alberi-AVL RCU?}
+\end{center}
+
+Qui la risposta è da trovare nei paper pubblicati: ad oggi (\today) l'argomento è dibattuto in ambito universitario, e
+sono state proposte delle soluzioni per estendere la logica RCU anche agli Alberi-AVL, esse però richiedono un enorme
+quantitativo di memoria extra, dovuto alla necessità di creare una copia di tutto il sotto albero del nodo che si
+intende modificare, con il rischio che al termine di questa operazione, il nodo non sia più valido perchè un altro
+Writer ha alterato un altro settore. Non si è quindi ritenuto opportuno procedere per una simile strada, e si è
+favorita la strada di uno \underline{Spinlock RW}.
+
+\newpage
 
 \subsection{Char Device} \label{CharDevice}
+
+Al fine di poter osservare lo stato del sistema, è stato prevista l'aggiunta di un device-driver, che permetta di
+ottenere una stringa inerente lo stato del sistema.
+Per implementare il driver sono state scritte le funzioni di:
+\begin{description}
+ \item[open] :\\
+ Viene fatto uno ''Screen shot`` dello stato attuale del sistema, e viene salvato nel \textbf{Per FileDescriptor
+Memory}.
+ \item[read] :\\
+ Permette di trasferire la stringa al lettore contenente le informazioni del sistema.
+ \item[lseek] :\\
+ Permette di muovere lo spiazzamento di lettura per poter tornare indietro, in caso di bisogno
+ \item[relase] (close) :\\
+ Permette di cancellare la memoria precedentemente allocata per bufferizzare lo ''Screen shot`` del sistema
+\end{description}
+
+
+Usando queste 4 operazioni è possibile far leggere lo stato del sistema al momento della Open, e aggiornando chiudendo
+e riaprendo il File Descriptor.
+
+\subsubsection{Undestanding Output}
+
+Essendo il sistema organizzato con 2 alberi, la soluzione migliore per mostrare lo stato, tanto del sistema, quanto
+degli alberi, è stata usare ogni riga per rappresentate un \textbf{Nodo}, e le righe \textbf{Superiori} e
+\textbf{Inferiori} per i propri figli.
+
+Per leggere lo stato della stanza abbiamo che le informazioni sono:
+\begin{enumerate}
+ \item \tagSys e \keySys della stanza, e il suo indirizzo di memoria.
+ \item Pid del creatore e tipo della stanza \textit{Open for all=0}/\textit{Usabile solo dal processo creante=1}.
+ \item Lista dei \Topic in cui vi è almeno 1 \Reader in attesa, se non è presente nessun Reader viene scritto ''no
+Waiters``
+ \item Somma dei \Reader in attesa in tutta la stanza
+\end{enumerate}
+
+I numeri tra parentesi rappresentano il fattore di sbilanciamento dell'Albero-AVL e per via della struttura non possono
+mai essere diversi da: -1, 0, +1.
+
+Nel \tagTree sono presenti effettivamente tutte le stanze del sistema; il \keyTree raccoglie solo quelle che hanno
+visibilità pubblica.
+
+\subsubsection{Example of Output}
+
+Di seguito l'output del sistema dopo aver eseguito il 7° test, che apre, parla e comunica a caso con un migliaio di
+processi, alcuni topic non vengono quindi mai scritti, e si ha l'effetto che rimangono in attesa.
+
+In seguito, digitando \verb|Ctrl+C| viene mandato a tutti i Thread un sig-int che no essendo gestito user-space, porta
+al risveglio dalla wait, ma causa anche la terminazione del processo, ciò lascia un sistema ''Sporco`` e senza lettori,
+mostrato nel secondo listato:
+
+\newpage
+
+\begin{center}\begin{large}
+System Screen-shot after running \verb |./test/7_roomExange_LOAD.out|
+\end{large}\end{center}
+\begin{indentPar}{1.25cm}
+\begin{scriptsize}\begin{verbatim}
+tagTree (#room = 6; maxRoom = 256):
+     .--{@tag(61)-@key(3)-->000000007ce9f0c4} [Creator=13919-perm=0 |L1=77| sum = 77]
+ (-1)
+    |     `--{@tag(51)-@key(7)-->000000008aec9ce4} [Creator=13459-perm=0 |L1=113| sum = 113]
+ (+0)
+---{@tag(45)-@key(5)-->000000002e6a0bb1} [Creator=13185-perm=0 |L1=104| sum = 104]
+ (+0)
+    |     .--{@tag(23)-@key(6)-->000000007894bbe5} [Creator=11755-perm=0 |L1=112| sum = 112]
+ (+0)
+     `--{@tag(22)-@key(0)-->00000000b0a6d2fa} [Creator=11753-perm=0 |L1=93| sum = 93]
+ (+0)
+          `--{@tag(10)-@key(2)-->00000000a6a5c13b} [Creator=11209-perm=0 |L1=92| sum = 92]
+ (+0)
+
+
+keyTree:
+     .--{@tag(51)-@key(7)-->000000008aec9ce4} [Creator=13459-perm=0 |L1=113| sum = 113]
+ (-1)
+    |     `--{@tag(23)-@key(6)-->000000007894bbe5} [Creator=11755-perm=0 |L1=112| sum = 112]
+ (+0)
+---{@tag(45)-@key(5)-->000000002e6a0bb1} [Creator=13185-perm=0 |L1=104| sum = 104]
+ (+0)
+    |     .--{@tag(61)-@key(3)-->000000007ce9f0c4} [Creator=13919-perm=0 |L1=77| sum = 77]
+ (+0)
+     `--{@tag(10)-@key(2)-->00000000a6a5c13b} [Creator=11209-perm=0 |L1=92| sum = 92]
+ (+0)
+          `--{@tag(22)-@key(0)-->00000000b0a6d2fa} [Creator=11753-perm=0 |L1=93| sum = 93]
+ (+0)
+\end{verbatim}\end{scriptsize}
+\end{indentPar}
+
+\begin{center}\begin{large}
+System Screen-shot after sending the signal \verb|Ctrl+C|
+\end{large}\end{center}
+
+\begin{indentPar}{1.5cm}
+\begin{scriptsize}\begin{verbatim}
+tagTree (#room = 6; maxRoom = 256):
+     .--{@tag(61)-@key(3)-->000000007ce9f0c4} [Creator=13919-perm=0 <no Waiters>]
+ (-1)
+    |     `--{@tag(51)-@key(7)-->000000008aec9ce4} [Creator=13459-perm=0 <no Waiters>]
+ (+0)
+---{@tag(45)-@key(5)-->000000002e6a0bb1} [Creator=13185-perm=0 <no Waiters>]
+ (+0)
+    |     .--{@tag(23)-@key(6)-->000000007894bbe5} [Creator=11755-perm=0 <no Waiters>]
+ (+0)
+     `--{@tag(22)-@key(0)-->00000000b0a6d2fa} [Creator=11753-perm=0 <no Waiters>]
+ (+0)
+          `--{@tag(10)-@key(2)-->00000000a6a5c13b} [Creator=11209-perm=0 <no Waiters>]
+ (+0)
+
+
+keyTree:
+     .--{@tag(51)-@key(7)-->000000008aec9ce4} [Creator=13459-perm=0 <no Waiters>]
+ (-1)
+    |     `--{@tag(23)-@key(6)-->000000007894bbe5} [Creator=11755-perm=0 <no Waiters>]
+ (+0)
+---{@tag(45)-@key(5)-->000000002e6a0bb1} [Creator=13185-perm=0 <no Waiters>]
+ (+0)
+    |     .--{@tag(61)-@key(3)-->000000007ce9f0c4} [Creator=13919-perm=0 <no Waiters>]
+ (+0)
+     `--{@tag(10)-@key(2)-->00000000a6a5c13b} [Creator=11209-perm=0 <no Waiters>]
+ (+0)
+          `--{@tag(22)-@key(0)-->00000000b0a6d2fa} [Creator=11753-perm=0 <no Waiters>]
+ (+0)
+\end{verbatim}\end{scriptsize}
+\end{indentPar}
+

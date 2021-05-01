@@ -35,6 +35,7 @@ all:
 	$(CC) $(USER_DIR)/test/05_signalWait.c $(USER_LIB_INC) -o $(TEST_DIR)/5_signalWait.out -Iinclude
 #	Rand test
 	$(CC) $(USER_DIR)/test/06_roomExange_signal_LOAD.c $(USER_LIB_INC) -o $(TEST_DIR)/6_roomExange_signal_LOAD.out -Iinclude
+	$(CC) $(USER_DIR)/test/07_roomExange_LOAD.c $(USER_LIB_INC) -o $(TEST_DIR)/7_roomExange_LOAD.out -Iinclude
 
 clean:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean

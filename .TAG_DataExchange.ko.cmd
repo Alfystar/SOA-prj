@@ -1,0 +1,1 @@
+cmd_/home/alfy/Documents/uniGitHub/SOA-prj/TAG_DataExchange.ko := ld -r -m elf_x86_64 --build-id=sha1  -T scripts/module.lds -o /home/alfy/Documents/uniGitHub/SOA-prj/TAG_DataExchange.ko /home/alfy/Documents/uniGitHub/SOA-prj/TAG_DataExchange.o /home/alfy/Documents/uniGitHub/SOA-prj/TAG_DataExchange.mod.o;  true
