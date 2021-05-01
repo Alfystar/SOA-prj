@@ -1,1 +1,0 @@
-cmd_/home/alfy/Documents/uniGitHub/SOA-prj/Module.symvers := sed 's/ko$$/o/' /home/alfy/Documents/uniGitHub/SOA-prj/modules.order | scripts/mod/modpost -m -a   -o /home/alfy/Documents/uniGitHub/SOA-prj/Module.symvers -e -i Module.symvers   -T -
