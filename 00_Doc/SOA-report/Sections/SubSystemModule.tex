@@ -1,22 +1,4 @@
-\section{SubSystem of Module}
-
-Il progetto è organizzato in 3 diversi sotto sistemi:
-\begin{enumerate}
-\item \nameref{SysCallDiscovery} \\
-    Sviluppato direttamente dal repository del professore
-    (\href{https://github.com/FrancescoQuaglia/Linux-sys_call_table-discoverer}{Git repository}), la quale è stata
-    modificata per farla diventare una libreria del sistema
-\item \nameref{tbde} \\
-    Libreria core del sistema, essa implementale funzionalità richieste per il progetto
-\item \nameref{CharDevice} \\
-    Libreria che permette di esporre il Modulo al resto del sistema operativo facendolo passare per un dispositivo a
-    caratteri
-\end{enumerate}
-
-I quali sono organizzati affinché lavorino con il maggior livello di interdipendenza possibile, facendoli mettere in
-comunicazione dentro \textit{main.c}.
-
-\subsection{SysCall Discovery} \label{SysCallDiscovery}
+\section{SysCall Discovery} \label{SysCallDiscovery}
 
 Il Sotto-sistema che si occupa di ricercare la posizione all'interno della memoria della \verb|sys_call_table| è stato
 sviluppato partendo dal lavoro del professore Francesco Quaglia
@@ -33,18 +15,19 @@ Se il test ha successo, allora l'area di memoria trovata viene considera la \ver
 Il rischio di falsi positivi tuttavia esiste, e per minimizzare un simile rischio sono state utilizzate gli
 spiazzamenti di 7 diverse SysCall non implementate, così da rendere minimo il rischio di falsi positivi.
 
-Le posizioni trovate, vengono salvate su un array e la libreria permette di modificare queste entry.
-Durante lo smontamento del modulo, la libreria si occupa di ripristinare la tabella alla sua forma originale.
+\subsection{Enhanced Features} \label{SysCallDiscovery_EnhancedFeatures}
+In aggiunta alle funzionalità offerte dal progetto base del professore, il sotto sistema è in grado di restorare le
+entry modificare dal sistema durante lo smontamento del modulo.
 Ciò è verificabile montando e smontando ripetutamene il modulo: se le syscall non fossero ripristinate, sarebbe
 impossibile individuare nuovamente la tabella.
 \newpage
 
 
-\subsection{Tag-Based Data Exange} \label{tbde}
+\section{Tag-Based Data Exange} \label{tbde}
 
 Il cuore del progetto (lo scambio di messaggi tra processi) viene realizzato dal TBDE SubSystem.
 
-Per poter svolgere la sua funzione, si è scelto di organizzare le strutture dati in:
+Per poter svolgere la sua funzione, si è scelto di usare come strutture dati:
 \begin{description}
 \item[AVL-Tree] per indicizzare le stanze per \tagSys e \keySys:\\
     Il sistema usa 2 Alberi-AVL di ricerca, \tagTree e \keyTree, per indicizzare in maniera efficiente le
@@ -82,7 +65,7 @@ effettivamente a 0 il contatore esegue anche le operazioni di liberazione della 
 
 \item[\Topic] (\exangeRoom):\\
 Ogni stanza ha a sua volta 32 \exangeRoom (i \Topic), che permettono lo scambio effettivo delle informazioni
-tra 1 \Writer e gli n-\Reader precedentemente in attesa su questo livello dall'arrivo del precedente \Writer.
+tra 1 \Writer e gli n-\Reader precedentemente in attesa su questo \Topic dall'arrivo del precedente \Writer.
 
 Ognuna delle \exangeRoom è anch'essa un oggetto del sistema, e viene gestita con le API dei \texttt{refcount},
 l'unica differenza è che per le \exangeRoom risulta ammissibile che la stanza sia valida con un contatore a 0,
@@ -102,13 +85,15 @@ lo scambio di messaggi, fare riferimento alla sezione \nameref{exangeDataProtoco
 
 \newpage
 
-\subsubsection{Exange Data protocol} \label{exangeDataProtocol}
+\subsection{Exange Data protocol} \label{exangeDataProtocol}
 
 Fin dall'inizio della sua progettazione, l'obiettivo principale del sistema è stato permettere a un \Writer di
 comunicare con tutti gli n-\Reader precedente accodati sul \Topic, nel minor tempo possibile ed evitando lock
-di sincronizzazione, il risultato è un sistema rapido e snello, che ha come \textbf{unico lock} un \textit{custom lock
-di enable/disable della Free} (vedi \nameref{memFreeLockProt}), che comunque rallenta al più per un paio di cicli
-macchina, ma evita una rara, seppur possibile, corsa critica nell'accesso a un area di memoria.
+di sincronizzazione, il risultato è un sistema rapido e snello, che rallenta solo durante la Creazione o Rimozione
+delle stanza (operazioni supposte infrequenti) e nelle operazioni di comunicazione richiede un unico \textit{Soft Lock}
+implementato come un \textit{custom lock di enable/disable Free} (vedi \nameref{memFreeLockProt}), che comunque
+rallenta al più per un paio di cicli macchina, ma evita una rara, seppur possibile, corsa critica nell'accesso a un area
+di memoria.
 
 Per accodare e addormentare i \Reader in attesa sono state utilizzate le  \texttt{API di Wait-Queue} del Kernel che già
 evitano il problema del \underline{Wake up Lost Problem}.
@@ -277,7 +262,7 @@ circoscrivere ai soli thread interessanti il rallentamento.
 
 % \newpage
 
-\subsubsection{AVL-Tree Performance} \label{treePerf}
+\subsection{AVL-Tree Performance} \label{treePerf}
 Dopo aver visto l'architettura del sistema, ragionevolmente ci si può chiedere:
 
 \begin{center}
@@ -292,6 +277,8 @@ mente le priorità del sistema:
  \item Evitare operazioni inutili
  \item Parallelizzare le operazioni (in particolare quelle più frequenti)
 \end{enumerate}
+
+\subsubsection{RWLock AVL-Tree vs RCU List} \label{AVL_Vs_RCUList}
 
 Andiamo ora a comparare le prestazioni possibili tra:
 
@@ -367,6 +354,8 @@ considerazioni hanno portato all'esclusione delle liste RCU per questa specifica
 considerando che è possibile modificare a \RunTime il numero massimo di Stanze, facendo aumentare sempre più il
 vantaggio di usare un Albero-AVL.
 
+\subsubsection{RWLock AVL-Tree vs RCU AVL-Tree} \label{AVL_Vs_RCUAvl}
+
 Alla fine di questi calcoli viene normale chiedersi:
 
 \begin{center}
@@ -382,7 +371,7 @@ favorita la strada di uno \underline{Spinlock RW}.
 
 \newpage
 
-\subsection{Char Device} \label{CharDevice}
+\section{Char Device} \label{CharDevice}
 
 Al fine di poter osservare lo stato del sistema, è stato prevista l'aggiunta di un device-driver, che permetta di
 ottenere una stringa inerente lo stato del sistema.

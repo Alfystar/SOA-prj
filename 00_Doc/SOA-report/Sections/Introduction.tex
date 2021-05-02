@@ -64,3 +64,22 @@ implemento il
 
 Per terminare, sono forniti diversi codici di test e gli script che permettono di interagire attraverso il terminale
 con il modulo.
+
+\subsection{SubSystem division}
+
+Il progetto è organizzato in 3 diversi sotto sistemi:
+\begin{enumerate}
+    \item \nameref{SysCallDiscovery} \\
+    Sviluppato direttamente dal repository del professore
+    (\href{https://github.com/FrancescoQuaglia/Linux-sys_call_table-discoverer}{Git repository}), il quale è stato
+    modificato per farlo diventare una libreria integrata nel sistema, con qualche funzione di interfaccia
+    \item \nameref{tbde} \\
+    Libreria core del sistema, essa implementale funzionalità richieste per il progetto
+    \item \nameref{CharDevice} \\
+    Libreria che permette di esporre il Modulo al resto del sistema operativo facendolo passare per un dispositivo a
+    caratteri
+\end{enumerate}
+
+I Sotto-sistemi sono organizzati affinché lavorino con il maggior livello di interdipendenza possibile, facendoli
+mettere in
+comunicazione dentro \textit{main.c}.
