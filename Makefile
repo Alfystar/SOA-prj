@@ -14,6 +14,7 @@ USER_LIB_INC=-I$(USER_DIR)/tbdeUser $(USER_DIR)/tbdeUser/tbdeUser.c
 ifeq ($(KERNELRELEASE),)
 # if KERNELRELEASE is not defined, we've been called directly from the command line.
 # Invoke the kernel build system.
+PWD=$(shell pwd)
 .PHONY: all install clean uninstall load unload
 all:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
@@ -22,7 +23,6 @@ all:
 	$(CC) $(USER_DIR)/tbdeCmd/send.c $(USER_LIB_INC) -o $(CMD_DIR)/send.out -Iinclude
 	$(CC) $(USER_DIR)/tbdeCmd/recive.c $(USER_LIB_INC) -o $(CMD_DIR)/recive.out -Iinclude
 	$(CC) $(USER_DIR)/tbdeCmd/ctl.c $(USER_LIB_INC) -o $(CMD_DIR)/ctl.out -Iinclude
-
 	mkdir -p $(TEST_DIR)
 #	Create/Open-delete test	
 	$(CC) $(USER_DIR)/test/01_createDeleteTest.c $(USER_LIB_INC) -o $(TEST_DIR)/1_createDeleteTest.out -Iinclude
@@ -41,7 +41,7 @@ clean:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
 	rm -r $(TEST_DIR)
 	rm -r $(CMD_DIR)
-	
+
 install:
 	$(MAKE) -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules_install
 	ln -s /lib/modules/$(shell uname -r)/extra/$(MODNAME).ko /lib/modules/$(shell uname -r)
@@ -51,6 +51,7 @@ uninstall:
 	rm /lib/modules/$(shell uname -r)/extra/$(MODNAME).ko
 	rm /lib/modules/$(shell uname -r)/$(MODNAME).ko
 	depmod -a
+
 load:
 	echo "$(MODNAME) Loading..."
 	sudo insmod $(MODNAME).ko
@@ -75,7 +76,7 @@ $(MODNAME)-y += ./lib/sysCall_Discovery/sysCall_Discovery.o ./lib/sysCall_Discov
 # charDevice Sub-system
 $(MODNAME)-y += ./lib/charDev/charDev.o
 
-# this ar need to add the include path to the kernel build system
+# this are need to add the include path to the kernel build system
 ccflags-y := -I$(PWD)/include
 
 endif

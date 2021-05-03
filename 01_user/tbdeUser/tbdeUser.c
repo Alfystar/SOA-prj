@@ -146,6 +146,7 @@ void tagSend_perror(int tag) {
   // Return tag_send:
   //  succes            :=    return 0
   //  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE), or not present
+  //  ENODATA           :=    Problem to transmit data to the sub-system
   //  ENOMSG            :=    Tag not found
   //  EBADRQC           :=    Permission invalid to execute the operation
   //  EBADSLT           :=    asked level is over levelDeep
@@ -155,6 +156,9 @@ void tagSend_perror(int tag) {
   switch (errno) {
   case EXFULL:
     printf("[tag_send] @tag=%d error, Buffer too long (out of MAX_BUF_SIZE), or not present\n", tag);
+    break;
+  case ENODATA:
+    printf("[tag_send] @tag=%d error, Problem to transmit data to the sub-system\n", tag);
     break;
   case ENOMSG:
     printf("[tag_send] @tag=%d error, Tag not found\n", tag);

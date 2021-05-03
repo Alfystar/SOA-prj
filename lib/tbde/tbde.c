@@ -199,6 +199,7 @@ unsigned long tag_get = (unsigned long)__x64_sys_tag_get;
 // Return tag_send:
 //  succes            :=    return 0
 //  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE), or not present
+//  ENODATA           :=    Problem to transmit data to the sub-system
 //  ENOMSG            :=    Tag not found
 //  EBADRQC           :=    Permission invalid to execute the operation
 //  EBADSLT           :=    asked level is over levelDeep
@@ -228,7 +229,10 @@ asmlinkage long tag_send(int tag, int level, char *buffer, size_t size) {
     return -EXFULL;
   }
   buf = vzalloc(size);
-  copy_from_user(buf, buffer, size);
+  if (copy_from_user(buf, buffer, size) != 0) {
+    tbde_err("[tag_send] impossible copy buffer from sender");
+    return -ENODATA;
+  }
 
   roomSearch.tag = tag;
 

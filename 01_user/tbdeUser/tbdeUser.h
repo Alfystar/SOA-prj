@@ -38,6 +38,7 @@ int tag_get(int key, int command, int permission);
 // Return tag_send:
 //  succes            :=    return 0
 //  EXFULL            :=    Buffer too long (out of MAX_BUF_SIZE), or not present
+//  ENODATA           :=    Problem to transmit data to the sub-system
 //  ENOMSG            :=    Tag not found
 //  EBADRQC           :=    Permission invalid to execute the operation
 //  EBADSLT           :=    asked level is over levelDeep
