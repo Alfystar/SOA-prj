@@ -1,0 +1,19 @@
+\section{Build And Test} \label{buildAndTest}
+
+Per concludere, è possibile reperire sul: \href{https://github.com/Alfystar/SOA-prj}{Project Git Repository}, un recup
+delle features implementate e una lieve guida alla compilazione e caricamento della libreria nel Kernel.
+
+I comandi necessari sono stati embeddati all'interno del file \verb|Makefile|.
+
+Il programma è stato scritto usando come editor Visual Studio Code, con l'enviroment impostato per leggere i sorgenti
+del Kernel ``Linkati'' tramite link simbolico alla directory \verb|/usr/src| in questa maniera::
+
+\begin{verbatim}
+/usr/src
+|-- linux -> linux-headers-5.11.0-16
+|-- linux-generic -> linux-headers-5.11.0-16-generic
+|-- linux-headers-5.11.0-16
+|-- linux-headers-5.11.0-16-generic
+\end{verbatim}
+
+Realizzabile con i permessi di root usando da terminale \verb|ls -s <Target dir> <Link name>|.

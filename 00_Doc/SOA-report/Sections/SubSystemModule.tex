@@ -1,24 +1,24 @@
 \section{SysCall Discovery} \label{SysCallDiscovery}
 
-Il Sotto-sistema che si occupa di ricercare la posizione all'interno della memoria della \verb|sys_call_table| è stato
+Il Sottosistema che si occupa di ricercare la posizione all'interno della memoria della \verb|sys_call_table| è stato
 sviluppato partendo dal lavoro del professore Francesco Quaglia
 (\href{https://github.com/FrancescoQuaglia/Linux-sys_call_table-discoverer}{Git repository}).
 
-In particolare il progetto è stato forkato al commit:
+In particolare il progetto è stato ``forkato'' al commit:
 \begin{verb}6eafea1bcacb0ee7f81f24657ce03290d98c7947\end{verb}, il quale è stato modificato e
-adattato per diventare una libreria del sistema che espone la funzionalità di modifica e ripristino delle syscall
-``Libere'' (le syscall che puntano a \verb|sys_ni_syscall|) necessarie.
+adattato per diventare una libreria del sistema che permette di esporre le funzionalità di modifica e ripristino
+delle syscall ``Libere'' (le syscall che puntano a \verb|sys_ni_syscall|) necessarie.
 
 Esso comincia una ricerca lineare lungo i primi 4GB della Ram, e verifica, byte per byte, la struttura della memoria
 sottostante, se essa coincide con quella della \verb|sys_call_table| nell'area di memoria in esame.
-Se il test ha successo, allora l'area di memoria trovata viene considera la \verb|sys_call_table|.
-Il rischio di falsi positivi tuttavia esiste, e per minimizzare un simile rischio sono state utilizzate gli
+Se il test ha successo, allora l'area di memoria trovata viene considerata la \verb|sys_call_table|.
+Il rischio di falsi positivi tuttavia esiste e per minimizzare un simile rischio sono stati utilizzati gli
 spiazzamenti di 7 diverse SysCall non implementate, così da rendere minimo il rischio di falsi positivi.
 
 \subsection{Enhanced Features} \label{SysCallDiscovery_EnhancedFeatures}
-In aggiunta alle funzionalità offerte dal progetto base del professore, il sotto sistema è in grado di restorare le
-entry modificare dal sistema durante lo smontamento del modulo.
-Ciò è verificabile montando e smontando ripetutamene il modulo: se le syscall non fossero ripristinate, sarebbe
+In aggiunta alle funzionalità offerte dal progetto base del professore, il Sottosistema è in grado di effettuare il
+restore delle entry modificate dal sistema durante lo smontamento del modulo.
+Ciò è verificabile montando e smontando ripetutamene il modulo: se le syscall non venissero ripristinate sarebbe
 impossibile individuare nuovamente la tabella.
 \newpage
 
@@ -35,7 +35,7 @@ Per poter svolgere la sua funzione, si è scelto di usare come strutture dati:
     L'albero principale è il \tagTree, mentre il \keyTree è di supporto per la ricerca efficiente delle
     stanze con visibilità ``pubblica''.\\
     Gli alberi sono sincronizzati mediante degli \texttt{Spinlock RW} che permettono di svolgere in \textbf{reale
-    parallelismo tutte le operazioni comunicazione} e vincolano a 1 thread alla volta per le operazioni di:
+    parallelismo tutte le operazioni comunicazione} e vincolano a 1 Thread alla volta per le operazioni di:
     \begin{itemize}
     \item \textit{Aggiunta} \\
         Creazione di una stanza, con visibilità pubblica o privata, usando permessi richiesti:\\
@@ -49,19 +49,19 @@ Per poter svolgere la sua funzione, si è scelto di usare come strutture dati:
 \end{itemize}
 
 \begin{footnotesize}
-Per maggiori informazioni sulla scelta di dell'uso di \texttt{Alberi-AVL RWLock} rispetto a una lista
-RCU, riferirsi all'approfondimento alla sezione \nameref{treePerf}.
+Per maggiori informazioni sulla scelta di usare \texttt{Alberi-AVL RWLock} rispetto a una lista
+RCU, fare riferimento all'approfondimento presente nella sezione \nameref{treePerf}.
 \end{footnotesize}
 
 I nodi degli Alberi puntano alle \textbf{Stanze} allocate nel sistema, non una copia personale per l'albero, ma
 proprio la stessa istanza, ciò implica che i 2 alberi devono essere consistenti tra di loro, e che il lock
-descritto precedentemente, copre contemporaneamente entrambe le strutture dati.
+descritto precedentemente, copra contemporaneamente entrambe le strutture dati.
 
 \item[Stanze] (\textit{Room}):\\
-Il nodo della \textbf{Stanza} è considerabile come un oggetto allocato nell'heap del kernel, si è reso
-quindi necessario usare le API dei \texttt{refcount} presenti all'interno del kernel. Il contatore cresce al
-crescere degli oggetti che la riferiscono, e decresce alla loro rimozione, il thread che la porta
-effettivamente a 0 il contatore esegue anche le operazioni di liberazione della memoria.
+Il nodo della \textbf{Stanza} è da considerare come un oggetto allocato nell'heap del Kernel, si è reso
+quindi necessario usare le API dei \texttt{refcount} presenti all'interno del Kernel. Il contatore cresce all'aumentare
+degli oggetti che puntano l'oggetto ``Stanza'' e decresce alla loro rimozione, il Thread che porta
+effettivamente il contatore della ``Stanza'' a 0 esegue anche le operazioni di liberazione della memoria.
 
 \item[\Topic] (\exangeRoom):\\
 Ogni stanza ha a sua volta 32 \exangeRoom (i \Topic), che permettono lo scambio effettivo delle informazioni
@@ -107,12 +107,6 @@ viene \textbf{Atomicamente Swappata}  con una vuota all'arrivo di un \Writer.
 Ciò fa ``catturare'' tutti i \Reader serializzati fino al suo arrivo e svegliare i \Reader addormentati senza
 concorrenza con altri \Writer, che possono eseguire in tranquillità parlando con i nuovi \Reader in attesa.
 
-% La logica dello scambio dati è molto simile a quella di una lista RCU da 1 nodo, la differenza sta nel modo in cui
-% viene considerato il periodo di grazia: in questo sistema, dove sono presenti i \texttt{refcount}, ogni thread,
-\Writer
-% compreso, tenta di fare una free della stanza, ma solo l'ultimo, colui che porta il contatore a 0, la esegue, così
-% facendo il sistema è lock-free, e solo l'ultimo thread ha il compito di liberare la memoria, evitando di tenere gli
-% altri in attesa in caso un thread per qualche motivo dovesse subire un rallentamento (priorità più bassa o simili).
 
 \subsubsection{Reader e Writer Protocol}
 Vediamo ora lo pseudo-codice dei 2 flussi:
@@ -121,7 +115,7 @@ Vediamo ora lo pseudo-codice dei 2 flussi:
 \caption{\Writer ExangeDataProtocol}\label{writeExange}
 \begin{algorithmic}[1]
 \Procedure{tagSend}{$tag, level, msg$}
-\State {\color{orange}$Read-Lock(\tagTree)$}
+\State {\color{orange}$ReadLock(\tagTree)$}
 \State $roomSearch \gets TreeSearch(tag, \tagTree)$
 \If {$roomSearch == FOUND$}
     \State $RoomRefInc(Room)$
@@ -153,21 +147,17 @@ Vediamo ora lo pseudo-codice dei 2 flussi:
 \caption{\Reader ExangeDataProtocol}\label{readExange}
 \begin{algorithmic}[1]
 \Procedure{tagRecive}{$tag, level, msg$}
-\State {\color{orange}$Read-Lock(\tagTree)$}
+\State {\color{orange}$ReadLock(\tagTree)$}
 \State $roomSearch \gets TreeSearch(tag, \tagTree)$
 \If {$roomSearch == FOUND$}
     \State $RoomRefInc(Room)$
     \State {\color{orange}$ReadUnLock(\tagTree)$}
     \If {$permissionCheck(roomSearch) == True $}
-        \State $newER \gets makeExangeRoom()$
-        {
-        \color{red}
-        \State $exange \gets currER(level)$\Comment{Ottengo la stanza attualmente sincronizzata}
-        \State $ExangeRefInc(exange)$
-        }
+        \State {\color{red}$exange \gets currER(level)$\Comment{Ottengo la stanza attualmente sincronizzata}}
+        \State {\color{red}$ExangeRefInc(exange)$}
         \State $InterruptableSleep(exange.WaitQueue)$
         \State ...
-        \State Wake Up Event
+        \State [Wake Up Event]
             \If {Wake up for signal}
                 \State {\color{blue} $ExitFreeExangeRoom(exange)$}
                 \State \textbf{return} $-1$\Comment{Signal Wake up}
@@ -190,8 +180,8 @@ Vediamo ora lo pseudo-codice dei 2 flussi:
 \textbf{N.B. Il protocollo descritto permette di far eseguire i \Writer e \Reader dello scambio dei messaggi in reale
 parallelismo!!!}
 
-Come è possibile vedere, il protocollo è molto lineare e non sono presenti lock o attese all'infuori dell'attesa del
-\Reader, necessaria e desiderata.
+Il protocollo risulta essere fluido e non sono presenti lock espliciti all'interno della \exangeRoom all'infuori
+dell'attesa del \Reader, necessaria e desiderata.
 
 Da osservare i comandi in {\color{blue} blu} del codice, essi evidenziano i 2 diversi tipi di FreeExangeRoom:
 \begin{description}
@@ -206,11 +196,11 @@ riferito da nessuno.
 \rule{\textwidth}{1pt}
 \subsubsection{Memory Free lock Protocol}\label{memFreeLockProt}
 
-Purtroppo però, la sezione {\color{red} Rossa} del \nameref{readExange} necessita di poter essere
+Purtroppo la sezione {\color{red} Rossa} del \nameref{readExange} necessita di poter essere
 eseguita \textbf{Atomicamente} per garantire che l'incremento del contatore avvenga prima che lo stesso possa essere
-eliminato da una {\color{blue}$TryFreeRoom(roomSearch)$}. Questa corsa critica in cui l'acquisizione della
-\textit{exangeRoom} e il successivo incremento del \textit{refcount} è stata eliminata implementato un protocollo di
-\texttt{\textbf{Memory Free lock}}:
+eliminato da una {\color{blue}$TryFreeRoom(roomSearch)$}. Per eliminare la corsa critica nell'acquisizione
+della \textit{exangeRoom} e il successivo incremento del \textit{refcount}, si è scelto di implementare
+un protocollo di \texttt{\textbf{Memory Free lock}}:
 
 Esso è inspirato alla logica delle liste RCU, con una differenza nel modo di attendere il \textbf{tempo di grazia}:
 classicamente è il \Writer a dover attendere il periodo di grazia, in questa versione invece è semplicemente il Thread
@@ -221,8 +211,8 @@ Per risolvere la corsa critica è stata scritto un piccolo Spinlock custom (repe
 
 \begin{indentPar}{2.5cm}
 \begin{small}
+Custom lock define:
 {\color{red}\begin{verbatim}
-// Custom lock define
 #define freeMem_Lock(atomic_freeLockCount_ptr)              \
   do {                                                      \
     preempt_disable();                                      \
@@ -322,8 +312,8 @@ accelerazione HW particolare, e specie per sistemi molto grandi, \textbf{l'Alber
 per capire meglio l'ultima affermazione consideriamo il seguente esempio al caso peggiore:
 
 \rule{\linewidth}{0.5pt}
-Nel sistema sono presenti {\color{orange}256 stanze}, e il SO ha a disposizione {\color{orange}8 Thread} per
-poter eseguire le operazioni, e prendiamo come periodo {\color{orange}256 operazioni} (supponiamo che ogni
+Nel sistema sono presenti {\color{teal}256 stanze}, il SO ha a disposizione {\color{teal}8 Thread} per
+poter eseguire le operazioni, prendiamo come periodo {\color{teal}256 operazioni} (supponiamo che ogni
 mossa tra un nodo e l'altro richieda 1 operazione), ecco le prestazioni massime che ci possiamo aspettare, supponendo
 che tutte le operazioni puntino al 256-esimo nodo:
 
@@ -348,13 +338,13 @@ che tutte le operazioni puntino al 256-esimo nodo:
  \item[\faFrownO] Search\\
   $8 [Thread] \cdot \frac{256 [OpTime]}{256 [Room]} = 8 [Op]$
  \item[\faFrownO] Insert/Delete (alternate) \\
-  $8 [Thread] \cdot \frac{256 [OpTime]}{256 [Room]} = 8 [Op]$
+  $1 [Thread] \cdot \frac{256 [OpTime]}{256 [Room]} = 1 [Op]$
 \end{itemize}
 \end{minipage}
 
 \rule{\linewidth}{0.5pt}
 
-In oltre, all'aumentare dei nodi e del periodo la vittoria dell'Albero-AVL risulta particolarmente evidente, queste
+Inoltre, all'aumentare dei nodi e del periodo la vittoria dell'Albero-AVL risulta particolarmente evidente, queste
 considerazioni hanno portato all'esclusione delle liste RCU per questa specifica implementazione del sistema, specie
 considerando che è possibile modificare a \RunTime il numero massimo di Stanze, facendo aumentare sempre più il
 vantaggio di usare un Albero-AVL.
@@ -364,7 +354,7 @@ vantaggio di usare un Albero-AVL.
 Alla fine di questi calcoli viene normale chiedersi:
 
 \begin{center}
-\textit{Perchè non usare direttamente una libreria di Alberi-AVL RCU?}
+\textit{Perché non usare direttamente una libreria di Alberi-AVL RCU?}
 \end{center}
 
 Qui la risposta è da trovare nei paper pubblicati: ad oggi (\today) l'argomento è dibattuto in ambito universitario, e
@@ -380,24 +370,25 @@ favorita la strada di uno \underline{Spinlock RW}.
 
 Al fine di poter osservare lo stato del sistema, è stato prevista l'aggiunta di un device-driver, che permetta di
 ottenere una stringa inerente lo stato del sistema.
-Per implementare il driver sono state scritte le funzioni di:
+Per implementare il driver sono state usate le seguenti \texttt{File Operation Function}:
+
 \begin{description}
- \item[open] :\\
- Viene fatto uno ''Screen shot`` dello stato attuale del sistema, e viene salvato nel \textbf{Per FileDescriptor
-Memory}.
- \item[read] :\\
+ \item [open] :\\
+Viene fatto uno ''Screenshot`` dello stato attuale del sistema sotto forma di stringa, e l'istantanea viene salvata
+nel \textbf{Per-FileDescriptor Memory}.
+ \item [read] :\\
  Permette di trasferire la stringa al lettore contenente le informazioni del sistema.
- \item[lseek] :\\
+ \item [lseek] :\\
  Permette di muovere lo spiazzamento di lettura per poter tornare indietro, in caso di bisogno
- \item[relase] (close) :\\
- Permette di cancellare la memoria precedentemente allocata per bufferizzare lo ''Screen shot`` del sistema
+ \item [relase] (close) :\\
+ Permette di cancellare la memoria precedentemente allocata per bufferizzare lo ''Screenshot`` del sistema
 \end{description}
 
 
-Usando queste 4 operazioni è possibile far leggere lo stato del sistema al momento della Open, e aggiornando chiudendo
+Usando queste 4 operazioni è possibile far leggere lo stato del sistema al momento della Open e aggiornando, chiudendo
 e riaprendo il File Descriptor.
 
-\subsubsection{Undestanding Output}
+\subsubsection{Analisi dell'Output} \label{OutputAnalisi}
 
 Essendo il sistema organizzato con 2 alberi, la soluzione migliore per mostrare lo stato, tanto del sistema, quanto
 degli alberi, è stata usare ogni riga per rappresentate un \textbf{Nodo}, e le righe \textbf{Superiori} e
@@ -423,7 +414,7 @@ visibilità pubblica.
 Di seguito l'output del sistema dopo aver eseguito il 7° test, che apre, parla e comunica a caso con un migliaio di
 processi, alcuni topic non vengono quindi mai scritti, e si ha l'effetto che rimangono in attesa.
 
-In seguito, digitando \verb|Ctrl+C| viene mandato a tutti i Thread un sig-int che no essendo gestito user-space, porta
+In seguito, digitando \verb|Ctrl+C| viene mandato a tutti i Thread un sigint che non essendo gestito user-space, porta
 al risveglio dalla wait, ma causa anche la terminazione del processo, ciò lascia un sistema ''Sporco`` e senza lettori,
 mostrato nel secondo listato:
 

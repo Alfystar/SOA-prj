@@ -1,13 +1,14 @@
 \section{Introduzione}
 
 Il progetto ha l'obiettivo di mettere in comunicazione un numero imprecisato di processi all'interno dello stesso
-kernel, e permettere lo scambio di un messaggio tra 1 \Writer e gli N-\Reader precedentemente in attesa su di un canale.
+Kernel, e permettere lo scambio di un messaggio tra 1-\Writer e gli N-\Reader precedentemente in attesa su un
+canale.
 
 La comunicazione viene svolta nel minor tempo possibile e adottando un algoritmo \textit{Semi-Lock Free} (permette e
 favorisce la concorrenza nelle operazioni di scambio di messaggi, ma blocca nelle operazione di creazione e rimozione
 di stanze dal sistema).
 
-Il comportamento desiderato è che l'arrivo di 1-\Writer per scrive su di un canale, porti al risveglio degli N-\Reader
+Il comportamento desiderato è che l'arrivo di 1-\Writer per scrivere su un canale porti al risveglio degli N-\Reader
 precedentemente in attesa sullo stesso, il tutto nel minor tempo possibile.
 
 \subsection{Identificazione dei canali di comunicazione}
@@ -36,10 +37,10 @@ puntavano alla \verb|sys_ni_syscall|, ovvero quelle ancora implementate nel kern
 
 \begin{enumerate}
     \item \verb|int tag_get(int key, int command, int permission)|\\
-    Per me mezzo di questa syscall è possibile creare una stanza con visibilità pubblica o privata (key) per i
+    Per mezzo di questa syscall è possibile creare una stanza con visibilità pubblica o privata (key) per i
     Thread degli altri processi, e decidere se vi possono lavorare o meno (permission)
     \item \verb|int tag_send(int tag, int level, char* buffer, size_t size)|\\
-    Questa syscall permette a un \Writer di pubblicare nella stanza desiderata al \Topic voluto
+    Questa syscall permette a un \Writer di pubblicare nella stanza desiderata al \Topic desiderato
     \item \verb|int tag_receive(int tag, int level, char* buffer, size_t size)|\\
     Questa syscall mette un \Reader in attesa nella stanza al \Topic desiderato finchè un \Writer non la risveglia
     \item \verb|int tag_ctl(int tag, int command)|\\
@@ -67,7 +68,7 @@ con il modulo.
 
 \subsection{SubSystem division}
 
-Il progetto è organizzato in 3 diversi sotto sistemi:
+Il progetto è organizzato in 3 diversi Sottosistemi:
 \begin{enumerate}
     \item \nameref{SysCallDiscovery} \\
     Sviluppato direttamente dal repository del professore
@@ -80,6 +81,6 @@ Il progetto è organizzato in 3 diversi sotto sistemi:
     caratteri
 \end{enumerate}
 
-I Sotto-sistemi sono organizzati affinché lavorino con il maggior livello di interdipendenza possibile, facendoli
+I Sottosistemi sono organizzati affinché lavorino con il maggior livello di interdipendenza possibile, facendoli
 mettere in
 comunicazione dentro \textit{main.c}.

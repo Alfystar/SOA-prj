@@ -1,5 +1,7 @@
 # Sistemi Operativi Avanzati - Project
-[Progetto di Sistemi Operativi Avanzati 2021](https://francescoquaglia.github.io/TEACHING/AOS/PROJECTS/project-specification-2020-2021.html), prof Francesco Quaglia, Tor Vergata
+[Progetto di Sistemi Operativi Avanzati 2021](https://francescoquaglia.github.io/TEACHING/AOS/PROJECTS/project-specification-2020-2021.html), prof Francesco Quaglia, Tor Vergata.
+
+[Report del progetto](/00_Doc/SOA-report/main.pdf)
 
 ### Project state
 Core:
@@ -19,17 +21,29 @@ Driver:
 
 Technicism:
 - [x] Rooms indexing with AVL tree for key & tag
-- [x] Max Room in the system modify at run time
+- [x] **Max Room in the system modify at run time**
 - [x] Refcount of the Obj to perform free only when need
-- [x] Different level of verbose in dmes with macro
+- [x] *Different level of verbose in dmes with macro*
 - [x] No locking in normal read/write operation, only queuing
 ### Build and load
-To build and load the project run:
+To build and load the project the only think you need are the `make` program, all the target are present inside the `Makefile`, and to build, load ,unload and clean need only his.
+
+
+
+In particular, to unload, clean, make, reload you can copy and paste this:
+
 ```bash
-make unload ; make clean ; make -j$(nproc) ; make load ; sudo dmesg --clear 
+make unload ; make clean ; make -j$(nproc) ; make load 
+```
+If you also want delete all previus System Message and keep only from now, use:
+```bash
+make unload ; make clean ; make -j$(nproc) ; sudo dmesg --clear ; make load 
 ```
 ### Using and Testing
-To test the varius scenarius there are 6° test script in the `test` directory (create by make).
+
+**After the building** of the `Makefile` you can:
+
+- Test the varius scenarius there are 6° test script in the `test` directory (create by make).
 
 ```
 test/
@@ -38,12 +52,13 @@ test/
 ├── 3_roomExange.out
 ├── 4_wakeUpTest.out
 ├── 5_signalWait.out
-└── 6_roomExange_signal_LOAD.out
+├── 6_roomExange_signal_LOAD.out
+└── 7_roomExange_LOAD.out
 ```
 
 
 
-Is also possible interact with the system with the cmd scritp present in `cmd` directory (create by make).
+- Interact with the system with the cmd scritp present in `cmd` directory (create by make).
 
 ```
 cmd/
@@ -53,25 +68,28 @@ cmd/
 └── send.out
 ```
 
+More over, **after the loading the module into the Kernel** you can:
 
-
-To see the actual state of the system, after loading is possible use:
+- See the actual state of the system, after loading is possible use:
 
 ```bash
 cat /dev/TAG_DataExchange/tbde_stat 
 ```
 
-And finaly, to change the current max-room allow in the system (keep in mind the min number must be 256, and the number must be >= than the current used room:
+- Change the current max-room allow in the system:
 
 ```bash
 sudo su
 echo {New Number} > /sys/kernel/TAG_DataExchange/MAX_ROOM
+# Keep in mind at least there are 256 rooms, and if the number of current
+# opened room are grate of the propose, the change will be ignore
 ```
 
-In `/sys/module/TAG_DataExchange` is possible found the module variable expose of the system
+- Found in `/sys/module/TAG_DataExchange` the expose variable of the system (like the syscall number array)
 
 ### Tested platform
 For now the system passed all of the 6-th test + unload on:
 - [x] Kde Neon 20.04 LTS (Kernel 5.4.xxx) (real machine)
-- [x] Xubunto 20.10 LTS (Kernel 5.8.xxx) (virtual machine)
+- [x] Xubunto 20.10  (Kernel 5.8.xxx) (virtual machine)
 
+- [x] Kubunto 21.04  (Kernel 5.11.xxx) (real machine)

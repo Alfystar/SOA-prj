@@ -2,7 +2,16 @@
 kile_livePreviewEnabled=true
 kile_livePreviewStatusUserSpecified=true
 kile_livePreviewTool=LivePreview-PDFLaTeX/PSTricks
-lastDocument=Sections/SubSystemModule.tex
+lastDocument=Sections/BuildAndLoad.tex
+
+[document-settings,item:Sections/BuildAndLoad.tex]
+Bookmarks=
+Encoding=UTF-8
+Highlighting=LaTeX
+Highlighting Set By User=false
+Indentation Mode=normal
+Mode=LaTeX
+Mode Set By User=false
 
 [document-settings,item:Sections/Introduction.log]
 Bookmarks=
@@ -138,13 +147,17 @@ order=-1
 open=false
 order=-1
 
+[item:Sections/BuildAndLoad.tex]
+open=true
+order=5
+
 [item:Sections/Introduction.log]
 open=false
 order=-1
 
 [item:Sections/Introduction.tex]
 open=true
-order=4
+order=3
 
 [item:Sections/SubSystemModule.tex]
 open=true
@@ -155,8 +168,8 @@ open=false
 order=-1
 
 [item:Sections/abstact.tex]
-open=false
-order=5
+open=true
+order=4
 
 [item:Sections/title.log]
 open=false
@@ -167,7 +180,7 @@ open=false
 order=2
 
 [item:alfySetting.sty]
-open=true
+open=false
 order=3
 
 [item:main.tex]
@@ -175,7 +188,7 @@ open=true
 order=0
 
 [item:setup.sty]
-open=false
+open=true
 order=6
 
 [item:soa-report.kilepr]
@@ -186,6 +199,14 @@ order=-1
 open=true
 order=1
 
+[view-settings,view=0,item:Sections/BuildAndLoad.tex]
+CursorColumn=4
+CursorLine=14
+Dynamic Word Wrap=false
+JumpList=
+TextFolding=[]
+ViMarks=.,14,4,[,14,4,],14,4
+
 [view-settings,view=0,item:Sections/Introduction.log]
 CursorColumn=0
 CursorLine=0
@@ -195,12 +216,12 @@ TextFolding=[]
 ViMarks=
 
 [view-settings,view=0,item:Sections/Introduction.tex]
-CursorColumn=0
-CursorLine=68
+CursorColumn=51
+CursorLine=53
 Dynamic Word Wrap=true
 JumpList=
 TextFolding=[]
-ViMarks=.,67,31,[,68,0,],-1,-1
+ViMarks=.,70,39,[,70,39,],70,50
 
 [view-settings,view=0,item:Sections/OutLogToSave/devCat.txt]
 CursorColumn=5
@@ -211,12 +232,12 @@ TextFolding=[]
 ViMarks=
 
 [view-settings,view=0,item:Sections/SubSystemModule.tex]
-CursorColumn=32
-CursorLine=313
+CursorColumn=49
+CursorLine=259
 Dynamic Word Wrap=false
 JumpList=
 TextFolding=[]
-ViMarks=.,313,23,[,313,23,],313,31
+ViMarks=.,390,0,[,390,0,],390,0
 
 [view-settings,view=0,item:Sections/SystemModule.tex]
 CursorColumn=0
@@ -235,12 +256,12 @@ TextFolding=[]
 ViMarks=
 
 [view-settings,view=0,item:Sections/abstact.tex]
-CursorColumn=108
-CursorLine=13
+CursorColumn=109
+CursorLine=9
 Dynamic Word Wrap=false
 JumpList=
 TextFolding=[]
-ViMarks=.,13,107,[,13,107,],13,107
+ViMarks=.,6,78,[,6,78,],6,78
 
 [view-settings,view=0,item:Sections/title.log]
 CursorColumn=0
@@ -268,19 +289,19 @@ ViMarks=.,57,18,[,57,18,],57,18
 
 [view-settings,view=0,item:main.tex]
 CursorColumn=0
-CursorLine=45
+CursorLine=0
 Dynamic Word Wrap=false
 JumpList=
 TextFolding=[]
-ViMarks=.,44,0,[,45,0,],-1,-1
+ViMarks=.,47,0,[,47,0,],47,7
 
 [view-settings,view=0,item:setup.sty]
-CursorColumn=68
-CursorLine=61
+CursorColumn=40
+CursorLine=0
 Dynamic Word Wrap=false
 JumpList=
 TextFolding=[]
-ViMarks=
+ViMarks=.,5,0,[,5,0,],5,0
 
 [view-settings,view=0,item:textCommand.sty]
 CursorColumn=0
@@ -291,8 +312,8 @@ TextFolding=[]
 ViMarks=
 
 [view-settings,view=0,item:textStyle.sty]
-CursorColumn=31
-CursorLine=2
+CursorColumn=23
+CursorLine=11
 Dynamic Word Wrap=false
 JumpList=
 TextFolding=[]
