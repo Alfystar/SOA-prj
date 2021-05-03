@@ -211,12 +211,12 @@ TextFolding=[]
 ViMarks=
 
 [view-settings,view=0,item:Sections/SubSystemModule.tex]
-CursorColumn=87
-CursorLine=13
+CursorColumn=32
+CursorLine=313
 Dynamic Word Wrap=false
 JumpList=
 TextFolding=[]
-ViMarks=.,19,28,[,19,28,],19,28
+ViMarks=.,313,23,[,313,23,],313,31
 
 [view-settings,view=0,item:Sections/SystemModule.tex]
 CursorColumn=0
@@ -291,9 +291,9 @@ TextFolding=[]
 ViMarks=
 
 [view-settings,view=0,item:textStyle.sty]
-CursorColumn=18
-CursorLine=13
+CursorColumn=31
+CursorLine=2
 Dynamic Word Wrap=false
 JumpList=
 TextFolding=[]
-ViMarks=.,15,0,[,15,0,],15,0
+ViMarks=.,2,30,[,2,30,],2,30

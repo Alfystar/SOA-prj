@@ -38,8 +38,8 @@ Per poter svolgere la sua funzione, si è scelto di usare come strutture dati:
     parallelismo tutte le operazioni comunicazione} e vincolano a 1 thread alla volta per le operazioni di:
     \begin{itemize}
     \item \textit{Aggiunta} \\
-        Creazione di una stanza, pubblica o privata, con i permessi richiesti:\\
-        (\texttt{aperta a tutti}/\texttt{solo ai thread del processo creante})
+        Creazione di una stanza, con visibilità pubblica o privata, usando permessi richiesti:\\
+        (\texttt{\underline{Open}(aperta a tutti)}/\texttt{\underline{Private}(solo ai thread del processo creante)})
     \item \textit{Rimozione} \\
         Rimozione di una stanza, se i permessi lo permettono, il SUPER-UTENTE è sempre considerato valido
     \item \textit{Status-Print} \\
@@ -122,16 +122,16 @@ Vediamo ora lo pseudo-codice dei 2 flussi:
 \begin{algorithmic}[1]
 \Procedure{tagSend}{$tag, level, msg$}
 \State {\color{orange}$Read-Lock(\tagTree)$}
-\State $roomSearch \gets Tree_Search(tag, \tagTree)$
+\State $roomSearch \gets TreeSearch(tag, \tagTree)$
 \If {$roomSearch == FOUND$}
     \State $RoomRefInc(Room)$
-    \State {\color{orange}$ReadunLock(\tagTree)$}
+    \State {\color{orange}$ReadUnLock(\tagTree)$}
     \If {$permissionCheck(roomSearch) == True $}
-        \State $newER \gets makeExangeRoom()$
+        \State $newER \gets makeExangeRoom()$ \Comment{La coda vuota da Sostituire}
         \State $exange \gets CompareSwap(newER, currER(level))$\Comment{Swap atomico}
-        \State $ExangeRefInc(currER)$
+        \State $ExangeRefInc(exange)$
         \State $copyToExangeRoom(msg)$
-        \State $wakeUp(WaitQueue)$
+        \State $wakeUp(exange.WaitQueue)$
         \State {\color{blue} $tryFreeExangeRoom(exange)$}
         \State $TryFreeRoom(roomSearch)$
     \Else
@@ -139,7 +139,7 @@ Vediamo ora lo pseudo-codice dei 2 flussi:
         \State \textbf{return} $-1$\Comment{Operation fail}
     \EndIf
 \Else
-    \State {\color{orange}$ReadunLock(\tagTree)$}
+    \State {\color{orange}$ReadUnLock(\tagTree)$}
     \State \textbf{return} $-1$\Comment{Operation fail}
 
 \EndIf
@@ -154,18 +154,18 @@ Vediamo ora lo pseudo-codice dei 2 flussi:
 \begin{algorithmic}[1]
 \Procedure{tagRecive}{$tag, level, msg$}
 \State {\color{orange}$Read-Lock(\tagTree)$}
-\State $roomSearch \gets Tree_Search(tag, \tagTree)$
+\State $roomSearch \gets TreeSearch(tag, \tagTree)$
 \If {$roomSearch == FOUND$}
     \State $RoomRefInc(Room)$
-    \State {\color{orange}$ReadunLock(\tagTree)$}
+    \State {\color{orange}$ReadUnLock(\tagTree)$}
     \If {$permissionCheck(roomSearch) == True $}
         \State $newER \gets makeExangeRoom()$
         {
         \color{red}
         \State $exange \gets currER(level)$\Comment{Ottengo la stanza attualmente sincronizzata}
-        \State $ExangeRefInc(currER)$
+        \State $ExangeRefInc(exange)$
         }
-        \State $InterruptableSleep(WaitQueue)$
+        \State $InterruptableSleep(exange.WaitQueue)$
         \State ...
         \State Wake Up Event
             \If {Wake up for signal}
@@ -180,7 +180,7 @@ Vediamo ora lo pseudo-codice dei 2 flussi:
         \State \textbf{return} $-1$\Comment{Operation fail}
     \EndIf
 \Else
-    \State {\color{orange}$ReadunLock(\tagTree)$}
+    \State {\color{orange}$ReadUnLock(\tagTree)$}
     \State \textbf{return} $-1$\Comment{Operation fail}
 \EndIf
 \EndProcedure
@@ -196,10 +196,10 @@ Come è possibile vedere, il protocollo è molto lineare e non sono presenti loc
 Da osservare i comandi in {\color{blue} blu} del codice, essi evidenziano i 2 diversi tipi di FreeExangeRoom:
 \begin{description}
 \item[Exit Free]:\\
-In caso il contatore scenda a 0, non elimina la stanza, poiché l'area di memoria è in realtà ancora valida e
+In caso il contatore \textbf{scenda a 0}, non elimina la stanza, poiché l'area di memoria è in realtà ancora valida e
 raggiungibile
 \item[Try Free]:\\
-Quando il contatore scende a 0, si può effettivamente procedere all'eliminazione dell'oggetto, poichè non è più
+Quando il contatore \textbf{scende a 0}, si può effettivamente procedere all'eliminazione dell'oggetto, poichè non è più
 riferito da nessuno.
 \end{description}
 
@@ -207,20 +207,21 @@ riferito da nessuno.
 \subsubsection{Memory Free lock Protocol}\label{memFreeLockProt}
 
 Purtroppo però, la sezione {\color{red} Rossa} del \nameref{readExange} necessita di poter essere
-eseguita Atomicamente per garantire che l'incremento del contatore avvenga prima che lo stesso possa essere eliminato
-da una {\color{blue}$TryFreeRoom(roomSearch)$}. Questa corsa critica in cui l'acquisizione della \textit{exangeRoom} e
-il successivo incremento del \textit{refcount} è stata eliminata implementato un protocollo di \texttt{\textbf{Memory
-Free lock}}:
+eseguita \textbf{Atomicamente} per garantire che l'incremento del contatore avvenga prima che lo stesso possa essere
+eliminato da una {\color{blue}$TryFreeRoom(roomSearch)$}. Questa corsa critica in cui l'acquisizione della
+\textit{exangeRoom} e il successivo incremento del \textit{refcount} è stata eliminata implementato un protocollo di
+\texttt{\textbf{Memory Free lock}}:
 
-Esso è inspirato alla logica delle liste RCU, con la differenza con il metodo classico è che non è il \Writer
-a dover necessariamente attendere il periodo di grazia, ma semplicemente il Thread più ``lento`` ad eseguire il lavoro
-(dovuto magari a rallentamenti dovuti alla priorità del thread).
+Esso è inspirato alla logica delle liste RCU, con una differenza nel modo di attendere il \textbf{tempo di grazia}:
+classicamente è il \Writer a dover attendere il periodo di grazia, in questa versione invece è semplicemente il Thread
+più ``lento`` ad eseguire il lavoro (dovuto magari a rallentamenti per lo scheduler o la priorità del Thread).
 
 Per risolvere la corsa critica è stata scritto un piccolo Spinlock custom (reperibile in tbde.h):
 
 
 \begin{indentPar}{2.5cm}
-\begin{small}\begin{verbatim}
+\begin{small}
+{\color{red}\begin{verbatim}
 // Custom lock define
 #define freeMem_Lock(atomic_freeLockCount_ptr)              \
   do {                                                      \
@@ -233,7 +234,9 @@ Per risolvere la corsa critica è stata scritto un piccolo Spinlock custom (repe
     atomic_dec(atomic_freeLockCount_ptr);                   \
     preempt_enable();                                       \
   } while (0)
+\end{verbatim}}
 
+{\color{blue}\begin{verbatim}
 #define waitUntil_unlock(atomic_lockCount_ptr)              \
   do {                                                      \
     preempt_disable();                                      \
@@ -241,7 +244,7 @@ Per risolvere la corsa critica è stata scritto un piccolo Spinlock custom (repe
     };                                                      \
     preempt_enable();                                       \
   } while (0)
-\end{verbatim}
+\end{verbatim}}
 \end{small}
 \end{indentPar}
 
@@ -254,11 +257,13 @@ Dai \Reader (\verb|freeMem_Lock| e \verb|freeMem_unLock|) attorno alla sezione c
 \item
 All'interno della {\color{blue}$TryFreeRoom(roomSearch)$} (la \verb|waitUntil_unlock|) per poter verificare,
 \textbf{solo al raggiungimento dello 0}, che non sia in corso nessuna operazione rischiosa in memoria, e in tal caso
-attendere la terminazione e reagire di conseguenza alle modifiche del sistema.
+attendere la fine della sezione critica e reagire di conseguenza alle modifiche del sistema.
 \end{itemize}
 
-Per minimizzare al massimo l'impatto di questo soft-lock, ogni \Topic è dotato del suo personale memoryLock, così da
-circoscrivere ai soli thread interessanti il rallentamento.
+Per minimizzare al massimo l'impatto di questo \texttt{Soft-lock}, ogni \Topic è dotato del suo personale memoryLock,
+così da circoscrivere ai soli Thread interessanti il rallentamento. Va in oltre precisato che il rallentamento è
+sperimentato solo quando il contatore arriva a 0, durante i valori superiori del refcount, il contatore è gestito
+atomicamente dalle API del \textit{refcount}, senza l'uso di sezioni critiche.
 
 % \newpage
 
@@ -274,8 +279,8 @@ mente le priorità del sistema:
 
 \begin{enumerate}
  \item Scambio di messaggi rapido e affidabile tra i processi.
- \item Evitare operazioni inutili
  \item Parallelizzare le operazioni (in particolare quelle più frequenti)
+ \item Evitare operazioni inutili
 \end{enumerate}
 
 \subsubsection{RWLock AVL-Tree vs RCU List} \label{AVL_Vs_RCUList}
@@ -291,7 +296,7 @@ Andiamo ora a comparare le prestazioni possibili tra:
  \item[\faSmileO] \Writer e \Reader\\
 possono accedere in contemporanea e ci mettono al {\color{red}massimo O($log(N)$)} per arrivare alla stanza di loro
 interesse
-\item[\faSmileO\faMehO] Inserire/Rimuovere\\
+\item[\faMehO\faFrownO\faSmileO] Inserire/Rimuovere\\
 nodi con {\color{orange}1 Thread}, dovendo fermare i \Writer e \Reader al più per {\color{red}O($log(N)$)}
 
 \end{itemize}
@@ -306,7 +311,7 @@ nodi con {\color{orange}1 Thread}, dovendo fermare i \Writer e \Reader al più p
  \item[\faFrownO] \Writer e \Reader\\
 possono accedere in contemporanea e ci mettono al {\color{red}massimo O($N$)} per arrivare alla stanza di loro
 interesse
- \item[\faMehO] Inserire/Rimuovere\\
+ \item[\faMehO\faSmileO\faFrownO] Inserire/Rimuovere\\
 nodi con {\color{orange}1 Thread}, senza mai fermare i \Writer e \Reader, ogni operazione richiede
 {\color{red}O($N$)}
 \end{itemize}
