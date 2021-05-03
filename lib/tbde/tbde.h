@@ -98,8 +98,6 @@ typedef struct room_ {
     preempt_enable();                                                                                                  \
   } while (0)
 
-// preempt_enable_no_resched();
-
 #define waitUntil_unlock(atomic_lockCount_ptr)                                                                         \
   do {                                                                                                                 \
     preempt_disable();                                                                                                 \
