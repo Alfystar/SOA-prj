@@ -5,7 +5,7 @@ sviluppato partendo dal lavoro del professore Francesco Quaglia
 (\href{https://github.com/FrancescoQuaglia/Linux-sys_call_table-discoverer}{Git repository}).
 
 In particolare il progetto è stato ``forkato'' al commit:
-\begin{verb}6eafea1bcacb0ee7f81f24657ce03290d98c7947\end{verb}, il quale è stato modificato e
+\begin{verb}6eafea1bcacb0ee7f81f24657ce03290d98c7947\end{verb}; esso è stato modificato e
 adattato per diventare una libreria del sistema che permette di esporre le funzionalità di modifica e ripristino
 delle syscall ``Libere'' (le syscall che puntano a \verb|sys_ni_syscall|) necessarie.
 
@@ -39,13 +39,15 @@ Per poter svolgere la sua funzione, si è scelto di usare come strutture dati:
     \begin{itemize}
     \item \textit{Aggiunta} \\
         Creazione di una stanza, con visibilità pubblica o privata, usando permessi richiesti:\\
-        (\texttt{\underline{Open}(aperta a tutti)}/\texttt{\underline{Private}(solo ai thread del processo creante)})
+        (\texttt{\underline{Open}(aperta a tutti)}/\texttt{\underline{Private}(solo ai Thread del processo creante)})
     \item \textit{Rimozione} \\
         Rimozione di una stanza, se i permessi lo permettono, il SUPER-UTENTE è sempre considerato valido
     \item \textit{Status-Print} \\
-        Operazione eseguita dal driver, quando va a fare il cat dello stato del sistema corrente, per garantire la
-        coerenza dei dati letti nel trovare in quale stanze vi sono dei reader in attesa e quanti. (Operazione
-        assolutamente infrequente e user-driver)
+        Operazione eseguita nel Char-Device, per generare lo ``Screenshot'' dello stato del sistema in quell'istante
+        temporale. Per garantire la coerenza dei dati letti nel trovare in quale stanze vi sono dei \Reader in attesa e
+        quanti, viene fatto un Lock generale del sistema al livello degli Alberi-AVL, l'operazione blocca
+        temporaneamente il procedere del sistema ma permette di eseguire uno ``Screenshot'' coerente.
+        Il lock non è problematico poiché è un operazione assolutamente infrequente e User-driven.
 \end{itemize}
 
 \begin{footnotesize}
@@ -69,19 +71,19 @@ tra 1 \Writer e gli n-\Reader precedentemente in attesa su questo \Topic dall'ar
 
 Ognuna delle \exangeRoom è anch'essa un oggetto del sistema, e viene gestita con le API dei \texttt{refcount},
 l'unica differenza è che per le \exangeRoom risulta ammissibile che la stanza sia valida con un contatore a 0,
-questo perchè le \exangeRoom contengono i \Reader in attesa su quel \Topic, ed è possibile che un \Topic sia
+questo perché le \exangeRoom contengono i \Reader in attesa su quel \Topic, ed è possibile che un \Topic sia
 senza \Reader in attesa.
 
 Questa scelta ha però generato la necessità di un uso non proprio lecito delle API di \texttt{refcount},
-poiché, per queste API, un refcount = 0 equivale a un area di memoria che deve essere liberata, e non viene permesso
-l'incremento. Per ovviare al problema , si è sostituita la \verb|refcount_inc| con il suo equivalente
+poiché, per queste API, un \textit{refcount = 0} equivale a un area di memoria che deve essere liberata, e non viene
+permesso l'incremento. Per ovviare al problema , si è sostituita la \verb|refcount_inc| con il suo equivalente
 \verb|atomic_inc|, che però bypassa i check di consistenza.
 \end{description}
 
-\begin{footnotesize}
+\begin{scriptsize}
 Per approfondire il comportamento del sistema nello scambio e come queste 3 strutture dati interagiscono per permettere
 lo scambio di messaggi, fare riferimento alla sezione \nameref{exangeDataProtocol}.
-\end{footnotesize}
+\end{scriptsize}
 
 \newpage
 

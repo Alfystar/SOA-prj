@@ -2,7 +2,7 @@
 kile_livePreviewEnabled=true
 kile_livePreviewStatusUserSpecified=true
 kile_livePreviewTool=LivePreview-PDFLaTeX/PSTricks
-lastDocument=Sections/BuildAndLoad.tex
+lastDocument=Sections/SubSystemModule.tex
 
 [document-settings,item:Sections/BuildAndLoad.tex]
 Bookmarks=
@@ -161,7 +161,7 @@ order=3
 
 [item:Sections/SubSystemModule.tex]
 open=true
-order=2
+order=4
 
 [item:Sections/abstact.log]
 open=false
@@ -169,7 +169,7 @@ order=-1
 
 [item:Sections/abstact.tex]
 open=true
-order=4
+order=2
 
 [item:Sections/title.log]
 open=false
@@ -216,12 +216,12 @@ TextFolding=[]
 ViMarks=
 
 [view-settings,view=0,item:Sections/Introduction.tex]
-CursorColumn=51
-CursorLine=53
+CursorColumn=18
+CursorLine=17
 Dynamic Word Wrap=true
 JumpList=
 TextFolding=[]
-ViMarks=.,70,39,[,70,39,],70,50
+ViMarks=.,17,17,[,17,17,],17,17
 
 [view-settings,view=0,item:Sections/OutLogToSave/devCat.txt]
 CursorColumn=5
@@ -232,12 +232,12 @@ TextFolding=[]
 ViMarks=
 
 [view-settings,view=0,item:Sections/SubSystemModule.tex]
-CursorColumn=49
-CursorLine=259
+CursorColumn=98
+CursorLine=47
 Dynamic Word Wrap=false
 JumpList=
 TextFolding=[]
-ViMarks=.,390,0,[,390,0,],390,0
+ViMarks=.,41,87,[,41,87,],41,87
 
 [view-settings,view=0,item:Sections/SystemModule.tex]
 CursorColumn=0
