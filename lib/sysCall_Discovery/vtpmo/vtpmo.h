@@ -9,8 +9,8 @@
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
- * @author Emanuele Alfano, based on work of Francesco Quaglia
- *
+ * @author Francesco Quaglia
+ * @modification Emanuele Alfano *
  */
 #ifndef vtpmo_h
 #define vtpmo_h

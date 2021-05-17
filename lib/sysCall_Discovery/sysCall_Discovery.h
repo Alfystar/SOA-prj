@@ -14,8 +14,8 @@
  * 	 the runtime discovery of the syscall table position and of free entries
  * (those pointing to sys_ni_syscall)
  *
- * @author Emanuele Alfano, based from the Francesco Quaglia code
- *
+ * @author Francesco Quaglia
+ * @modification Emanuele Alfano
  * @date March 07, 2021
  */
 
