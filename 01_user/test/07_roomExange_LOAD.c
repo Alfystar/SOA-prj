@@ -34,25 +34,25 @@ int main(int argc, char **argv) {
     }
   }
   //----------------------------------------------------------------------------------
-
+  int level = rand() % levelDeep;
   if (commandAsk == TBDE_O_CREAT) {
     usleep(10 * 1000UL); // 10 ms
     int size = sprintf(buf, "Salve figliolo sono il processo : %d", myFork);
     size++; // null caracter at end
     printf("(%d) tag_send(...)\n", myFork);
-    int ret = tag_send(tag, 1, buf, size);
+    int ret = tag_send(tag, level, buf, size);
     if (ret < 0)
       tagSend_perror(tag);
   }
   // \/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
   if (commandAsk == TBDE_O_OPEN) {
     printf("(%d) tag_receive(...)\n", myFork);
-    //alarm(1);
-    int bRead = tag_receive(tag, 1, buf, sizeof(buf));
+    // alarm(1);
+    int bRead = tag_receive(tag, level, buf, sizeof(buf));
     if (bRead < 0)
       tagRecive_perror(tag);
     else {
-      //alarm(0);
+      // alarm(0);
       printf("[reader %d]%s\tReturn value = %d\n", myFork, buf, bRead);
     }
   }
